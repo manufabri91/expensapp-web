@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Footer component should render correctly 1`] = `
+<div>
+  <div
+    class="container"
+  >
+    <div
+      class="companyName"
+    >
+      ManukoDEV
+    </div>
+    <div
+      class="text"
+    >
+      2024 - All rights reserved
+    </div>
+  </div>
+</div>
+`;
