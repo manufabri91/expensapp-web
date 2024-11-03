@@ -5,6 +5,7 @@ interface Props {
   label: string;
   onClick?: () => void;
   ariaLabel?: string;
+  className?: string;
 }
 
 export enum ButtonType {
@@ -15,22 +16,22 @@ export enum ButtonType {
 const buttonTypeClasses = new Map<ButtonType, string>([
   [
     ButtonType.Primary,
-    "bg-blue-600 text-stone-100 hover:bg-blue-900 hover:text-stone-300 hover:border-stone-300 dark:bg-emerald-800 dark:border-stone-300 dark:text-stone-300 dark:hover:bg-teal-950",
+    "bg-teal-600 text-white hover:bg-teal-700",
   ],
   [
     ButtonType.Secondary,
-    "bg-stone-100 text-slate-800 border-slate-800 hover:bg-stone-200 hover:text-slate-950 hover:border-slate-950 dark:bg-slate-800 dark:border-stone-100 dark:text-stone-100 dark:hover:bg-slate-900 dark:hover:border-stone-400 dark:hover:text-stone-400",
+    "bg-gray-100 px-5 py-2.5 text-sm font-medium text-teal-600 transition hover:text-teal-600/75 sm:block",
   ],
 ]);
 
-export const Button = ({ type, label, onClick, ariaLabel }: Props) => {
+export const Button = ({ type, label, onClick, ariaLabel, className }: Props) => {
   return (
     <button
-      aria-label={ariaLabel || label}
+      aria-label={ariaLabel ?? label}
       onClick={onClick}
-      className={`px-4 py-2 rounded-full border-2 transition ease-in-out ${buttonTypeClasses.get(
+      className={`px-5 py-2.5 text-sm font-medium block rounded-full transition ease-in-out ${buttonTypeClasses.get(
         type
-      )}`}
+      )} ${className}`}
     >
       {label}
     </button>

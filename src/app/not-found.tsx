@@ -1,5 +1,5 @@
+import { LinkStyle, StyledLink } from "@/components";
 import Image from "next/image";
-import Link from "next/link";
 
 export default function NotFound() {
   return (
@@ -11,12 +11,9 @@ export default function NotFound() {
         <h1 className="text-xl uppercase tracking-widest">404 | Not Found</h1>
       </div>
 
-      <Link
-        href="/"
-        className="px-4 py-2 rounded-full border-2 transition ease-in-out bg-blue-600 text-stone-100 hover:bg-blue-900 hover:text-stone-300 hover:border-stone-300 dark:bg-emerald-800 dark:border-stone-300 dark:text-stone-300 dark:hover:bg-teal-950"
-      >
+      <StyledLink style={LinkStyle.Button} href="/">
         Go Home
-      </Link>
+      </StyledLink>
     </main>
   );
 }
