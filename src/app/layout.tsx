@@ -22,10 +22,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${montserrat.className} antialiased`}>
-        <Navbar />
-        {children}
-        <Footer />
+      <body
+        className={`${montserrat.className} antialiased bg-stone-100 dark:bg-slate-950`}
+      >
+        <div className="min-h-screen flex flex-col justify-between">
+          <div className="relative">
+            <Navbar />
+            {children}
+          </div>
+          <Footer />
+        </div>
       </body>
     </html>
   );

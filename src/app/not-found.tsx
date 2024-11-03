@@ -1,4 +1,4 @@
-import { LinkStyle, StyledLink } from "@/components";
+import { LinkStyle, LinkType, StyledLink } from "@/components";
 import Image from "next/image";
 
 export default function NotFound() {
@@ -11,7 +11,7 @@ export default function NotFound() {
         <h1 className="text-xl uppercase tracking-widest">404 | Not Found</h1>
       </div>
 
-      <StyledLink style={LinkStyle.Button} href="/">
+      <StyledLink style={LinkStyle.Button} type={LinkType.Secondary} href="/">
         Go Home
       </StyledLink>
     </main>
