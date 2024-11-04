@@ -1,58 +1,24 @@
-import { LinkStyle, LinkType, StyledLink } from "@/components";
+
+import { Button } from "flowbite-react";
 import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
   return (
-    // <div className="h-full">
-    //   <div></div>
-    //   <h1 className="text-4xl font-bold mb-4">Take Control of Your Finances</h1>
-    //   <p className="text-lg mb-6 max-w-md">
-    //     Our expense tracker helps you manage your spending, stay within budget,
-    //     and achieve your financial goals effortlessly.
-    //   </p>
-    //   <Image src="/images/hero.svg" alt="Hero" fill/>
-    // </div>
-    <section className="relative h-full bg-gradient-to-b from-teal-300 to-blue-900 text-white py-16 lg:py-24">
-      <div className="container mx-auto flex flex-col-reverse lg:flex-row items-center px-6 lg:px-12">
-        
-        {/* Left Column */}
-        <div className="flex flex-col items-start text-center lg:text-left lg:w-1/2 lg:mr-12">
-          <h1 className="text-4xl lg:text-5xl font-bold mb-4">
-            Track Your Expenses <br /> Effortlessly
-          </h1>
-          <p className="text-lg lg:text-xl mb-6">
+    <section className="relative h-full bg-white dark:bg-gray-900">
+    <div className="grid max-w-screen-xl px-4 py-8 mx-auto lg:gap-8 xl:gap-0 lg:py-16 lg:grid-cols-12">
+        <div className="mr-auto place-self-center lg:col-span-7">
+            <h1 className="max-w-2xl mb-4 text-4xl font-extrabold tracking-tight leading-none md:text-5xl xl:text-6xl dark:text-white">Track Your Expenses <br /> Effortlessly</h1>
+            <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl dark:text-gray-400">
             Take control of your finances with our easy-to-use expense tracker. 
-            Stay organized, analyze your spending, and save more.
-          </p>
-          <div className="flex flex-col lg:flex-row gap-4">
-            <Link href="/signup">
-              <span className="px-8 py-3 bg-white text-blue-600 font-semibold rounded-lg shadow-md hover:bg-blue-100">
-                Get Started
-              </span>
-            </Link>
-            <Link href="/learn-more">
-              <span className="px-8 py-3 border-2 border-white font-semibold rounded-lg hover:bg-white hover:text-blue-600">
-                Learn More
-              </span>
-            </Link>
-          </div>
+            Stay organized, analyze your spending, and save more.</p>
+            <Button pill color="primary">Get Started</Button>
         </div>
-
-        {/* Right Column */}
-        <div className="flex justify-center lg:justify-end lg:w-1/2 mb-8 lg:mb-0">
-          <Image 
-            src="/images/hero.svg" 
-            alt="Expense Tracker Illustration" 
-            width={500} 
-            height={500}
-          />
-        </div>
-      </div>
-      
-      {/* Decorative Elements */}
-      <div className="absolute top-0 left-0 w-24 h-24 bg-white opacity-20 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 right-0 w-40 h-40 bg-yellow-400 opacity-25 rounded-full blur-3xl"></div>
-    </section>
+        <div className="hidden lg:mt-0 lg:col-span-5 lg:flex">
+            <Image src="/images/hero.svg" alt="" width={500} height={500}/>
+        </div>                
+    </div>
+  </section>
+   
   );
 }
