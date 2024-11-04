@@ -1,10 +1,10 @@
-import { LinkStyle, LinkType, StyledLink } from "@/components";
-import Image from "next/image";
+import { LinkStyle, LinkType, StyledLink } from '@/components';
+import Image from 'next/image';
 
 export default function NotFound() {
   return (
-    <main className="flex flex-col items-center h-5/6 gap-2 p-6">
-      <div className="flex h-96 w-full relative">
+    <main className="flex h-5/6 flex-col items-center gap-2 p-6">
+      <div className="relative flex h-96 w-full">
         <Image className="object-contain" src="/images/oh-no.svg" alt="" fill />
       </div>
       <div className="p-12">
