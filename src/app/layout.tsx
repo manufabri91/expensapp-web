@@ -21,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <ThemeModeScript />
       </head>
@@ -33,17 +33,17 @@ export default function RootLayout({
               color: {
                 primary: 'bg-teal-600 text-white hover:bg-teal-700',
                 secondary:
-                  'bg-gray-100 text-teal-600 hover:text-teal-600/75 dark:bg-slate-900 dark:hover:bg-stone-100/20 dark:hover:text-teal-600',
+                  'bg-gray-100 text-teal-600 hover:text-teal-600/75 dark:bg-slate-900 dark:hover:bg-stone-100/10 dark:hover:text-teal-600',
               },
             },
           },
         }}
       >
-        <body className={`bg-stone-100 antialiased dark:bg-slate-950`}>
+        <body className={`bg-stone-100 text-black antialiased dark:bg-slate-950 dark:text-white`}>
           <div className="flex min-h-screen flex-col justify-between">
-            <div className="relative">
+            <div className="relative flex flex-1 flex-col">
               <Navbar />
-              <section className="relative h-full bg-white dark:bg-gray-900">{children}</section>
+              <section className="relative flex-1 bg-white dark:bg-gray-900">{children}</section>
             </div>
             <Footer />
           </div>

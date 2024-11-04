@@ -11,7 +11,7 @@ export default function NotFound() {
         <h1 className="text-xl uppercase tracking-widest">404 | Not Found</h1>
       </div>
 
-      <StyledLink style={LinkStyle.Button} type={LinkType.Secondary} href="/">
+      <StyledLink style={LinkStyle.Button} type={LinkType.Primary} href="/">
         Go Home
       </StyledLink>
     </main>

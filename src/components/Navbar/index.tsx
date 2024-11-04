@@ -1,6 +1,7 @@
 'use client';
 
 import { Button, ButtonType, MenuButton, StyledLink } from '@/components';
+import { DarkThemeToggle } from 'flowbite-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -44,7 +45,7 @@ export const Navbar = () => {
                 }}
               />
             </div>
-
+            <DarkThemeToggle />
             <MenuButton ariaLabel="Toggle Menu" className="md:hidden" />
           </div>
         </div>

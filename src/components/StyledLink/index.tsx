@@ -24,7 +24,7 @@ const buttonLinkClasses = new Map<LinkType, string>([
   [LinkType.Primary, 'bg-teal-600 text-white hover:bg-teal-700'],
   [
     LinkType.Secondary,
-    'bg-gray-100 dark:bg-slate-900 border-2 border-teal-600 px-5 py-2.5 text-sm font-medium text-teal-600 transition hover:text-teal-600/75 dark:hover:bg-stone-100/20 dark:hover:text-teal-600 sm:block',
+    'bg-gray-100 text-teal-600 border-2 border-teal-600 hover:text-teal-600/75 dark:bg-slate-900 dark:hover:bg-stone-100/10 dark:hover:text-teal-600',
   ],
 ]);
 
