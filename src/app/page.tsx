@@ -1,4 +1,3 @@
-import { Button } from 'flowbite-react';
 import Image from 'next/image';
 
 export default function Home() {
@@ -12,9 +11,6 @@ export default function Home() {
           Take control of your finances with our easy-to-use expense tracker. Stay organized, analyze your spending, and
           save more.
         </p>
-        <Button pill color="primary">
-          Get Started
-        </Button>
       </div>
       <div className="hidden lg:col-span-5 lg:mt-0 lg:flex">
         <Image src="/images/hero.svg" alt="" width={500} height={500} />

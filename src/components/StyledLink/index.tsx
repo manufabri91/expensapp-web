@@ -1,3 +1,4 @@
+import { Button, ButtonType } from '@/components';
 import Link from 'next/link';
 
 export interface Props {
@@ -20,17 +21,14 @@ export enum LinkType {
   Secondary = 'secondary',
 }
 
-const buttonLinkClasses = new Map<LinkType, string>([
-  [LinkType.Primary, 'bg-teal-600 text-white hover:bg-teal-700'],
-  [
-    LinkType.Secondary,
-    'bg-gray-100 text-teal-600 border-2 border-teal-600 hover:text-teal-600/75 dark:bg-slate-900 dark:hover:bg-stone-100/10 dark:hover:text-teal-600',
-  ],
-]);
-
 const textLinkClasses = new Map<LinkType, string>([
   [LinkType.Primary, 'text-teal-600 hover:text-teal-700'],
   [LinkType.Secondary, 'text-gray-500 dark:text-stone-300 hover:text-gray-500/75 dark:hover:text-stone-300/75'],
+]);
+
+const linkTypeToButtonMap = new Map<LinkType, ButtonType>([
+  [LinkType.Primary, ButtonType.Primary],
+  [LinkType.Secondary, ButtonType.Secondary],
 ]);
 
 export const StyledLink = ({
@@ -42,17 +40,24 @@ export const StyledLink = ({
   rel,
   target,
 }: Props) => {
-  let linkClasses = textLinkClasses.get(type) ?? textLinkClasses.get(LinkType.Primary)!;
-
-  if (style === LinkStyle.Button && buttonLinkClasses.has(type)) {
-    linkClasses = `px-5 py-2.5 text-sm font-medium block rounded-full transition ease-in-out  ${buttonLinkClasses.get(
-      type
-    )!}`;
+  if (style === LinkStyle.Text) {
+    return (
+      <Link
+        href={href}
+        className={`${textLinkClasses.get(type) ?? textLinkClasses.get(LinkType.Primary)!} ${className}`}
+        rel={rel}
+        target={target}
+      >
+        {children}
+      </Link>
+    );
   }
 
   return (
-    <Link href={href} className={`${linkClasses} ${className}`} rel={rel} target={target}>
-      {children}
-    </Link>
+    <Button type={linkTypeToButtonMap.get(type)!}>
+      <Link href={href} className={className} rel={rel} target={target}>
+        {children}
+      </Link>
+    </Button>
   );
 };

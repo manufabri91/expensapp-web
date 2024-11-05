@@ -1,4 +1,10 @@
 import { Card, Money } from '@/components';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Dashboard',
+  description: 'Summary of your account balance, expenses, and investments',
+};
 
 const Dashboard = () => {
   return (
