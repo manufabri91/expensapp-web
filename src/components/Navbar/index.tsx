@@ -2,6 +2,7 @@
 
 import { Button, ButtonType, MenuButton, StyledLink } from '@/components';
 import { DarkThemeToggle } from 'flowbite-react';
+import { signIn } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -45,9 +46,7 @@ export const Navbar = () => {
               </Button>
               <Button
                 type={ButtonType.Primary}
-                onClick={() => {
-                  console.log('Register');
-                }}
+                onClick={() => signIn("credentials", { callbackUrl: "/dashboard" })}
               >
                 Login
               </Button>
