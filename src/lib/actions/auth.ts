@@ -20,9 +20,9 @@ export const handleRegister = async (_: unknown, formData: FormData) => {
   }
   try {
     await register(username, email, password, firstName, lastName);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.log(error);
-    throw new Error(error);
+    throw error;
   }
 };
 
@@ -31,8 +31,8 @@ export const handleLogin = async (_: unknown, formData: FormData) => {
 
   try {
     await signIn('credentials', { email, password });
-  } catch (err: any) {
-    if (err.message.includes('CredentialsSignin')) {
+  } catch (err: unknown) {
+    if ((err as Error).message.includes('CredentialsSignin')) {
       return { error: 'Wrong credentials' };
     }
     throw err;
