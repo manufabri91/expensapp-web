@@ -1,29 +1,21 @@
 'use client';
 
-import { Button as FlowbiteButton } from 'flowbite-react';
+import { ButtonProps, Button as FlowbiteButton } from 'flowbite-react';
 
-interface Props {
-  type: ButtonType;
-  children: React.ReactNode;
-  onClick?: () => void;
-  ariaLabel?: string;
-  className?: string;
-}
-
-export enum ButtonType {
+export enum ButtonVariant {
   Primary = 'primary',
   Secondary = 'secondary',
 }
 
-const buttonConfigMap = new Map<ButtonType, Record<string, string | boolean>>([
-  [ButtonType.Primary, { gradientDuoTone: 'greenToBlue' }],
-  [ButtonType.Secondary, { gradientDuoTone: 'greenToBlue', outline: true }],
+const buttonConfigMap = new Map<ButtonVariant, Record<string, string | boolean>>([
+  [ButtonVariant.Primary, { gradientDuoTone: 'greenToBlue' }],
+  [ButtonVariant.Secondary, { gradientDuoTone: 'greenToBlue', outline: true }],
 ]);
 
-export const Button = ({ type, children, onClick, ariaLabel, className }: Props) => {
+export const Button = (props: ButtonProps & { variant: ButtonVariant }) => {
   return (
-    <FlowbiteButton pill aria-label={ariaLabel} className={className} onClick={onClick} {...buttonConfigMap.get(type)!}>
-      {children}
+    <FlowbiteButton {...props} pill {...buttonConfigMap.get(props.variant)!}>
+      {props.children}
     </FlowbiteButton>
   );
 };

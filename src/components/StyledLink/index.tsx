@@ -1,5 +1,6 @@
-import { Button, ButtonType } from '@/components';
 import Link from 'next/link';
+
+import { Button, ButtonVariant } from '@/components';
 
 export interface Props {
   href: string;
@@ -26,9 +27,9 @@ const textLinkClasses = new Map<LinkType, string>([
   [LinkType.Secondary, 'text-gray-500 dark:text-stone-300 hover:text-gray-500/75 dark:hover:text-stone-300/75'],
 ]);
 
-const linkTypeToButtonMap = new Map<LinkType, ButtonType>([
-  [LinkType.Primary, ButtonType.Primary],
-  [LinkType.Secondary, ButtonType.Secondary],
+const linkTypeToButtonMap = new Map<LinkType, ButtonVariant>([
+  [LinkType.Primary, ButtonVariant.Primary],
+  [LinkType.Secondary, ButtonVariant.Secondary],
 ]);
 
 export const StyledLink = ({
@@ -54,7 +55,7 @@ export const StyledLink = ({
   }
 
   return (
-    <Button type={linkTypeToButtonMap.get(type)!}>
+    <Button variant={linkTypeToButtonMap.get(type)!}>
       <Link href={href} className={className} rel={rel} target={target}>
         {children}
       </Link>

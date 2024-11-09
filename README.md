@@ -1,38 +1,45 @@
 # ExpensApp - Web Client
 
-The frontend for a simple expense tracker application.
+A comprehensive expense tracker application.
 
-## Getting Started
+Live link: https://expensapp.manuelfabri.com
 
-First, run the development server:
+![Logo](https://i.imgur.com/GkV5kWH.png)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### ⚠️ DISCLAIMER ⚠️
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+In this project, I have undertaken the development of both the front-end and back-end components. However, it is important to note some of the images used have been taken from the web and belong to their authors.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Tech Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**Client:** NextJS with [app router](https://nextjs.org/docs/app) and [Server Actions](https://nextjs.org/docs/app/api-reference/functions/server-actions), TailwindCSS
 
-## Learn More
+**Server:** NextJS API Routes and Server Actions & Next Auth
 
-To learn more about Next.js, take a look at the following resources:
+**Unit Test:** Jest
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Run Locally
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Clone the project
 
-## Deploy on Vercel
+`git clone https://github.com/manufabri91/expensapp-web.git`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Install e-XpensApp with npm
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`npm install`
+
+And run the project via
+
+`npm run dev`
+
+And for unit tests, you can use
+
+`npm run test`
+
+## Screenshots
+
+![App Screenshot](https://images.pexels.com/photos/211122/pexels-photo-211122.jpeg?auto=compress)
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)

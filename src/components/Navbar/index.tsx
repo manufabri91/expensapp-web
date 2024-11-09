@@ -1,13 +1,12 @@
-'use client';
-
-import { Button, ButtonType, MenuButton, StyledLink } from '@/components';
+import { auth } from '@/lib/auth';
 import { DarkThemeToggle } from 'flowbite-react';
-import { signIn } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { AuthorizedLinks } from './components/AuthorizedLinks';
+import { LoginButtons } from './components/LoginButtons';
 
-export const Navbar = () => {
-  const isLoggedIn = false;
+export const Navbar = async () => {
+  const session = await auth();
 
   return (
     <header className="bg-stone-50 dark:bg-slate-900">
@@ -16,44 +15,10 @@ export const Navbar = () => {
           <Image src="/images/logo.png" alt="e-Xpensapp" width={50} height={50} />
         </Link>
 
-        <div className="flex flex-1 items-center justify-end md:justify-between">
-          {isLoggedIn && (
-            <nav aria-label="Global" className="hidden md:block">
-              <ul className="flex items-center gap-6 text-sm">
-                <li>
-                  <StyledLink href="/dashboard">Dashboard</StyledLink>
-                </li>
-                <li>
-                  <StyledLink href="/transactions">Transactions</StyledLink>
-                </li>
-                <li>
-                  <StyledLink href="/accounts">Accounts</StyledLink>
-                </li>
-              </ul>
-            </nav>
-          )}
-        </div>
+        <div className="flex flex-1 items-center justify-end md:justify-between">{session && <AuthorizedLinks />}</div>
         <div className="flex items-center gap-2">
-          {!isLoggedIn && (
-            <div className="hidden sm:gap-2 md:flex">
-              <Button
-                type={ButtonType.Secondary}
-                onClick={() => {
-                  console.log('Register');
-                }}
-              >
-                Register
-              </Button>
-              <Button
-                type={ButtonType.Primary}
-                onClick={() => signIn("credentials", { callbackUrl: "/dashboard" })}
-              >
-                Login
-              </Button>
-            </div>
-          )}
+          <LoginButtons session={session} />
           <DarkThemeToggle />
-          <MenuButton ariaLabel="Toggle Menu" className="md:hidden" />
         </div>
       </div>
     </header>
