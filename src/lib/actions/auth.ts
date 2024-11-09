@@ -6,8 +6,15 @@ export const handleLogout = async () => {
   await signOut({ redirectTo: '/' });
 };
 
-export const handleRegister = async (_: any, formData: any) => {
-  const { email, password, username, passwordRepeat, firstName, lastName } = Object.fromEntries(formData);
+export const handleRegister = async (_: unknown, formData: FormData) => {
+  const { email, password, username, passwordRepeat, firstName, lastName } = Object.fromEntries(formData) as {
+    email: string;
+    password: string;
+    username: string;
+    passwordRepeat: string;
+    firstName: string;
+    lastName: string;
+  }; // TODO Improve this type
   if (password !== passwordRepeat) {
     return { error: 'Passwords do not match' };
   }
@@ -19,7 +26,7 @@ export const handleRegister = async (_: any, formData: any) => {
   }
 };
 
-export const handleLogin = async (_: any, formData: any) => {
+export const handleLogin = async (_: unknown, formData: FormData) => {
   const { email, password } = Object.fromEntries(formData);
 
   try {
