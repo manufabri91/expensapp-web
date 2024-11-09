@@ -20,13 +20,13 @@ export const LoginButtons = ({ session }: Props) => {
   }
 
   return (
-    <div className="hidden sm:gap-2 md:flex">
-      <Button variant={ButtonVariant.Secondary} onClick={() => router.push('/auth/register')}>
+    <>
+      <Button className="mr-2" variant={ButtonVariant.Secondary} onClick={() => router.push('/auth/register')}>
         Register
       </Button>
       <Button variant={ButtonVariant.Primary} onClick={() => router.push('/auth/signin')}>
         Login
       </Button>
-    </div>
+    </>
   );
 };

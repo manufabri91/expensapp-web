@@ -2,7 +2,7 @@ import { StyledLink } from '@/components/StyledLink';
 
 export const Footer = () => {
   return (
-    <footer className="bg-stone-50 p-4 text-center dark:bg-slate-900">
+    <footer className="flex flex-col items-center justify-center p-4 text-center">
       <StyledLink href="https://www.manuelfabri.com" rel="noopener noreferrer" target="_blank">
         ManukoDEV
       </StyledLink>
