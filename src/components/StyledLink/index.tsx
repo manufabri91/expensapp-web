@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { Button, ButtonVariant } from '@/components';
+import { Button, ButtonVariant } from '@/components/Button';
 
 export interface Props {
   href: string;
