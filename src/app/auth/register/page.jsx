@@ -1,10 +1,9 @@
-import RegisterForm from "./components/RegisterForm";
-import styles from "./register.module.css";
+import { LoginForm } from '@/components/LoginForm';
 
 const RegisterPage = () => {
   return (
-    <div className={styles.container}>
-      <RegisterForm />
+    <div className="flex">
+      <LoginForm mode="register" />
     </div>
   );
 };

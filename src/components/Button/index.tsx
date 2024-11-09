@@ -14,7 +14,7 @@ const buttonConfigMap = new Map<ButtonVariant, Record<string, string | boolean>>
 
 export const Button = (props: ButtonProps & { variant: ButtonVariant }) => {
   return (
-    <FlowbiteButton {...props} pill {...buttonConfigMap.get(props.variant)!}>
+    <FlowbiteButton pill {...buttonConfigMap.get(props.variant)!} {...props}>
       {props.children}
     </FlowbiteButton>
   );

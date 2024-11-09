@@ -1,5 +1,5 @@
+import { RegisterButton } from '@/components/RegisterButton';
 import Image from 'next/image';
-import Link from 'next/link';
 
 export const Hero = () => {
   return (
@@ -12,12 +12,9 @@ export const Hero = () => {
             e-XpensApp is a simple and intuitive expense tracking app that helps you to manage your expenses and
             finances
           </p>
-          <Link
-            href="/auth/register"
-            className="mx-auto my-6 rounded-full bg-white px-8 py-4 font-bold text-gray-800 shadow-lg transition duration-300 ease-in-out hover:scale-105 hover:underline focus:outline-none lg:mx-0"
-          >
-            Register
-          </Link>
+          <div className="flex w-full justify-center">
+            <RegisterButton />
+          </div>
         </div>
         <div className="w-full py-6 text-center md:w-3/5">
           <Image className="z-50 w-full md:w-4/5" src="/images/hero.svg" alt="" height={500} width={500} />
