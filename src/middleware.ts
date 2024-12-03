@@ -1,6 +1,7 @@
 import { authConfig } from '@/lib/auth/config';
 import { DEFAULT_REDIRECT, PUBLIC_ROUTES, HOME } from '@/lib/routes';
 import NextAuth from 'next-auth';
+import { NextResponse } from 'next/server';
 
 const { auth } = NextAuth(authConfig);
 
@@ -10,9 +11,13 @@ export default auth((req) => {
   const isAuthenticated = !!req.auth;
   const isPublicRoute = PUBLIC_ROUTES.includes(nextUrl.pathname);
 
-  if (isPublicRoute && isAuthenticated) return Response.redirect(new URL(DEFAULT_REDIRECT, nextUrl));
+  if (isPublicRoute && isAuthenticated) return NextResponse.redirect(new URL(DEFAULT_REDIRECT, nextUrl));
 
-  if (!isAuthenticated && !isPublicRoute) return Response.redirect(new URL(HOME, nextUrl));
+  if (!isAuthenticated && !isPublicRoute) return NextResponse.redirect(new URL(HOME, nextUrl));
+  const headers = new Headers(req.headers);
+  headers.set('x-current-host', req.nextUrl.host);
+  headers.set('x-protocol', req.nextUrl.protocol);
+  return NextResponse.next({ headers });
 });
 
 export const config = {

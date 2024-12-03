@@ -2,9 +2,11 @@
 
 import { headers } from 'next/headers';
 import { AccountResponse } from '@/types/dto/accountResponse';
+import { getBaseUrl } from '@/lib/utils/url';
 
 export const getAccounts = async (): Promise<AccountResponse[]> => {
-  const response = await fetch(`${process.env.BASE_URL}/api/account`, {
+  const baseUrl = await getBaseUrl();
+  const response = await fetch(`${baseUrl}/api/account`, {
     headers: await headers(),
     next: {
       revalidate: 3600,
