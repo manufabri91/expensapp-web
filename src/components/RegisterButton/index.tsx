@@ -9,9 +9,9 @@ import { LoginForm } from '@/components/LoginForm';
 export const RegisterButton = ({ className }: { className?: string }) => {
   const [openModal, setOpenModal] = useState(false);
 
-  function onCloseModal() {
+  const onCloseModal = () => {
     setOpenModal(false);
-  }
+  };
 
   return (
     <div className={className}>

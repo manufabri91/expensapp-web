@@ -6,7 +6,7 @@ import { Engage } from './components/Engage';
 
 export default function Landing() {
   return (
-    <section className="flex-1 bg-gradient-to-r from-sky-500 to-green-500 dark:from-slate-800 dark:from-15% dark:via-sky-700 dark:to-green-700">
+    <section className="bg-gradient-to-r from-sky-500 to-green-500 dark:from-slate-800 dark:from-15% dark:via-sky-700 dark:to-green-700">
       <Hero />
       <WavesTop />
       <Features />

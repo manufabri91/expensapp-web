@@ -34,7 +34,7 @@ export default function RootLayout({
             <div className="h-full flex-1">
               <div className="flex h-full flex-col justify-between overflow-y-scroll">
                 <Navbar />
-                {children}
+                <div className="flex-1">{children}</div>
                 <Footer />
               </div>
             </div>

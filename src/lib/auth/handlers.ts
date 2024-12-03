@@ -10,7 +10,7 @@
 export async function login(email: string, password: string): Promise<Response> {
   console.debug('Logging in');
 
-  return fetch('https://expensapp-api.manuelfabri.com/auth/login', {
+  return fetch(`${process.env.API_URL}/auth/login`, {
     method: 'POST',
     body: JSON.stringify({ email, password }),
     headers: {
@@ -32,7 +32,7 @@ export async function refresh(token: string): Promise<Response> {
     throw new Error('Token is required');
   }
   // Verify that the token is valid and not expired
-  return fetch('https://expensapp-api.manuelfabri.com/auth/refresh', {
+  return fetch(`${process.env.API_URL}/auth/refresh`, {
     headers: {
       ['X-Refresh-Token']: token,
     },
@@ -55,7 +55,7 @@ export async function register(
   console.debug('Creating user');
 
   // Verify that the token is valid and not expired
-  return fetch('https://expensapp-api.manuelfabri.com/auth/register', {
+  return fetch(`${process.env.API_URL}/auth/register`, {
     method: 'POST',
     body: JSON.stringify({
       userName,

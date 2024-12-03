@@ -1,9 +1,17 @@
 import CredentialsProvider from 'next-auth/providers/credentials';
-import type { User, UserObject, AuthValidity, DecodedJWT, BackendJWT, NextAuthConfig } from 'next-auth';
+import {
+  type User,
+  type UserObject,
+  type AuthValidity,
+  type DecodedJWT,
+  type BackendJWT,
+  type NextAuthConfig,
+} from 'next-auth';
 import type { JWT } from 'next-auth/jwt';
 import { jwtDecode } from 'jwt-decode';
 
 import { login, refresh } from '@/lib/auth/handlers';
+import { InvalidLoginError } from '@/types/exceptions/invalidLogin';
 
 export const authConfig: NextAuthConfig = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -22,19 +30,24 @@ export const authConfig: NextAuthConfig = {
       async authorize(credentials) {
         try {
           const res = await login((credentials?.email || '') as string, (credentials?.password || '') as string);
-          const tokens: BackendJWT = await res.json();
-          if (!res.ok) throw tokens;
+          const responseData: BackendJWT = await res.json();
 
-          const access: DecodedJWT = jwtDecode(tokens.token);
+          if (!res.ok && (res.status === 404 || res.status === 422)) {
+            console.error(responseData);
+            throw new InvalidLoginError();
+          }
+
+          const access: DecodedJWT = jwtDecode(responseData.token);
           // Extract the user from the access token
           const user: UserObject = {
             userId: access.user_id,
             validatedUser: access.email_verified,
             email: access.email,
-            username: tokens.username,
-            firstName: tokens.firstName,
-            lastName: tokens.lastName,
+            username: responseData.username,
+            firstName: responseData.firstName,
+            lastName: responseData.lastName,
             roles: access.roles,
+            token: responseData.token,
           };
           // Extract the auth validity from the tokens
           const validity: AuthValidity = {
@@ -44,7 +57,7 @@ export const authConfig: NextAuthConfig = {
           // (which we've defined in next-auth.d.ts)
           return {
             id: access.user_id,
-            tokens: tokens,
+            tokens: responseData,
             user: user,
             validity: validity,
           } as User;
@@ -57,7 +70,13 @@ export const authConfig: NextAuthConfig = {
   ],
   callbacks: {
     async redirect({ url, baseUrl }) {
-      return url.startsWith(baseUrl) ? Promise.resolve(url) : Promise.resolve(baseUrl);
+      // Allows relative callback URLs
+      if (url.startsWith('/')) return `${baseUrl}${url}`;
+
+      // Allows callback URLs on the same origin
+      if (new URL(url).origin === baseUrl) return url;
+
+      return baseUrl;
     },
     async jwt({ token, user, account }) {
       // Initial signin contains a 'User' object from authorize method

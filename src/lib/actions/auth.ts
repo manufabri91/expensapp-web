@@ -1,12 +1,16 @@
 'use server';
 import { signIn, signOut } from '@/lib/auth';
 import { register } from '@/lib/auth/handlers';
+import { CredentialsSignin as CredentialsSigninError } from 'next-auth';
 
-export const handleLogout = async () => {
+export const handleLogoutAction = async () => {
   await signOut({ redirectTo: '/' });
 };
 
-export const handleRegister = async (_: unknown, formData: FormData) => {
+export const handleRegisterAction = async (
+  _: unknown,
+  formData: FormData
+): Promise<void | { error: string | null }> => {
   const { email, password, username, passwordRepeat, firstName, lastName } = Object.fromEntries(formData) as {
     email: string;
     password: string;
@@ -20,19 +24,21 @@ export const handleRegister = async (_: unknown, formData: FormData) => {
   }
   try {
     await register(username, email, password, firstName, lastName);
+    return { error: null };
   } catch (error: unknown) {
     console.log(error);
     throw error;
   }
 };
 
-export const handleLogin = async (_: unknown, formData: FormData) => {
+export const handleLoginAction = async (_: unknown, formData: FormData): Promise<void | { error: string | null }> => {
   const { email, password } = Object.fromEntries(formData);
 
   try {
-    await signIn('credentials', { email, password });
+    await signIn('credentials', { email, password, redirectTo: '/dashboard' });
+    return { error: null };
   } catch (err: unknown) {
-    if ((err as Error).message.includes('CredentialsSignin')) {
+    if (err instanceof CredentialsSigninError) {
       return { error: 'Wrong credentials' };
     }
     throw err;

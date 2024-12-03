@@ -1,7 +1,7 @@
 'use client';
 
 import { Button, ButtonVariant } from '@/components/Button';
-import { handleLogin, handleRegister } from '@/lib/actions/auth';
+import { handleLoginAction, handleRegisterAction } from '@/lib/actions/auth';
 import { Label, TextInput } from 'flowbite-react';
 import Link from 'next/link';
 import { useActionState, useEffect, useState } from 'react';
@@ -12,22 +12,30 @@ interface Props {
 }
 
 export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
-  const [formMode, setFormMode] = useState(mode);
-  const [loginState, login] = useActionState(handleLogin, undefined);
-  const [registerState, register] = useActionState(handleRegister, undefined);
+  const [formMode, setFormMode] = useState<'login' | 'register'>(mode);
+  const [loginState, login] = useActionState(handleLoginAction, { error: null });
+  const [registerState, register] = useActionState(handleRegisterAction, { error: null });
+  const [error, setError] = useState<string | null>(null);
   const isLoginMode = formMode === 'login';
 
   useEffect(() => {
-    if (loginState) {
+    const hasLoggedOrRegistered = !!loginState?.error && !!registerState?.error;
+    const error = !!(loginState && loginState?.error) || !!(registerState && registerState?.error);
+    if (error) {
+      setError('Invalid username or password');
+    } else if (hasLoggedOrRegistered) {
+      setError(null);
       callback();
     }
-    if (registerState) {
-      callback();
-    }
-  }, [loginState, registerState, callback]);
+  }, [loginState?.error, registerState?.error, callback, loginState, registerState]);
+
+  const handleLoginClicked = () => {
+    setError(null);
+  };
 
   return (
     <form className="space-y-6" action={isLoginMode ? login : register}>
+      {error && <div className="flex items-center justify-between">{error}</div>}
       <h3 className="text-xl font-medium text-gray-900 dark:text-white">{isLoginMode ? 'Sign in' : 'Register'}</h3>
       <div>
         <div className="mb-2 block">
@@ -57,7 +65,7 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
         </Link>
       </div>
       <div className="w-full">
-        <Button variant={ButtonVariant.Primary} className="w-full" type="submit">
+        <Button variant={ButtonVariant.Primary} className="w-full" type="submit" onClick={handleLoginClicked}>
           {isLoginMode ? 'Log in to your account' : 'Register your account'}
         </Button>
       </div>
