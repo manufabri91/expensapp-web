@@ -5,14 +5,13 @@ import { Money } from '@/components/Money';
 import { deleteTransactionById } from '@/lib/actions/transactions';
 import { TransactionResponse } from '@/types/dto/transactionResponse';
 import { format, parseISO } from 'date-fns';
-import { Dropdown, Table, useThemeMode } from 'flowbite-react';
+import { Dropdown, Table } from 'flowbite-react';
 
 interface Props {
   transactions: TransactionResponse[];
 }
 
 export const TransactionsTable = ({ transactions }: Props) => {
-  const { computedMode } = useThemeMode();
   return (
     <div className="overflow-x-auto">
       <Table hoverable>
