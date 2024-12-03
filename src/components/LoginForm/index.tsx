@@ -1,8 +1,9 @@
 'use client';
 
-import { Button, ButtonVariant } from '@/components/Button';
+import { CTAButton } from '@/components/LoginForm/components/CTAButton';
 import { handleLoginAction, handleRegisterAction } from '@/lib/actions/auth';
-import { Label, TextInput } from 'flowbite-react';
+import { HiInformationCircle } from 'react-icons/hi';
+import { Alert, Label, TextInput } from 'flowbite-react';
 import Link from 'next/link';
 import { useActionState, useEffect, useState } from 'react';
 
@@ -35,7 +36,11 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
 
   return (
     <form className="space-y-6" action={isLoginMode ? login : register}>
-      {error && <div className="flex items-center justify-between">{error}</div>}
+      {error && (
+        <Alert color="failure" icon={HiInformationCircle}>
+          <span className="font-medium">Whoops!</span> {error}.
+        </Alert>
+      )}
       <h3 className="text-xl font-medium text-gray-900 dark:text-white">{isLoginMode ? 'Sign in' : 'Register'}</h3>
       <div>
         <div className="mb-2 block">
@@ -65,9 +70,7 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
         </Link>
       </div>
       <div className="w-full">
-        <Button variant={ButtonVariant.Primary} className="w-full" type="submit" onClick={handleLoginClicked}>
-          {isLoginMode ? 'Log in to your account' : 'Register your account'}
-        </Button>
+        <CTAButton handleLoginClicked={handleLoginClicked} isLoginMode={isLoginMode} />
       </div>
       {isLoginMode && (
         <div className="flex justify-between text-sm font-medium text-gray-500 dark:text-gray-300">
