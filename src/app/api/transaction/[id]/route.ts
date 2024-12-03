@@ -2,7 +2,11 @@ import { auth } from '@/lib/auth';
 import { UnauthorizedError } from '@/types/exceptions/unauthorized';
 import { NextRequest, NextResponse } from 'next/server';
 
-export const GET = async (_: NextRequest, { params: { id } }: { params: { id: string } }) => {
+type tParams = Promise<{ id: string }>;
+
+export const GET = async (_: NextRequest, { params }: { params: tParams }) => {
+  const { id } = await params;
+
   try {
     const session = await auth();
     if (!session) {
@@ -22,7 +26,8 @@ export const GET = async (_: NextRequest, { params: { id } }: { params: { id: st
   }
 };
 
-export const PUT = async (_: NextRequest, { params: { id } }: { params: { id: string } }) => {
+export const PUT = async (_: NextRequest, { params }: { params: tParams }) => {
+  const { id } = await params;
   try {
     const session = await auth();
     if (!session) {
@@ -42,7 +47,8 @@ export const PUT = async (_: NextRequest, { params: { id } }: { params: { id: st
   }
 };
 
-export const DELETE = async (_: NextRequest, { params: { id } }: { params: { id: string } }) => {
+export const DELETE = async (_: NextRequest, { params }: { params: tParams }) => {
+  const { id } = await params;
   try {
     const session = await auth();
     if (!session) {

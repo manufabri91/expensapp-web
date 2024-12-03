@@ -2,7 +2,10 @@ import { auth } from '@/lib/auth';
 import { UnauthorizedError } from '@/types/exceptions/unauthorized';
 import { NextRequest, NextResponse } from 'next/server';
 
-export const GET = async (_: NextRequest, { params: { year, month } }: { params: { year: string; month: string } }) => {
+type tParams = Promise<{ year: string; month: string }>;
+
+export const GET = async (_: NextRequest, { params }: { params: tParams }) => {
+  const { year, month } = await params;
   try {
     const session = await auth();
     if (!session) {
