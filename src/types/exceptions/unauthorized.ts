@@ -1,3 +1,7 @@
 export class UnauthorizedError extends Error {
-  message = 'Not authorized';
+  constructor() {
+    super();
+    this.name = 'UnauthorizedError';
+    this.message = 'Not authorized';
+  }
 }
