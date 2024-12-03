@@ -12,6 +12,7 @@ declare module 'next-auth' {
     lastName: string;
     email: string;
     validatedUser: boolean;
+    token: string;
     roles: string[];
   }
 
