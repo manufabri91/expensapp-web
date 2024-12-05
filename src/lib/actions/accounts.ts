@@ -6,9 +6,9 @@ import { getBaseUrl } from '@/lib/utils/url';
 
 export const getAccounts = async (): Promise<AccountResponse[]> => {
   const baseUrl = await getBaseUrl();
-  const headers = await nextHeaders();
+  const cookie = (await nextHeaders()).get('cookie')!;
   const response = await fetch(`${baseUrl}/api/account`, {
-    headers,
+    headers: { cookie },
     next: {
       revalidate: 3600,
     },

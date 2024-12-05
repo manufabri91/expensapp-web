@@ -6,9 +6,9 @@ import { CategoryResponse } from '@/types/dto';
 
 export const getCategories = async (): Promise<CategoryResponse[]> => {
   const baseUrl = await getBaseUrl();
-  const headers = await nextHeaders();
+  const cookie = (await nextHeaders()).get('cookie')!;
   const response = await fetch(`${baseUrl}/api/category`, {
-    headers,
+    headers: { cookie },
     next: {
       revalidate: 3600,
     },

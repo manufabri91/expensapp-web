@@ -8,9 +8,11 @@ import { formatISO } from 'date-fns';
 
 export const getTransactions = async (): Promise<TransactionResponse[]> => {
   const baseUrl = await getBaseUrl();
-  const headers = await nextHeaders();
+  const cookie = (await nextHeaders()).get('cookie')!;
   const response = await fetch(`${baseUrl}/api/transaction`, {
-    headers,
+    headers: {
+      cookie,
+    },
     next: {
       revalidate: 3600,
     },
@@ -23,9 +25,11 @@ export const getTransactions = async (): Promise<TransactionResponse[]> => {
 
 export const getTransactionsByMonthAndYear = async (month: number, year: number): Promise<TransactionResponse[]> => {
   const baseUrl = await getBaseUrl();
-  const headers = await nextHeaders();
+  const cookie = (await nextHeaders()).get('cookie')!;
   const response = await fetch(`${baseUrl}/api/transaction/monthly/${year}/${month}`, {
-    headers,
+    headers: {
+      cookie,
+    },
     next: {
       revalidate: 3600,
     },
@@ -69,10 +73,10 @@ export const createTransaction = async (_: unknown, formData: FormData): Promise
 export const deleteTransactionById = async (id: number): Promise<TransactionResponse[]> => {
   unstable_noStore();
   const baseUrl = await getBaseUrl();
-  const headers = await nextHeaders();
+  const cookie = (await nextHeaders()).get('cookie')!;
   const response = await fetch(`${baseUrl}/api/transaction/${id}`, {
     method: 'DELETE',
-    headers,
+    headers: { cookie },
   });
 
   revalidatePath('/dashboard');
