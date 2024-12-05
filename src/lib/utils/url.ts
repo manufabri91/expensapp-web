@@ -1,6 +1,4 @@
-import { headers as nextHeaders } from 'next/headers';
+import getConfig from 'next/config';
+const { publicRuntimeConfig } = getConfig();
 
-export const getBaseUrl = async () => {
-  const headers = await nextHeaders();
-  return `${headers.get('x-protocol')}//${headers.get('x-current-host')}`;
-};
+export const getBaseUrl = () => publicRuntimeConfig.baseUrl;

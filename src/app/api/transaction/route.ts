@@ -1,6 +1,5 @@
 import { auth } from '@/lib/auth';
 import { UnauthorizedError } from '@/types/exceptions/unauthorized';
-import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const GET = async () => {

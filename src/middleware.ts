@@ -14,10 +14,6 @@ export default auth((req) => {
   if (isPublicRoute && isAuthenticated) return NextResponse.redirect(new URL(DEFAULT_REDIRECT, nextUrl));
 
   if (!isAuthenticated && !isPublicRoute) return NextResponse.redirect(new URL(HOME, nextUrl));
-  const headers = new Headers(req.headers);
-  headers.set('x-current-host', req.nextUrl.host);
-  headers.set('x-protocol', req.nextUrl.protocol);
-  return NextResponse.next({ headers });
 });
 
 export const config = {
