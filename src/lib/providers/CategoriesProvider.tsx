@@ -20,7 +20,14 @@ const CategoriesContext = createContext<CategoriesContextProps>({
   deleteCategory: () => {},
   deleteSubcategory: () => {},
 });
-const useCategories = () => useContext(CategoriesContext);
+
+const useCategories = (): CategoriesContextProps => {
+  const context = useContext(CategoriesContext);
+  if (!context) {
+    throw new Error('useCategories must be used within a CategoriesProvider');
+  }
+  return context;
+};
 
 const CategoriesProvider: React.FC<{
   children: ReactNode;

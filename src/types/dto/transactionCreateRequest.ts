@@ -4,5 +4,5 @@ export interface TransactionCreateRequest {
   description: string;
   accountId: number;
   categoryId: number;
-  subcategoryId?: number;
+  subcategoryId: number;
 }

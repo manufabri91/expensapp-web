@@ -14,7 +14,14 @@ const AccountsContext = createContext<AccountsContextProps>({
   addAccount: () => {},
   deleteAccount: () => {},
 });
-const useAccounts = () => useContext(AccountsContext);
+
+const useAccounts = (): AccountsContextProps => {
+  const context = useContext(AccountsContext);
+  if (!context) {
+    throw new Error('useAccounts must be used within a AccountsProvider');
+  }
+  return context;
+};
 
 const AccountsProvider: React.FC<{
   children: ReactNode;

@@ -2,7 +2,7 @@
 
 import { CTAButton } from '@/components/LoginForm/components/CTAButton';
 import { handleLoginAction, handleRegisterAction } from '@/lib/actions/auth';
-import { HiInformationCircle } from 'react-icons/hi';
+import { HiInformationCircle } from 'react-icons/hi2';
 import { Alert, Label, TextInput } from 'flowbite-react';
 import Link from 'next/link';
 import { useActionState, useEffect, useState } from 'react';

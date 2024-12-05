@@ -1,5 +1,4 @@
 export * from '@/components/Card';
-export * from '@/components/CreateTransactionButton';
 export * from '@/components/Money';
 export * from '@/components/Footer';
 export * from '@/components/Navbar';
@@ -9,5 +8,6 @@ export * from '@/components/StyledLink';
 export * from '@/components/Waves';
 export * from '@/components/TransactionsTable';
 export * from '@/components/TransactionForm';
+export * from '@/components/Toast';
 export * from '@/components/ListSkeleton';
 export * from '@/components/CardSkeleton';
