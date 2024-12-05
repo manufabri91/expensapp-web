@@ -1,7 +1,5 @@
-import { Button, ButtonVariant } from '@/components';
 import { LoginButton } from '@/components/LoginButton';
 import { RegisterButton } from '@/components/RegisterButton';
-import { handleLogoutAction } from '@/lib/actions/auth';
 import { Session } from 'next-auth';
 
 interface Props {
@@ -10,11 +8,7 @@ interface Props {
 
 export function LoginButtons({ session }: Props) {
   if (session) {
-    return (
-      <Button variant={ButtonVariant.Primary} onClick={handleLogoutAction}>
-        Log Out
-      </Button>
-    );
+    return null;
   }
 
   return (

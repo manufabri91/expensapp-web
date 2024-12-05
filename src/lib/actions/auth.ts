@@ -7,18 +7,22 @@ export const handleLogoutAction = async () => {
   await signOut({ redirectTo: '/' });
 };
 
+type RegisterUserData = {
+  email: string;
+  password: string;
+  username: string;
+  passwordRepeat: string;
+  firstName: string;
+  lastName: string;
+};
+
 export const handleRegisterAction = async (
   _: unknown,
   formData: FormData
 ): Promise<void | { error: string | null }> => {
-  const { email, password, username, passwordRepeat, firstName, lastName } = Object.fromEntries(formData) as {
-    email: string;
-    password: string;
-    username: string;
-    passwordRepeat: string;
-    firstName: string;
-    lastName: string;
-  }; // TODO Improve this type
+  const { email, password, username, passwordRepeat, firstName, lastName } = Object.fromEntries(
+    formData
+  ) as RegisterUserData;
   if (password !== passwordRepeat) {
     return { error: 'Passwords do not match' };
   }

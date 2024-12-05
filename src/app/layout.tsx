@@ -5,6 +5,8 @@ import { Footer, Navbar } from '@/components';
 
 import './globals.css';
 import { Flowbite, ThemeModeScript } from 'flowbite-react';
+import { AppProviders } from '@/lib/providers';
+import { ToastProvider } from '@/components/Toast/ToastProvider';
 
 const montserrat = Montserrat({ subsets: ['latin'] });
 
@@ -30,15 +32,19 @@ export default function RootLayout({
         <body
           className={`${montserrat.className} bg-stone-100 text-black antialiased dark:bg-slate-950 dark:text-white`}
         >
-          <div className="flex h-svh max-h-svh w-full">
-            <div className="h-full flex-1">
-              <div className="flex h-full flex-col justify-between overflow-y-scroll">
-                <Navbar />
-                <div className="flex-1">{children}</div>
-                <Footer />
+          <ToastProvider>
+            <div className="flex h-svh max-h-svh w-full">
+              <div className="h-full flex-1">
+                <div className="flex h-full flex-col justify-between overflow-y-scroll">
+                  <Navbar />
+                  <AppProviders>
+                    <div className="flex-1">{children}</div>
+                  </AppProviders>
+                  <Footer />
+                </div>
               </div>
             </div>
-          </div>
+          </ToastProvider>
         </body>
       </Flowbite>
     </html>
