@@ -14,6 +14,22 @@ export default auth((req) => {
   if (isPublicRoute && isAuthenticated) return NextResponse.redirect(new URL(DEFAULT_REDIRECT, nextUrl));
 
   if (!isAuthenticated && !isPublicRoute) return NextResponse.redirect(new URL(HOME, nextUrl));
+
+  // Clone the request headers
+  // You can modify them with headers API: https://developer.mozilla.org/en-US/docs/Web/API/Headers
+  const requestHeaders = new Headers(req.headers);
+
+  // Add new request headers
+  requestHeaders.set('x-current-host', req.nextUrl.host);
+  requestHeaders.set('x-protocol', req.nextUrl.protocol);
+
+  // You can also set request headers in NextResponse.rewrite
+  return NextResponse.next({
+    request: {
+      // New request headers
+      headers: requestHeaders,
+    },
+  });
 });
 
 export const config = {
