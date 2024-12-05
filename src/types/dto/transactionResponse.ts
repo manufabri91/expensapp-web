@@ -1,5 +1,4 @@
-import { CategoryResponse } from '@/types/dto/categoryResponse';
-import { SubCategoryResponse } from '@/types/dto/subcategoryResponse';
+import { CategoryResponse, SubCategoryResponse } from '@/types/dto';
 import { TransactionType } from '@/types/enums/transactionType';
 
 export interface TransactionResponse {

@@ -1,9 +1,10 @@
 'use server';
 
 import { headers } from 'next/headers';
-import { TransactionResponse } from '@/types/dto/transactionResponse';
+import { TransactionCreateRequest, TransactionResponse } from '@/types/dto';
 import { revalidatePath, unstable_noStore } from 'next/cache';
 import { getBaseUrl } from '@/lib/utils/url';
+import { formatISO } from 'date-fns';
 
 export const getTransactions = async (): Promise<TransactionResponse[]> => {
   const baseUrl = await getBaseUrl();
@@ -30,6 +31,36 @@ export const getTransactionsByMonthAndYear = async (month: number, year: number)
   if (!response.ok) {
     throw new Error('Failed to fetch transactions');
   }
+  return await response.json();
+};
+
+export const createTransaction = async (_: unknown, formData: FormData): Promise<TransactionResponse> => {
+  unstable_noStore();
+  const data = Object.fromEntries(formData);
+  const payload: TransactionCreateRequest = {
+    eventDate: data.eventDate ? formatISO(String(data.eventDate)) : null,
+    amount: data.type === 'expense' ? -Number(data.amount) : Number(data.amount),
+    description: String(data.description),
+    accountId: Number(data.account),
+    categoryId: Number(data.category),
+    subcategoryId: Number(data.subcategory),
+  };
+  const baseUrl = await getBaseUrl();
+  const cookie = (await headers()).get('cookie')!;
+  const response = await fetch(`${baseUrl}/api/transaction`, {
+    method: 'POST',
+    headers: {
+      cookie,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to create transaction `);
+  }
+
+  revalidatePath('/dashboard');
+  revalidatePath('/transactions');
   return await response.json();
 };
 

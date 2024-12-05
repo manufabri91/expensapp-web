@@ -1,6 +1,6 @@
 import { AccountsDetails } from '@/app/dashboard/components/AccountsDetails';
 import { LatestTransactions } from '@/app/dashboard/components/LatestTransactions';
-import { CardSkeleton, ListSkeleton } from '@/components';
+import { CardSkeleton, CreateTransactionButton, ListSkeleton } from '@/components';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 
@@ -17,7 +17,10 @@ const Dashboard = () => {
         <AccountsDetails />
       </Suspense>
 
-      <h2 className="mt-14 text-2xl font-semibold text-gray-800 dark:text-gray-100">Latest Transactions</h2>
+      <div className="block">
+        <h2 className="mt-14 text-2xl font-semibold text-gray-800 dark:text-gray-100">Latest Transactions</h2>
+      </div>
+      <CreateTransactionButton />
       <Suspense fallback={<ListSkeleton className="mt-4" rows={3} />}>
         <LatestTransactions />
       </Suspense>

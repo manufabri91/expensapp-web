@@ -3,7 +3,7 @@
 import { Button, ButtonVariant } from '@/components/Button';
 import { Money } from '@/components/Money';
 import { deleteTransactionById } from '@/lib/actions/transactions';
-import { TransactionResponse } from '@/types/dto/transactionResponse';
+import { TransactionResponse } from '@/types/dto';
 import { format, parseISO } from 'date-fns';
 import { Dropdown, Table } from 'flowbite-react';
 

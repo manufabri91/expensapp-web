@@ -1,12 +1,12 @@
 'use server';
 
 import { headers } from 'next/headers';
-import { AccountResponse } from '@/types/dto';
 import { getBaseUrl } from '@/lib/utils/url';
+import { CategoryResponse } from '@/types/dto';
 
-export const getAccounts = async (): Promise<AccountResponse[]> => {
+export const getCategories = async (): Promise<CategoryResponse[]> => {
   const baseUrl = await getBaseUrl();
-  const response = await fetch(`${baseUrl}/api/account`, {
+  const response = await fetch(`${baseUrl}/api/category`, {
     headers: await headers(),
     next: {
       revalidate: 3600,

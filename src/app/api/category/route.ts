@@ -8,13 +8,13 @@ export const GET = async () => {
     if (!session) {
       throw new UnauthorizedError();
     }
-    const response = await fetch(`${process.env.API_URL}/account`, {
+    const response = await fetch(`${process.env.API_URL}/category`, {
       headers: {
         Authorization: session.user.token,
       },
     });
-    const accounts = await response.json();
-    return NextResponse.json(accounts);
+    const categories = await response.json();
+    return NextResponse.json(categories);
   } catch (error) {
     console.log(error);
     return NextResponse.error();

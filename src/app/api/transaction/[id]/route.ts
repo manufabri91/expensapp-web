@@ -1,5 +1,6 @@
 import { auth } from '@/lib/auth';
 import { UnauthorizedError } from '@/types/exceptions/unauthorized';
+import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 type tParams = Promise<{ id: string }>;
@@ -61,6 +62,7 @@ export const DELETE = async (_: NextRequest, { params }: { params: tParams }) =>
       },
     });
 
+    revalidatePath('/dashboard');
     return response.status === 200 ? NextResponse.json({ deleted: true }) : NextResponse.error();
   } catch (error) {
     console.log(error);
