@@ -28,7 +28,11 @@ export default function RootLayout({
       <head>
         <ThemeModeScript />
       </head>
-      <Flowbite theme={{}}>
+      <Flowbite
+        theme={{
+          mode: 'auto',
+        }}
+      >
         <body
           className={`${montserrat.className} bg-stone-100 text-black antialiased dark:bg-slate-950 dark:text-white`}
         >

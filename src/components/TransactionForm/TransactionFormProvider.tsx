@@ -1,5 +1,6 @@
 'use client';
 
+import { TransactionForm } from '@/components/TransactionForm';
 import { TransactionResponse } from '@/types/dto';
 import React, { createContext, useContext, useState, ReactNode, useMemo } from 'react';
 
@@ -35,6 +36,7 @@ export const TransactionFormProvider: React.FC<{ children: ReactNode }> = ({ chi
   return (
     <TransactionFormContext.Provider value={{ showTransactionForm, closeTransactionForm, transactionFormData, isOpen }}>
       {children}
+      <TransactionForm />
     </TransactionFormContext.Provider>
   );
 };

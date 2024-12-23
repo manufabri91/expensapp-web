@@ -7,7 +7,7 @@ export const LatestTransactions = async () => {
   const currentYear = currentDate.getFullYear();
   const transactions = await getTransactionsByMonthAndYear(currentMonth, currentYear);
   return (
-    <div className="mt-4">
+    <div className="mt-4 overflow-x-auto">
       <TransactionsTable transactions={transactions} />
     </div>
   );

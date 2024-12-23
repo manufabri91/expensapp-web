@@ -27,7 +27,6 @@ export const TransactionForm = () => {
   );
 
   useEffect(() => {
-    console.log(createdTransaction);
     if (createdTransaction) {
       showToast(`Created transaction with ID: ${createdTransaction.id}`);
       setCreatedTransaction(null);
@@ -165,6 +164,7 @@ export const TransactionForm = () => {
             <Select
               id="subcategory"
               name="subcategory"
+              required
               defaultValue={transactionFormData?.subcategory.id}
               disabled={!selectedCategory}
             >
