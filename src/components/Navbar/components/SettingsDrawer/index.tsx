@@ -1,8 +1,7 @@
 'use client';
 
-import { Button, Drawer, Select, Sidebar, ThemeMode, useThemeMode } from 'flowbite-react';
-import { useState } from 'react';
-import { HiCheck, HiCog, HiMoon, HiPaintBrush } from 'react-icons/hi2';
+import { Drawer, Sidebar, useThemeMode } from 'flowbite-react';
+import { HiCheck, HiPaintBrush } from 'react-icons/hi2';
 
 interface Props {
   open: boolean;
@@ -10,7 +9,7 @@ interface Props {
 }
 
 export function SettingsDrawer({ open, onClose }: Props) {
-  const { computedMode, setMode } = useThemeMode();
+  const { setMode } = useThemeMode();
   return (
     <Drawer open={open} onClose={onClose} className="z-[9999]" position="right">
       <Drawer.Header title="Settings" titleIcon={() => <></>} />

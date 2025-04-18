@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Avatar, Dropdown, Navbar, useThemeMode } from 'flowbite-react';
+import { Avatar, Dropdown, Navbar } from 'flowbite-react';
 import { Session } from 'next-auth';
 import Image from 'next/image';
 import { LoginButtons } from '@/components/Navbar/components/LoginButtons';
@@ -10,7 +10,6 @@ import { Button, ButtonVariant } from '@/components/Button';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { SettingsDrawer } from '@/components/Navbar/components/SettingsDrawer';
-import { HiCog } from 'react-icons/hi2';
 
 interface Props {
   session: Session | null;
@@ -23,7 +22,6 @@ const AUTHORIZED_LINKS = [
 ];
 
 export const NavbarContent = ({ session }: Props) => {
-  const { computedMode, toggleMode } = useThemeMode();
   const [isOpenSettings, setIsOpenSettings] = useState(false);
 
   const handleSettingsDrawerClose = () => setIsOpenSettings(false);

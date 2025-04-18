@@ -7,13 +7,10 @@ import {
   type BackendJWT,
   type NextAuthConfig,
 } from 'next-auth';
-import type { JWT } from 'next-auth/jwt';
 import { jwtDecode } from 'jwt-decode';
 
 import { login, refresh } from '@/lib/auth/handlers';
 import { InvalidLoginError } from '@/types/exceptions/invalidLogin';
-import { isBefore, parseISO } from 'date-fns';
-import { NextResponse } from 'next/server';
 
 export const authConfig: NextAuthConfig = {
   secret: process.env.NEXTAUTH_SECRET,
