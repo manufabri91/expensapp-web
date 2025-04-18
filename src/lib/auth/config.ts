@@ -6,7 +6,7 @@ import {
   type DecodedJWT,
   type BackendJWT,
   type NextAuthConfig,
-  Account,
+  type Account,
 } from 'next-auth';
 import type { JWT } from 'next-auth/jwt';
 import { jwtDecode } from 'jwt-decode';
