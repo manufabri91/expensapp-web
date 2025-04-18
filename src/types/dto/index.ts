@@ -6,3 +6,4 @@ export * from './transactionRequest';
 export * from './transactionResponse';
 export * from './categorySummaryResponse';
 export * from './currencySummaryResponse';
+export * from './categoryRequest';

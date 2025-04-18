@@ -1,10 +1,12 @@
+import { AmountPerCurrencyDto } from '@/types/dto/amountPerCurrencyDto';
+
 export interface CategorySummaryResponse {
   id: number;
   name: string;
-  total: number;
+  totals: AmountPerCurrencyDto;
   subTotalsPerSubCategory: Array<{
     id: string;
     name: string;
-    subtotal: number;
+    subtotals: AmountPerCurrencyDto;
   }>;
 }

@@ -39,7 +39,7 @@ export default function RootLayout({
           <ToastProvider>
             <div className="flex h-svh max-h-svh w-full">
               <div className="h-full flex-1">
-                <div className="flex h-full flex-col justify-between overflow-y-scroll">
+                <div className="flex h-full flex-col justify-between">
                   <Navbar />
                   <AppProviders>
                     <div className="flex-1">{children}</div>

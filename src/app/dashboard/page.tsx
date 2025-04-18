@@ -24,7 +24,7 @@ const Dashboard = () => {
             <Summary />
           </Suspense>
 
-          <h3 className="mt-4 text-xl font-semibold text-gray-800 dark:text-gray-100">Latest Transactions</h3>
+          <h3 className="mt-8 text-xl font-semibold text-gray-800 dark:text-gray-100 md:mt-16">Latest Transactions</h3>
           <Suspense fallback={<ListSkeleton className="mt-4" rows={3} />}>
             <LatestTransactions />
           </Suspense>

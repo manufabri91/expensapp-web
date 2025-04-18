@@ -12,14 +12,14 @@ export const GET = async (_: NextRequest, { params }: { params: tParams }) => {
     if (!session) {
       throw new UnauthorizedError();
     }
-    const response = await fetch(`${process.env.API_URL}/transaction/${id}`, {
+    const response = await fetch(`${process.env.API_URL}/account/${id}`, {
       method: 'GET',
       headers: {
         Authorization: session.user.token,
       },
     });
-    const transaction = await response.json();
-    return NextResponse.json(transaction);
+    const account = await response.json();
+    return NextResponse.json(account);
   } catch (error) {
     console.log(error);
     return NextResponse.error();
@@ -29,12 +29,13 @@ export const GET = async (_: NextRequest, { params }: { params: tParams }) => {
 export const PUT = async (req: NextRequest, { params }: { params: tParams }) => {
   const { id } = await params;
   const payload = await req.json();
+
   try {
     const session = await auth();
     if (!session) {
       throw new UnauthorizedError();
     }
-    const response = await fetch(`${process.env.API_URL}/transaction/${id}`, {
+    const response = await fetch(`${process.env.API_URL}/account/${id}`, {
       method: 'PUT',
       body: JSON.stringify(payload),
       headers: {
@@ -42,13 +43,8 @@ export const PUT = async (req: NextRequest, { params }: { params: tParams }) => 
         ['Content-Type']: 'application/json',
       },
     });
-
-    if (!response.ok) {
-      throw new Error('Failed to update transaction');
-    }
-
-    const transaction = await response.json();
-    return NextResponse.json(transaction);
+    const newTransaction = await response.json();
+    return NextResponse.json(newTransaction);
   } catch (error) {
     console.log(error);
     return NextResponse.error();
@@ -62,7 +58,7 @@ export const DELETE = async (_: NextRequest, { params }: { params: tParams }) =>
     if (!session) {
       throw new UnauthorizedError();
     }
-    const response = await fetch(`${process.env.API_URL}/transaction/${id}`, {
+    const response = await fetch(`${process.env.API_URL}/account/${id}`, {
       method: 'DELETE',
       headers: {
         Authorization: session.user.token,

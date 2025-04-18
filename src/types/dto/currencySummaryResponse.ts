@@ -1,6 +1,6 @@
 export interface CurrencySummaryResponse {
   currency: string;
   totalBalance: number;
-  income: number;
+  incomes: number;
   expenses: number;
 }

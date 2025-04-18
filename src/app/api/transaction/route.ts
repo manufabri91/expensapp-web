@@ -2,13 +2,14 @@ import { auth } from '@/lib/auth';
 import { UnauthorizedError } from '@/types/exceptions/unauthorized';
 import { NextRequest, NextResponse } from 'next/server';
 
-export const GET = async () => {
+export const GET = async (request: NextRequest) => {
   try {
     const session = await auth();
     if (!session) {
       throw new UnauthorizedError();
     }
-    const response = await fetch(`${process.env.API_URL}/transaction`, {
+    const queryParams = request.nextUrl.searchParams.size > 0 ? `?${request.nextUrl.searchParams.toString()}` : '';
+    const response = await fetch(`${process.env.API_URL}/transaction${queryParams}`, {
       headers: {
         Authorization: session.user.token,
       },

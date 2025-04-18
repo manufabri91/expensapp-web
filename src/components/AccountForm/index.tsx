@@ -69,24 +69,21 @@ export const AccountForm = () => {
             </div>
             <TextInput id="name" name="name" type="text" defaultValue={accountFormData?.name} required shadow />
           </div>
-          {!accountFormData && (
-            <div>
-              <div className="mb-2 block">
-                <Label htmlFor="initialBalance" value="Initial Balance" />
-              </div>
-              <TextInput
-                id="initialBalance"
-                name="initialBalance"
-                type="number"
-                defaultValue={0}
-                min="0"
-                step=".01"
-                required
-                shadow
-              />
+          <div>
+            <div className="mb-2 block">
+              <Label htmlFor="initialBalance" value="Initial Balance" />
             </div>
-          )}
-
+            <TextInput
+              id="initialBalance"
+              name="initialBalance"
+              type="number"
+              defaultValue={accountFormData?.initialBalance ?? 0}
+              min="0"
+              step=".01"
+              required
+              shadow
+            />
+          </div>
           <div className="max-w-md">
             <div className="mb-2 block">
               <Label htmlFor="currency" value="Currency" />

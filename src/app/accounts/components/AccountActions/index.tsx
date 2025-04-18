@@ -14,7 +14,7 @@ export const AccountActions = () => {
       }}
     >
       <HiPlus className="mr-1 size-5" />
-      Add
+      New Account
     </Button>
   );
 };

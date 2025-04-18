@@ -4,6 +4,7 @@ import { headers as nextHeaders } from 'next/headers';
 import { AccountRequest, AccountResponse } from '@/types/dto';
 import { getBaseUrl } from '@/lib/utils/url';
 import { revalidatePath, unstable_noStore } from 'next/cache';
+import { ActionResult } from '@/types/viewModel/actionResult';
 
 export const getAccounts = async (): Promise<AccountResponse[]> => {
   const baseUrl = await getBaseUrl();
@@ -54,7 +55,6 @@ export const editAccount = async (formData: FormData): Promise<AccountResponse> 
   unstable_noStore();
   const data = Object.fromEntries(formData);
 
-  console.log('data', data);
   const payload: AccountRequest = {
     id: Number(data.id),
     name: String(data.name),
@@ -63,8 +63,8 @@ export const editAccount = async (formData: FormData): Promise<AccountResponse> 
   };
   const baseUrl = await getBaseUrl();
   const cookie = (await nextHeaders()).get('cookie')!;
-  const response = await fetch(`${baseUrl}/api/account`, {
-    method: 'POST',
+  const response = await fetch(`${baseUrl}/api/account/${data.id}`, {
+    method: 'PUT',
     headers: {
       cookie,
     },
@@ -72,10 +72,27 @@ export const editAccount = async (formData: FormData): Promise<AccountResponse> 
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to create account`);
+    throw new Error(`Failed to edit account`);
   }
 
   revalidatePath('/dashboard');
   revalidatePath('/accounts');
   return await response.json();
+};
+
+export const deleteAccountById = async (id: number): Promise<ActionResult> => {
+  unstable_noStore();
+  const baseUrl = await getBaseUrl();
+  const cookie = (await nextHeaders()).get('cookie')!;
+  const response = await fetch(`${baseUrl}/api/account/${id}`, {
+    method: 'DELETE',
+    headers: { cookie },
+  });
+
+  revalidatePath('/dashboard');
+  revalidatePath('/transactions');
+  if (!response.ok) {
+    return { success: false, message: `Failed to delete Account: ${id}` };
+  }
+  return { success: true, message: `Transaction ${id} deleted` };
 };

@@ -14,12 +14,7 @@ export const LatestTransactions = () => {
   useEffect(() => {
     const fetchTransactions = async () => {
       setLoading(true);
-      const transactions = await getTransactionsByMonthAndYear(
-        filters.month,
-        filters.year,
-        filters.currentPage,
-        filters.pageSize
-      );
+      const transactions = await getTransactionsByMonthAndYear(filters.month, filters.year);
       setTransactions(transactions);
       setLoading(false);
     };
@@ -28,12 +23,12 @@ export const LatestTransactions = () => {
 
   return (
     <div className="mt-4 overflow-x-auto">
-      {loading && <ListSkeleton rows={3} />}
-      {!loading && (
-        <>
-          <TransactionsTable transactions={transactions} showPagination />
-        </>
-      )}
+      <div className="mt-8 md:mt-16">
+        {loading && <ListSkeleton rows={3} />}
+        {!loading && (
+          <TransactionsTable transactions={transactions} noTransactionsMessage="No transactions this month" />
+        )}
+      </div>
     </div>
   );
 };

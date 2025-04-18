@@ -3,103 +3,7 @@ import { Card, HR } from 'flowbite-react';
 import { code } from 'currency-codes';
 import { Money } from '@/components';
 import { CategorySummaryResponse, CurrencySummaryResponse } from '@/types/dto';
-
-const SUMMARY: Array<CurrencySummaryResponse> = [
-  {
-    currency: 'USD',
-    totalBalance: 1000,
-    income: 110,
-    expenses: 0,
-  },
-  {
-    currency: 'EUR',
-    totalBalance: 100,
-    income: 920,
-    expenses: -1020,
-  },
-  {
-    currency: 'ARS',
-    totalBalance: 0,
-    income: 0,
-    expenses: 0,
-  },
-  // {
-  //   currency: 'CHF',
-  //   totalBalance: 0,
-  //   income: 0,
-  //   expenses: 0,
-  // },
-];
-const CATEGORY_SUMMARY: Array<CategorySummaryResponse> = [
-  {
-    id: 1,
-    name: 'Food',
-    total: 100,
-    subTotalsPerSubCategory: [
-      {
-        id: '1',
-        name: 'Groceries',
-        subtotal: 50,
-      },
-      {
-        id: '2',
-        name: 'Restaurants',
-        subtotal: 50,
-      },
-    ],
-  },
-  {
-    id: 2,
-    name: 'Transport',
-    total: 100,
-    subTotalsPerSubCategory: [
-      {
-        id: '3',
-        name: 'Public Transport',
-        subtotal: 50,
-      },
-      {
-        id: '4',
-        name: 'Taxi',
-        subtotal: 50,
-      },
-    ],
-  },
-  {
-    id: 3,
-    name: 'Transport2',
-    total: 100,
-    subTotalsPerSubCategory: [
-      {
-        id: '3',
-        name: 'Public Transport',
-        subtotal: 50,
-      },
-      {
-        id: '4',
-        name: 'Taxi',
-        subtotal: 50,
-      },
-    ],
-  },
-  {
-    id: 4,
-    name: 'Transport22',
-    total: 100,
-    subTotalsPerSubCategory: [
-      {
-        id: '3',
-        name: 'Public Transport',
-        subtotal: 50,
-      },
-      {
-        id: '4',
-        name: 'Taxi',
-        subtotal: 50,
-      },
-    ],
-  },
-];
+import { getMonthSummary, getTotalsByCategory } from '@/lib/actions/summaries';
 
 const TrendIcon = ({ amount }: { amount: number }) => {
   if (amount < 0) {
@@ -112,16 +16,11 @@ const TrendIcon = ({ amount }: { amount: number }) => {
 };
 
 export const Summary = async () => {
-  const summaries: CurrencySummaryResponse[] = await new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(SUMMARY);
-    }, 1000);
-  });
-  const categorySummaries: CategorySummaryResponse[] = await new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(CATEGORY_SUMMARY);
-    }, 1000);
-  });
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const summaries: CurrencySummaryResponse[] = await getMonthSummary();
+  const categorySummaries: CategorySummaryResponse[] = await getTotalsByCategory(year, month);
 
   return (
     <>
@@ -139,7 +38,7 @@ export const Summary = async () => {
                   className="text-2xl font-bold"
                   warnIfZero
                 />
-                <TrendIcon amount={currencySummary.income + currencySummary.expenses} />
+                <TrendIcon amount={currencySummary.incomes + currencySummary.expenses} />
               </div>
               <div className="relative">
                 <HR className="my-0" />
@@ -147,7 +46,7 @@ export const Summary = async () => {
               <div>
                 <div className="flex justify-between">
                   <span className="mr-1">Incomes:</span>
-                  <Money amount={currencySummary.income} currency={currencySummary.currency} className="text-base" />
+                  <Money amount={currencySummary.incomes} currency={currencySummary.currency} className="text-base" />
                 </div>
                 <div className="flex justify-between">
                   <span className="mr-1">Expenses:</span>
@@ -158,32 +57,50 @@ export const Summary = async () => {
           ))}
         </div>
       </div>
-      <div className="h-full">
-        <h3 className="my-4 text-xl font-semibold text-gray-800 dark:text-gray-100">Expenses per Category</h3>
-        <div>
-          <div className="flex h-full flex-col justify-start gap-4">
-            <div className="col-auto grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {categorySummaries.map((categorySummary) => (
-                <Card key={categorySummary.id}>
-                  <div className="flex items-center justify-between">
-                    <span className="text-nowrap text-lg font-semibold">{categorySummary.name}</span>
-                    <Money amount={categorySummary.total} currency="EUR" className="text-2xl" />
-                  </div>
-                  <HR className="my-0" />
-                  <div>
-                    {categorySummary.subTotalsPerSubCategory.map((subCategory) => (
-                      <div key={subCategory.id} className="flex items-center justify-between">
-                        <span>{subCategory.name}</span>
-                        <Money amount={subCategory.subtotal} currency="EUR" className="text-base" />
+      {categorySummaries.length > 0 && (
+        <div className="h-full">
+          <h3 className="mb-4 mt-8 text-xl font-semibold text-gray-800 dark:text-gray-100 md:mt-16">
+            Expenses per Category
+          </h3>
+          <div>
+            <div className="flex h-full flex-col justify-start gap-4">
+              <div className="col-auto grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {categorySummaries.map((categorySummary) => (
+                  <Card key={categorySummary.id}>
+                    <div className="mb-1 flex items-start justify-between">
+                      <span className="text-nowrap text-lg font-semibold">{categorySummary.name}</span>
+
+                      <div className="flex flex-col items-end">
+                        {Object.entries(categorySummary.totals).map(([currency, total]) => (
+                          <Money key={currency} amount={total} currency={currency} className="text-base" />
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </Card>
-              ))}
+                    </div>
+                    <HR className="my-0" />
+                    <div>
+                      {categorySummary.subTotalsPerSubCategory.map((subCategory, idx) => (
+                        <div key={subCategory.id}>
+                          <div className="mb-1 flex items-start justify-between">
+                            <span>{subCategory.name}</span>
+                            <div className="flex flex-col items-end">
+                              {Object.entries(subCategory.subtotals).map(([currency, subtotal]) => (
+                                <Money key={currency} amount={subtotal} currency={currency} className="text-base" />
+                              ))}
+                            </div>
+                          </div>
+                          {idx < categorySummary.subTotalsPerSubCategory.length - 1 && (
+                            <HR className="my-2 opacity-40" />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                ))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </>
   );
 };

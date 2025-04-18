@@ -1,7 +1,7 @@
 import { CategoryResponse, SubCategoryResponse } from '@/types/dto';
 import { TransactionType } from '@/types/enums/transactionType';
 
-export interface TransactionResponse {
+export interface  TransactionResponse {
   id: number;
   eventDate: string;
   description: string;

@@ -1,6 +1,7 @@
 'use client';
 
 import { Button, ButtonVariant } from '@/components/Button';
+import { ToastType } from '@/components/Toast';
 import { useToaster } from '@/components/Toast/ToastProvider';
 import { useTransactionForm } from '@/components/TransactionForm/TransactionFormProvider';
 import { createTransaction, editTransaction } from '@/lib/actions/transactions';
@@ -21,11 +22,21 @@ export const TransactionForm = () => {
   const [createdTransaction, setCreatedTransaction] = useState<TransactionResponse | null>(null);
   const [editedTransaction, setEditedTransaction] = useState<TransactionResponse | null>(null);
   const [processing, setProcessing] = useState<boolean>(false);
-  const [selectedCategory, setSelectedCategory] = useState(transactionFormData?.category.id);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(
-    transactionFormData?.eventDate ? parseISO(transactionFormData?.eventDate) : null
-  );
+  const [selectedCategory, setSelectedCategory] = useState<number | undefined>(undefined);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
+  // execute on first render
+  useEffect(() => {
+    if (transactionFormData) {
+      setSelectedCategory(transactionFormData.category.id);
+      setSelectedDate(parseISO(transactionFormData.eventDate));
+    } else {
+      setSelectedCategory(undefined);
+      setSelectedDate(null);
+    }
+  }, [transactionFormData]);
+
+  // execute when submit
   useEffect(() => {
     if (createdTransaction) {
       showToast(`Created transaction with ID: ${createdTransaction.id}`);
@@ -46,12 +57,24 @@ export const TransactionForm = () => {
 
   const submitHandler = async (formData: FormData) => {
     setProcessing(true);
-    if (!transactionFormData) {
-      const createdTx = await createTransaction(formData);
-      setCreatedTransaction(createdTx);
-    } else {
-      const updatedTx = await editTransaction(formData);
-      setEditedTransaction(updatedTx);
+    try {
+      if (!transactionFormData) {
+        const createdTx = await createTransaction(formData);
+        setCreatedTransaction(createdTx);
+      } else {
+        const updatedTx = await editTransaction(formData);
+        setEditedTransaction(updatedTx);
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        showToast(error.message, ToastType.Error);
+      } else {
+        showToast('An unexpected error occurred', ToastType.Error);
+      }
+      setEditedTransaction(null);
+      setCreatedTransaction(null);
+      setProcessing(false);
+      closeTransactionForm();
     }
   };
 
@@ -73,14 +96,12 @@ export const TransactionForm = () => {
               <option value={TransactionType.INCOME}>Income</option>
             </Select>
           </div>
-          {!!transactionFormData && (
-            <div>
-              <div className="mb-2 block">
-                <Label htmlFor="id" value="ID" />
-              </div>
-              <TextInput id="id" name="id" type="text" value={transactionFormData?.id} readOnly shadow />
+          <div className="hidden">
+            <div className="mb-2 block">
+              <Label htmlFor="id" value="ID" />
             </div>
-          )}
+            <TextInput id="id" name="id" type="text" value={transactionFormData?.id} readOnly shadow />
+          </div>
           <div>
             <div className="mb-2 block">
               <Label htmlFor="eventDate" value="Date" />
@@ -143,8 +164,7 @@ export const TransactionForm = () => {
             <Select
               id="category"
               name="category"
-              defaultValue={undefined}
-              value={selectedCategory}
+              defaultValue={transactionFormData?.category.id ?? undefined}
               required
               onChange={onSelectedCategory}
             >
@@ -165,7 +185,7 @@ export const TransactionForm = () => {
               id="subcategory"
               name="subcategory"
               required
-              defaultValue={transactionFormData?.subcategory.id}
+              defaultValue={transactionFormData?.subcategory.id ?? undefined}
               disabled={!selectedCategory}
             >
               <option value={undefined}>Select Sub-Category</option>

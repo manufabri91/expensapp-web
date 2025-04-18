@@ -7,11 +7,35 @@ import { getBaseUrl } from '@/lib/utils/url';
 import { formatISO } from 'date-fns';
 import { TransactionType } from '@/types/enums/transactionType';
 import { ActionResult } from '@/types/viewModel/actionResult';
+import { PagedResponse } from '@/types/dto/pageable';
 
-export const getTransactions = async (): Promise<TransactionResponse[]> => {
+// TODO: remove this once BE ignores time (TX will care only about date)
+const parseEventDate = (eventDate: Date | null): string | null => {
+  if (!eventDate) return null;
+
+  const utcDate = new Date(eventDate.getTime() - eventDate.getTimezoneOffset() * 60000);
+  return formatISO(utcDate);
+};
+
+export const getTransactions = async (pageConfig?: {
+  page: number;
+  pageSize: number;
+  sortBy: string;
+  ascending: boolean;
+}): Promise<PagedResponse<TransactionResponse>> => {
   const baseUrl = await getBaseUrl();
   const cookie = (await nextHeaders()).get('cookie')!;
-  const response = await fetch(`${baseUrl}/api/transaction`, {
+  let queryParams = '';
+  if (pageConfig) {
+    queryParams = `?${new URLSearchParams({
+      page: String(pageConfig.page),
+      size: String(pageConfig.pageSize),
+      sort: pageConfig.sortBy,
+      ascending: String(pageConfig.ascending),
+    }).toString()}`;
+  }
+
+  const response = await fetch(`${baseUrl}/api/transaction${queryParams}`, {
     headers: {
       cookie,
     },
@@ -19,34 +43,30 @@ export const getTransactions = async (): Promise<TransactionResponse[]> => {
       revalidate: 3600,
     },
   });
+
   if (!response.ok) {
     throw new Error('Failed to fetch transactions');
   }
+
   return await response.json();
 };
 
-export const getTransactionsByMonthAndYear = async (
-  month: number,
-  year: number,
-  page = 1,
-  pageSize = 100
-): Promise<TransactionResponse[]> => {
+export const getTransactionsByMonthAndYear = async (month: number, year: number): Promise<TransactionResponse[]> => {
   const baseUrl = await getBaseUrl();
   const cookie = (await nextHeaders()).get('cookie')!;
-  const response = await fetch(
-    `${baseUrl}/api/transaction/monthly/${year}/${month}?page=${page}&pageSize=${pageSize}`,
-    {
-      headers: {
-        cookie,
-      },
-      next: {
-        revalidate: 3600,
-      },
-    }
-  );
+  const response = await fetch(`${baseUrl}/api/transaction/monthly/${year}/${month}`, {
+    headers: {
+      cookie,
+    },
+    next: {
+      revalidate: 3600,
+    },
+  });
+
   if (!response.ok) {
     throw new Error('Failed to fetch transactions');
   }
+
   return await response.json();
 };
 
@@ -54,14 +74,13 @@ export const createTransaction = async (formData: FormData): Promise<Transaction
   unstable_noStore();
   const data = Object.fromEntries(formData);
   const payload: TransactionRequest = {
-    eventDate: data.eventDate ? formatISO(String(data.eventDate)) : null,
+    eventDate: parseEventDate(data.eventDate ? new Date(String(data.eventDate)) : null),
     amount: data.type === TransactionType.EXPENSE ? -Number(data.amount) : Number(data.amount),
     description: String(data.description),
     accountId: Number(data.account),
     categoryId: Number(data.category),
     subcategoryId: Number(data.subcategory),
   };
-  console.log(payload);
   const baseUrl = await getBaseUrl();
   const cookie = (await nextHeaders()).get('cookie')!;
   const response = await fetch(`${baseUrl}/api/transaction`, {
@@ -82,29 +101,21 @@ export const createTransaction = async (formData: FormData): Promise<Transaction
 };
 
 export const editTransaction = async (formData: FormData): Promise<TransactionResponse> => {
-  // TODO: refactor after is implemented in backend
   unstable_noStore();
   const data = Object.fromEntries(formData);
 
-  const baseUrl = await getBaseUrl();
-  const cookie = (await nextHeaders()).get('cookie')!;
-  const deleteResponse = await fetch(`${baseUrl}/api/transaction/${data.id}`, {
-    method: 'DELETE',
-    headers: { cookie },
-  });
-  if (!deleteResponse.ok) {
-    throw new Error(`Failed to edit transaction with id: ${data.id}`);
-  }
   const payload: TransactionRequest = {
-    eventDate: data.eventDate ? formatISO(String(data.eventDate)) : null,
+    eventDate: parseEventDate(data.eventDate ? new Date(String(data.eventDate)) : null),
     amount: data.type === TransactionType.EXPENSE ? -Number(data.amount) : Number(data.amount),
     description: String(data.description),
     accountId: Number(data.account),
     categoryId: Number(data.category),
     subcategoryId: Number(data.subcategory),
   };
-  const response = await fetch(`${baseUrl}/api/transaction`, {
-    method: 'POST',
+  const baseUrl = await getBaseUrl();
+  const cookie = (await nextHeaders()).get('cookie')!;
+  const response = await fetch(`${baseUrl}/api/transaction/${data.id}`, {
+    method: 'PUT',
     headers: {
       cookie,
     },
@@ -112,7 +123,7 @@ export const editTransaction = async (formData: FormData): Promise<TransactionRe
   });
 
   if (!response.ok) {
-    throw new Error(`Catastrophic failure. TX Lost. ${data.id}`);
+    throw new Error(`Failed to edit transaction ${data.id}. Please try again later.`);
   }
 
   revalidatePath('/dashboard');
@@ -131,8 +142,10 @@ export const deleteTransactionById = async (id: number): Promise<ActionResult> =
 
   revalidatePath('/dashboard');
   revalidatePath('/transactions');
+
   if (!response.ok) {
     return { success: false, message: `Failed to delete Transaction: ${id}` };
   }
+
   return { success: true, message: `Transaction ${id} deleted` };
 };

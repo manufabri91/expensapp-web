@@ -3,4 +3,5 @@ export interface AccountResponse {
   name: string;
   currency: string;
   accountBalance: number;
+  initialBalance: number;
 }

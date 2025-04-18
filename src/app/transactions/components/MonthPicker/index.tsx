@@ -34,7 +34,7 @@ export const MonthPicker = () => {
   }, [year, month, patchFilters]);
 
   return (
-    <div className="mt-4 flex items-center justify-center gap-4">
+    <div className="mt-8 flex items-center justify-center gap-8 md:mt-16 md:gap-16">
       <Button variant={ButtonVariant.Secondary} onClick={onPrevMonthHandler}>
         <HiChevronLeft />
       </Button>
