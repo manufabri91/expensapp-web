@@ -1,10 +1,12 @@
 import { Suspense } from 'react';
 import { Metadata } from 'next';
 
-import { AccountsDetails } from '@/app/dashboard/components/AccountsDetails';
-import { LatestTransactions } from '@/app/dashboard/components/LatestTransactions';
-import { CardSkeleton, ListSkeleton, Toast, TransactionForm } from '@/components';
+import { ListSkeleton, Toast } from '@/components';
 import { TransactionFormProvider } from '@/components/TransactionForm/TransactionFormProvider';
+import { LatestTransactions } from '@/app/dashboard/components/LatestTransactions';
+import { AccountFormProvider } from '@/components/AccountForm/AccountFormProvider';
+import { Summary } from '@/app/dashboard/components/Summary';
+import LoadingSummary from '@/app/dashboard/components/Summary/loading';
 
 export const metadata: Metadata = {
   title: 'Dashboard',
@@ -14,22 +16,20 @@ export const metadata: Metadata = {
 const Dashboard = () => {
   return (
     <TransactionFormProvider>
-      <main className="p-6">
-        <Toast />
-        <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">Accounts Overview</h2>
-        <Suspense fallback={<CardSkeleton className="mt-4" />}>
-          <AccountsDetails />
-        </Suspense>
+      <AccountFormProvider>
+        <main className="max-w-[100vw] p-6">
+          <Toast />
 
-        <div className="flex items-end gap-4">
-          <h2 className="mt-14 text-2xl font-semibold text-gray-800 dark:text-gray-100">Latest Transactions</h2>
-          <div>{/* <CreateTransactionButton iconOnly /> */}</div>
-        </div>
-        <Suspense fallback={<ListSkeleton className="mt-4" rows={3} />}>
-          <LatestTransactions />
-        </Suspense>
-      </main>
-      <TransactionForm />
+          <Suspense fallback={<LoadingSummary />}>
+            <Summary />
+          </Suspense>
+
+          <h3 className="mt-8 text-xl font-semibold text-gray-800 dark:text-gray-100 md:mt-16">Latest Transactions</h3>
+          <Suspense fallback={<ListSkeleton className="mt-4" rows={3} />}>
+            <LatestTransactions />
+          </Suspense>
+        </main>
+      </AccountFormProvider>
     </TransactionFormProvider>
   );
 };

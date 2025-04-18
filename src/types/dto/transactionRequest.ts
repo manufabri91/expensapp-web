@@ -1,4 +1,5 @@
-export interface TransactionCreateRequest {
+export interface TransactionRequest {
+  id?: number;
   amount: number;
   eventDate?: string | null;
   description: string;

@@ -6,7 +6,7 @@ export const Footer = () => {
       <StyledLink href="https://www.manuelfabri.com" rel="noopener noreferrer" target="_blank">
         ManukoDEV
       </StyledLink>
-      <p>2024 - All rights reserved.</p>
+      <p>{new Date().getFullYear()} - All rights reserved</p>
     </footer>
   );
 };

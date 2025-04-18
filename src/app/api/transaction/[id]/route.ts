@@ -1,6 +1,5 @@
 import { auth } from '@/lib/auth';
 import { UnauthorizedError } from '@/types/exceptions/unauthorized';
-import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 type tParams = Promise<{ id: string }>;
@@ -27,8 +26,9 @@ export const GET = async (_: NextRequest, { params }: { params: tParams }) => {
   }
 };
 
-export const PUT = async (_: NextRequest, { params }: { params: tParams }) => {
+export const PUT = async (req: NextRequest, { params }: { params: tParams }) => {
   const { id } = await params;
+  const payload = await req.json();
   try {
     const session = await auth();
     if (!session) {
@@ -36,10 +36,17 @@ export const PUT = async (_: NextRequest, { params }: { params: tParams }) => {
     }
     const response = await fetch(`${process.env.API_URL}/transaction/${id}`, {
       method: 'PUT',
+      body: JSON.stringify(payload),
       headers: {
         Authorization: session.user.token,
+        ['Content-Type']: 'application/json',
       },
     });
+
+    if (!response.ok) {
+      throw new Error('Failed to update transaction');
+    }
+
     const transaction = await response.json();
     return NextResponse.json(transaction);
   } catch (error) {
@@ -62,7 +69,6 @@ export const DELETE = async (_: NextRequest, { params }: { params: tParams }) =>
       },
     });
 
-    revalidatePath('/dashboard');
     return response.status === 200 ? NextResponse.json({ deleted: true }) : NextResponse.error();
   } catch (error) {
     console.log(error);
