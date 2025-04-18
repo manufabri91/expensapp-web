@@ -6,11 +6,14 @@ import {
   type DecodedJWT,
   type BackendJWT,
   type NextAuthConfig,
+  Account,
 } from 'next-auth';
+import type { JWT } from 'next-auth/jwt';
 import { jwtDecode } from 'jwt-decode';
 
 import { login, refresh } from '@/lib/auth/handlers';
 import { InvalidLoginError } from '@/types/exceptions/invalidLogin';
+import { AdapterUser } from 'next-auth/adapters';
 
 export const authConfig: NextAuthConfig = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -77,7 +80,7 @@ export const authConfig: NextAuthConfig = {
 
       return baseUrl;
     },
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account }: { token: JWT; user: User | AdapterUser; account: Account | null }) {
       // Initial signin contains a 'User' object from authorize method
       if (user && account) {
         console.debug('Initial signin');
