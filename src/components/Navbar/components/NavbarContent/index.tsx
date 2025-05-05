@@ -17,8 +17,8 @@ interface Props {
 
 const AUTHORIZED_LINKS = [
   { label: 'Dashboard', href: '/dashboard' },
-  { label: 'Accounts', href: '/accounts' },
   { label: 'Transactions', href: '/transactions' },
+  { label: 'Accounts & Categories', href: '/manage' },
 ];
 
 export const NavbarContent = ({ session }: Props) => {

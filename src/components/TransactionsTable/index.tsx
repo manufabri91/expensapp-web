@@ -9,10 +9,11 @@ import { deleteTransactionById } from '@/lib/actions/transactions';
 import { TransactionResponse } from '@/types/dto';
 import { format, parseISO } from 'date-fns';
 import { Dropdown, Pagination, Table } from 'flowbite-react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActionResult } from '@/types/viewModel/actionResult';
 import { useTransactionForm } from '@/components/TransactionForm/TransactionFormProvider';
 import { useTransactionsFilters } from '@/lib/providers/TransactionFiltersProvider';
+import { AVAILABLE_ICONS } from '@/components/IconPicker/constants';
 
 interface Props {
   transactions: TransactionResponse[];
@@ -106,7 +107,11 @@ export const TransactionsTable = ({
           {transactions.map((transaction) => (
             <Table.Row key={transaction.id} className="bg-white dark:border-gray-700 dark:bg-gray-800">
               <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                {transaction.description}
+                <span className="flex items-center gap-2">
+                  {AVAILABLE_ICONS.has(transaction.category.iconName) &&
+                    React.createElement(AVAILABLE_ICONS.get(transaction.category.iconName)!)}
+                  {transaction.description}
+                </span>
               </Table.Cell>
               <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
                 {transaction.accountName}
