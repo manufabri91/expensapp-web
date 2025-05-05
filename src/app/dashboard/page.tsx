@@ -18,7 +18,6 @@ const Dashboard = () => {
     <TransactionFormProvider>
       <AccountFormProvider>
         <main className="max-w-[100vw] p-6">
-          <Toast />
 
           <Suspense fallback={<LoadingSummary />}>
             <Summary />

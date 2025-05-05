@@ -23,7 +23,7 @@ export function Toast() {
   }
   return (
     <FlowbiteToast
-      className="absolute bottom-16 left-5 z-[999]"
+      className="fixed bottom-9 z-[999] self-center"
       theme={{
         root: {
           base: 'flex w-full max-w-lg items-center rounded-lg bg-white p-4 text-gray-600 shadow dark:bg-gray-800 dark:text-gray-300',

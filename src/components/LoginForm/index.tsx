@@ -7,28 +7,32 @@ import { Alert, Label, TextInput } from 'flowbite-react';
 import Link from 'next/link';
 import { useActionState, useEffect, useState } from 'react';
 
+type FormMode = 'login' | 'register';
+
 interface Props {
-  mode?: 'login' | 'register';
+  mode?: FormMode;
   callback?: () => void;
 }
 
 export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
   const [formMode, setFormMode] = useState<'login' | 'register'>(mode);
-  const [loginState, login] = useActionState(handleLoginAction, { error: null });
-  const [registerState, register] = useActionState(handleRegisterAction, { error: null });
+  const [loginState, login] = useActionState(handleLoginAction, null);
+  const [registerState, register] = useActionState(handleRegisterAction, null);
   const [error, setError] = useState<string | null>(null);
   const isLoginMode = formMode === 'login';
+  const formData = isLoginMode ? loginState && loginState?.payload : registerState && registerState?.payload;
 
   useEffect(() => {
     const hasLoggedOrRegistered = !!loginState?.error && !!registerState?.error;
     const error = !!(loginState && loginState?.error) || !!(registerState && registerState?.error);
-    if (error) {
-      setError('Invalid username or password');
-    } else if (hasLoggedOrRegistered) {
+
+    if (hasLoggedOrRegistered) {
       setError(null);
       callback();
+    } else if (error) {
+      setError(isLoginMode ? loginState!.error : registerState!.error);
     }
-  }, [loginState?.error, registerState?.error, callback, loginState, registerState]);
+  }, [loginState?.error, registerState?.error, callback, loginState, registerState, isLoginMode]);
 
   const handleLoginClicked = () => {
     setError(null);
@@ -42,18 +46,86 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
         </Alert>
       )}
       <h3 className="text-xl font-medium text-gray-900 dark:text-white">{isLoginMode ? 'Sign in' : 'Register'}</h3>
+      {!isLoginMode && (
+        <>
+          <div>
+            <div className="mb-2 block">
+              <Label htmlFor="firstName" value="First Name" />
+            </div>
+            <TextInput
+              id="firstName"
+              name="firstName"
+              placeholder="John"
+              defaultValue={(formData?.get('firstName') || '') as string}
+              required
+            />
+          </div>
+          <div>
+            <div className="mb-2 block">
+              <Label htmlFor="lastName" value="Last Name" />
+            </div>
+            <TextInput
+              id="lastName"
+              name="lastName"
+              placeholder="Doe"
+              defaultValue={(formData?.get('lastName') || '') as string}
+              required
+            />
+          </div>
+          <div>
+            <div className="mb-2 block">
+              <Label htmlFor="userName" value="Username" />
+            </div>
+            <TextInput
+              id="userName"
+              name="userName"
+              placeholder="john.doe"
+              defaultValue={(formData?.get('userName') || '') as string}
+              required
+            />
+          </div>
+        </>
+      )}
       <div>
         <div className="mb-2 block">
           <Label htmlFor="email" value="Your email" />
         </div>
-        <TextInput id="email" name="email" placeholder="name@company.com" required />
+        <TextInput
+          id="email"
+          name="email"
+          placeholder="john_doe@email.com"
+          defaultValue={(formData?.get('email') || '') as string}
+          required
+        />
       </div>
       <div>
         <div className="mb-2 block">
           <Label htmlFor="password" value="Your password" />
         </div>
-        <TextInput id="password" type="password" name="password" required />
+        <TextInput
+          id="password"
+          type="password"
+          name="password"
+          defaultValue={(formData?.get('password') || '') as string}
+          required
+        />
       </div>
+      {!isLoginMode && (
+        <>
+          <div>
+            <div className="mb-2 block">
+              <Label htmlFor="passwordRepeat" value="Repeat password" />
+            </div>
+            <TextInput
+              id="passwordRepeat"
+              type="password"
+              name="passwordRepeat"
+              defaultValue={(formData?.get('passwordRepeat') || '') as string}
+              required
+            />
+          </div>
+        </>
+      )}
       <div className="flex justify-between">
         {/* TODO: Implement rembember me cookiy and password recovery features 
               <div className="flex items-center gap-2">
@@ -61,13 +133,15 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
                 <Label htmlFor="remember">Remember me</Label>
               </div>
               */}
-        <Link
-          href="/auth/forgot-password"
-          onClick={() => callback()}
-          className="text-sm text-cyan-700 hover:underline dark:text-cyan-500"
-        >
-          Lost Password?
-        </Link>
+        {isLoginMode && (
+          <Link
+            href="/auth/forgot-password"
+            onClick={() => callback()}
+            className="text-sm text-cyan-700 hover:underline dark:text-cyan-500"
+          >
+            Forgot Password?
+          </Link>
+        )}
       </div>
       <div className="w-full">
         <CTAButton handleLoginClicked={handleLoginClicked} isLoginMode={isLoginMode} />
