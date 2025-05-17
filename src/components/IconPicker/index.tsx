@@ -45,9 +45,9 @@ export const IconPickerFormField: FC<Props> = ({ id, name = 'iconName', initialV
   const [selectedIcon, setSelectedIcon] = useState<Icon>(initialValue);
 
   return (
-    <>
+    <div className="min-w-max">
       <IconPicker value={selectedIcon} onChange={setSelectedIcon} />
       <TextInput type="hidden" id={id ?? name} name={name} value={selectedIcon} />
-    </>
+    </div>
   );
 };

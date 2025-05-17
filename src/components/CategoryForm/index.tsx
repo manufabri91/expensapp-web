@@ -48,12 +48,12 @@ export const CategoryForm = () => {
   if (!isOpen) return null;
 
   return (
-    <Modal show={isOpen} size="md" onClose={closeCategoryForm} popup>
+    <Modal show={isOpen} size="2xl" onClose={closeCategoryForm} popup>
       <Modal.Header as={'div'} className="m-4">
         <h3>{categoryFormData ? 'Edit ' : 'Create '}Category</h3>
       </Modal.Header>
       <Modal.Body>
-        <form className="flex max-w-md flex-col gap-4" action={submitHandler}>
+        <form className="flex flex-col gap-4" action={submitHandler}>
           {!!categoryFormData && (
             <div className="hidden">
               <div className="mb-2 block">

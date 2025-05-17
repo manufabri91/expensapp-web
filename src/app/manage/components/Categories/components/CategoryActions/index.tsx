@@ -24,7 +24,7 @@ export const EditCategoryButton = ({ category }: { category: CategoryResponse })
   const { showCategoryForm } = useCategoryForm();
   return (
     <Button
-      variant={ButtonVariant.Primary}
+      variant={ButtonVariant.Secondary}
       onClick={() => {
         showCategoryForm(category);
       }}

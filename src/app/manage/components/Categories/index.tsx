@@ -1,6 +1,6 @@
 import React from 'react';
 import { Suspense } from 'react';
-import { Accordion, AccordionContent, AccordionPanel, AccordionTitle } from 'flowbite-react';
+import { Accordion, AccordionContent, AccordionPanel, AccordionTitle, Spinner } from 'flowbite-react';
 
 import { getCategories } from '@/lib/actions/categories';
 
@@ -11,17 +11,22 @@ import { AVAILABLE_ICONS } from '@/components/IconPicker/constants';
 export const Categories = async () => {
   const categories = await getCategories();
   return (
-    <div className="flex flex-col gap-8 overflow-x-auto">
-      <h3 className="my-8 text-xl font-semibold text-gray-800 dark:text-gray-100 md:mt-16">Categories</h3>
+    <>
+      <h3 className="my-4 mt-8 text-xl font-semibold text-gray-800 dark:text-gray-100">Categories</h3>
+      <CreateCategoryButton />
       <Suspense
         fallback={
-          <div className="flex h-16 items-center justify-center rounded-lg bg-gray-200 dark:bg-gray-700">
-            <span>Loading categories...</span>
-          </div>
+          <Accordion collapseAll className="mt-4">
+            <AccordionPanel>
+              <AccordionTitle>
+                <Spinner className="mr-2" />
+                Loading categories...
+              </AccordionTitle>
+            </AccordionPanel>
+          </Accordion>
         }
       >
-        <CreateCategoryButton />
-        <Accordion collapseAll>
+        <Accordion collapseAll className="mt-4">
           {categories.map((category) => {
             const Icon = AVAILABLE_ICONS.get(category.iconName) ?? React.Fragment;
             return (
@@ -30,10 +35,12 @@ export const Categories = async () => {
                   <span className="flex gap-2">
                     <Icon className="mr-2 size-6" />
                     {category.name}
-                    <EditCategoryButton category={category} />
                   </span>
                 </AccordionTitle>
                 <AccordionContent>
+                  <div className="flex items-center justify-end">
+                    <EditCategoryButton category={category} />
+                  </div>
                   <SubcategoriesList parentCategoryId={category.id} key={category.id} />
                 </AccordionContent>
               </AccordionPanel>
@@ -41,6 +48,6 @@ export const Categories = async () => {
           })}
         </Accordion>
       </Suspense>
-    </div>
+    </> 
   );
 };

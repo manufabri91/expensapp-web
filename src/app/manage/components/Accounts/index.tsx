@@ -5,9 +5,10 @@ import React from 'react';
 export const Accounts = () => {
   return (
     <>
-      <div className="my-8 flex justify-end gap-4 md:my-16">
-        <AccountActions />
-      </div>
+      <h3 className="my-4 text-xl font-semibold text-gray-800 dark:text-gray-100 md:mt-16">Accounts</h3>
+
+      <AccountActions />
+
       <AccountsDetails />
       <div />
     </>
