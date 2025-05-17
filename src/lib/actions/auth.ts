@@ -1,6 +1,7 @@
 'use server';
 import { signIn, signOut } from '@/lib/auth';
 import { register } from '@/lib/auth/handlers';
+import { RegisterError } from '@/types/exceptions/RegisterError';
 import { CredentialsSignin as CredentialsSigninError } from 'next-auth';
 
 export const handleLogoutAction = async () => {
@@ -10,40 +11,39 @@ export const handleLogoutAction = async () => {
 type RegisterUserData = {
   email: string;
   password: string;
-  username: string;
+  userName: string;
   passwordRepeat: string;
   firstName: string;
   lastName: string;
 };
+type ActionState = { error: string | null; payload?: FormData } | void;
 
-export const handleRegisterAction = async (
-  _: unknown,
-  formData: FormData
-): Promise<void | { error: string | null }> => {
-  const { email, password, username, passwordRepeat, firstName, lastName } = Object.fromEntries(
+export const handleRegisterAction = async (_: unknown, formData: FormData): Promise<ActionState> => {
+  const { email, password, userName, passwordRepeat, firstName, lastName } = Object.fromEntries(
     formData
   ) as RegisterUserData;
   if (password !== passwordRepeat) {
-    return { error: 'Passwords do not match' };
+    return { error: 'Passwords do not match', payload: formData };
   }
   try {
-    await register(username, email, password, firstName, lastName);
-    return { error: null };
-  } catch (error: unknown) {
-    console.log(error);
-    throw error;
+    await register(userName, email, password, firstName, lastName);
+    return { error: null, payload: formData };
+  } catch (err: unknown) {
+    if (err instanceof RegisterError) {
+      return { error: err.message, payload: formData };
+    }
   }
 };
 
-export const handleLoginAction = async (_: unknown, formData: FormData): Promise<void | { error: string | null }> => {
+export const handleLoginAction = async (_: unknown, formData: FormData): Promise<ActionState> => {
   const { email, password } = Object.fromEntries(formData);
 
   try {
     await signIn('credentials', { email, password, redirectTo: '/dashboard' });
-    return { error: null };
+    return { error: null, payload: formData };
   } catch (err: unknown) {
     if (err instanceof CredentialsSigninError) {
-      return { error: 'Wrong credentials' };
+      return { error: 'Wrong credentials', payload: formData };
     }
     throw err;
   }

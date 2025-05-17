@@ -1,6 +1,8 @@
+import { Icon } from '@/types/enums/icon';
+
 export interface CategoryResponse {
   id: number;
   name: string;
-  iconName: string | null;
+  iconName: Icon;
   color: string | null;
 }

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Montserrat } from 'next/font/google';
 
-import { Footer, Navbar } from '@/components';
+import { Footer, Navbar, Toast } from '@/components';
 
 import './globals.css';
 import { Flowbite, ThemeModeScript } from 'flowbite-react';
@@ -44,6 +44,7 @@ export default function RootLayout({
                   <AppProviders>
                     <div className="flex-1">{children}</div>
                   </AppProviders>
+                  <Toast />
                   <Footer />
                 </div>
               </div>

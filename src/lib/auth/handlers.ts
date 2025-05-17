@@ -1,3 +1,5 @@
+import { RegisterError } from "@/types/exceptions/RegisterError";
+
 /**
  * Log in a user by sending a POST request to the backend using the supplied
  * credentials.
@@ -55,7 +57,7 @@ export async function register(
   console.debug('Creating user');
 
   // Verify that the token is valid and not expired
-  return fetch(`${process.env.API_URL}/auth/register`, {
+  const response = await fetch(`${process.env.API_URL}/auth/register`, {
     method: 'POST',
     body: JSON.stringify({
       userName,
@@ -68,4 +70,19 @@ export async function register(
       'Content-Type': 'application/json',
     },
   });
+  if (response.status === 424) {
+    throw new RegisterError('User already exists');
+  }
+  if (response.status === 400) {
+    throw new RegisterError('Invalid data provided');
+  }
+  if (response.status === 500) {
+    throw new RegisterError('Internal server error');
+  }
+
+  if (!response.ok) {
+    throw new RegisterError('Failed to create user');
+  }
+
+  return await response.json();
 }

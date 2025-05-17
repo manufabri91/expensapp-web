@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { ListSkeleton, Toast } from '@/components';
+import { ListSkeleton } from '@/components';
 import { TransactionFormProvider } from '@/components/TransactionForm/TransactionFormProvider';
 import { Suspense } from 'react';
 import { LatestTransactions } from '@/app/transactions/components/LatestTransactions';
@@ -14,7 +14,6 @@ export default function Transactions() {
   return (
     <TransactionFormProvider>
       <main className="max-w-[100vw] p-6">
-        <Toast />
         <div className="flex items-end gap-4">
           <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">Transactions</h2>
         </div>
