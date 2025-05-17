@@ -1,6 +1,6 @@
 'use client';
 
-import { HiPlus, HiTrash } from 'react-icons/hi2';
+import { HiPencil, HiPlus, HiTrash } from 'react-icons/hi2';
 import { Button, ButtonVariant } from '@/components';
 import { SubCategoryResponse } from '@/types/dto';
 import { useSubcategoryForm } from '@/components/SubcategoryForm/SubcategoryFormProvider';
@@ -36,9 +36,9 @@ export const EditSubcategoryButton = ({ subcategory }: { subcategory: SubCategor
         showSubcategoryEditForm(subcategory);
       }}
     >
-      {!isDeleting && <HiTrash className="mr-1 size-5" />}
-      {isDeleting && <Spinner className="mr-1 size-5" />}
-      Edit
+      {!isOpen && <HiPencil className="mr-1 size-5" />}
+      {isOpen && <Spinner className="mr-1 size-5" />}
+      <span className="hidden md:block">{isOpen ? 'Editing...' : 'Edit'}</span>
     </Button>
   );
 };
