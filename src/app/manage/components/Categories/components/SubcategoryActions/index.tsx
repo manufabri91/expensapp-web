@@ -1,6 +1,6 @@
 'use client';
 
-import { HiPencil, HiPlus, HiTrash } from 'react-icons/hi2';
+import { HiPlus, HiTrash } from 'react-icons/hi2';
 import { Button, ButtonVariant } from '@/components';
 import { SubCategoryResponse } from '@/types/dto';
 import { useSubcategoryForm } from '@/components/SubcategoryForm/SubcategoryFormProvider';

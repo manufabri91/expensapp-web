@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { ListSkeleton, Toast } from '@/components';
+import { ListSkeleton } from '@/components';
 import { TransactionFormProvider } from '@/components/TransactionForm/TransactionFormProvider';
 import { Suspense } from 'react';
 import { LatestTransactions } from '@/app/transactions/components/LatestTransactions';
