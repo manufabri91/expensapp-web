@@ -16,22 +16,26 @@ type RegisterUserData = {
   firstName: string;
   lastName: string;
 };
-type ActionState = { error: string | null; payload?: FormData } | void;
+type ActionState = { error: string | null; payload?: FormData, succeded: boolean } | void;
 
 export const handleRegisterAction = async (_: unknown, formData: FormData): Promise<ActionState> => {
   const { email, password, userName, passwordRepeat, firstName, lastName } = Object.fromEntries(
     formData
   ) as RegisterUserData;
   if (password !== passwordRepeat) {
-    return { error: 'Passwords do not match', payload: formData };
+    return { error: 'Passwords do not match', payload: formData, succeded: false };
   }
   try {
     await register(userName, email, password, firstName, lastName);
-    return { error: null, payload: formData };
+    await signIn('credentials', { email, password, redirectTo: '/dashboard' });
+    return { succeded: true, error: null, payload: formData };
   } catch (err: unknown) {
     if (err instanceof RegisterError) {
-      return { error: err.message, payload: formData };
+      return { error: err.message, payload: formData, succeded: false  };
+    } else if (err instanceof Error && err.message === 'NEXT_REDIRECT') {
+      throw err;
     }
+    return { error: 'Registration failed', payload: formData, succeded: false };
   }
 };
 
@@ -40,11 +44,13 @@ export const handleLoginAction = async (_: unknown, formData: FormData): Promise
 
   try {
     await signIn('credentials', { email, password, redirectTo: '/dashboard' });
-    return { error: null, payload: formData };
+    return { error: null, payload: formData, succeded: true  };
   } catch (err: unknown) {
     if (err instanceof CredentialsSigninError) {
-      return { error: 'Wrong credentials', payload: formData };
+      return { error: 'Wrong credentials', payload: formData, succeded: false  };
+    } else if (err instanceof Error && err.message === 'NEXT_REDIRECT') {
+      throw err;
     }
-    throw err;
+    return { error: 'Login failed', payload: formData, succeded: false };
   }
 };

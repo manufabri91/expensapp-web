@@ -15,31 +15,32 @@ interface Props {
 }
 
 export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
-  const [formMode, setFormMode] = useState<'login' | 'register'>(mode);
-  const [loginState, login] = useActionState(handleLoginAction, null);
-  const [registerState, register] = useActionState(handleRegisterAction, null);
-  const [error, setError] = useState<string | null>(null);
+  const [formMode, setFormMode] = useState<FormMode>(mode);
   const isLoginMode = formMode === 'login';
-  const formData = isLoginMode ? loginState && loginState?.payload : registerState && registerState?.payload;
+  const actionFn = isLoginMode ? handleLoginAction : handleRegisterAction;
+  const [actionState, action] = useActionState(actionFn, null);
+  const [error, setError] = useState<string | null>(null);
+  const formData = actionState && actionState.payload;
 
   useEffect(() => {
-    const hasLoggedOrRegistered = !!loginState?.error && !!registerState?.error;
-    const error = !!(loginState && loginState?.error) || !!(registerState && registerState?.error);
+    setError(null);
+  }, [formMode]);
 
-    if (hasLoggedOrRegistered) {
+  useEffect(() => {
+    if (actionState?.succeded) {
       setError(null);
       callback();
-    } else if (error) {
-      setError(isLoginMode ? loginState!.error : registerState!.error);
+    } else if (actionState?.error) {
+      setError(actionState.error);
     }
-  }, [loginState?.error, registerState?.error, callback, loginState, registerState, isLoginMode]);
+  }, [actionState, callback]);
 
   const handleLoginClicked = () => {
     setError(null);
   };
 
   return (
-    <form className="space-y-6" action={isLoginMode ? login : register}>
+    <form className="space-y-6" action={action}>
       {error && (
         <Alert color="failure" icon={HiInformationCircle}>
           <span className="font-medium">Whoops!</span> {error}.
