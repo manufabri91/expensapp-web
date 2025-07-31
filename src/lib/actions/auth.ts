@@ -2,6 +2,7 @@
 import { signIn, signOut } from '@/lib/auth';
 import { register } from '@/lib/auth/handlers';
 import { RegisterError } from '@/types/exceptions/RegisterError';
+import { UnreachableLoginError } from '@/types/exceptions/unreachableLogin';
 import { CredentialsSignin as CredentialsSigninError } from 'next-auth';
 
 export const handleLogoutAction = async () => {
@@ -46,9 +47,11 @@ export const handleLoginAction = async (_: unknown, formData: FormData): Promise
     await signIn('credentials', { email, password, redirectTo: '/dashboard' });
     return { error: null, payload: formData, succeded: true  };
   } catch (err: unknown) {
-    if (err instanceof CredentialsSigninError) {
+    if (err instanceof UnreachableLoginError) {
+      return { error: 'Login service unavailable', payload: formData, succeded: false  };
+    }  else if (err instanceof CredentialsSigninError) {
       return { error: 'Wrong credentials', payload: formData, succeded: false  };
-    } else if (err instanceof Error && err.message === 'NEXT_REDIRECT') {
+    }  else if (err instanceof Error && err.message === 'NEXT_REDIRECT') {
       throw err;
     }
     return { error: 'Login failed', payload: formData, succeded: false };

@@ -14,6 +14,7 @@ import { jwtDecode } from 'jwt-decode';
 import { login, refresh } from '@/lib/auth/handlers';
 import { InvalidLoginError } from '@/types/exceptions/invalidLogin';
 import { AdapterUser } from 'next-auth/adapters';
+import { UnreachableLoginError } from '@/types/exceptions/unreachableLogin';
 
 export const authConfig: NextAuthConfig = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -34,9 +35,12 @@ export const authConfig: NextAuthConfig = {
           const res = await login((credentials?.email || '') as string, (credentials?.password || '') as string);
           const responseData: BackendJWT = await res.json();
 
-          if (!res.ok && (res.status === 404 || res.status === 422)) {
+          if (!res.ok) {
             console.error(responseData);
-            throw new InvalidLoginError();
+            if (res.status === 404 || res.status === 422) {
+              throw new InvalidLoginError();
+            } 
+            throw new UnreachableLoginError();
           }
 
           const access: DecodedJWT = jwtDecode(responseData.token);
@@ -65,6 +69,9 @@ export const authConfig: NextAuthConfig = {
           } as User;
         } catch (error) {
           console.error(error);
+          if (error instanceof TypeError || error instanceof SyntaxError) {
+            throw new UnreachableLoginError();
+          }
           return null;
         }
       },
