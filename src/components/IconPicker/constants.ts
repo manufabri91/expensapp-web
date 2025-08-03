@@ -30,6 +30,7 @@ import {
   LiaTicketAltSolid,
   LiaTintSolid,
   LiaTshirtSolid,
+  LiaExchangeAltSolid,
   LiaWifiSolid,
 } from 'react-icons/lia';
 
@@ -62,6 +63,7 @@ export const AVAILABLE_ICONS = new Map<Icon, IconType>([
   [Icon.STHETOSCOPE, LiaStethoscopeSolid],
   [Icon.THEATER, LiaTheaterMasksSolid],
   [Icon.TICKET, LiaTicketAltSolid],
+  [Icon.TRANSFER, LiaExchangeAltSolid],
   [Icon.TSHIRT, LiaTshirtSolid],
   [Icon.WATER, LiaTintSolid],
 ]);

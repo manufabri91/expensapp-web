@@ -28,6 +28,7 @@ export enum Icon {
   STHETOSCOPE = 'stethoscope',
   THEATER = 'theater',
   TICKET = 'ticket',
+  TRANSFER = 'transfer',
   TSHIRT = 'tshirt',
   WATER = 'water',
 }
