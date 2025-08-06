@@ -10,6 +10,8 @@ import { useCategoryForm } from '@/components/CategoryForm/CategoryFormProvider'
 import { useCategories } from '@/lib/providers/CategoriesProvider';
 import { createCategory, editCategory } from '@/lib/actions/categories';
 import { IconPickerFormField } from '@/components/IconPicker';
+import { TransactionType } from '@/types/enums/transactionType';
+import { TransactionTypeSelector } from '@/components/TransactionTypeSelector';
 
 export const CategoryForm = () => {
   const { showToast } = useToaster();
@@ -17,6 +19,7 @@ export const CategoryForm = () => {
   const { addCategory } = useCategories();
   const [createdCategory, setCreatedCategory] = useState<CategoryResponse | null>(null);
   const [editedCategory, setEditedCategory] = useState<CategoryResponse | null>(null);
+  const [type, setType] = useState<TransactionType>(categoryFormData?.type || TransactionType.EXPENSE);
   const [processing, setProcessing] = useState<boolean>(false);
 
   useEffect(() => {
@@ -62,6 +65,9 @@ export const CategoryForm = () => {
               <TextInput id="id" name="id" type="text" value={categoryFormData?.id} readOnly shadow />
             </div>
           )}
+          <div className="mb-2">
+            <TransactionTypeSelector initialValue={type} onSelect={setType} hideTransfers />
+          </div>
           <div>
             <div className="mb-2 block">
               <Label htmlFor="name" value="Category Name" />

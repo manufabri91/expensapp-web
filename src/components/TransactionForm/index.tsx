@@ -112,6 +112,18 @@ export const TransactionForm = () => {
     setSelectedAccount(Number(event.target.value));
   };
 
+  const onTypeChange = (type: TransactionType) => {
+    if (type === TransactionType.TRANSFER) {
+      setSelectedCategory(undefined);
+      setSelectedSubcategory(undefined);
+      setFilteredSubcategories([]);
+    } else {
+      setSelectedCategory(undefined);
+      setSelectedSubcategory(undefined);
+    }
+    setSelectedType(type);
+  };
+
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -153,7 +165,7 @@ export const TransactionForm = () => {
             <TextInput id="id" name="id" type="text" value={transactionFormData?.id} readOnly shadow />
           </div>
           <div>
-            <TransactionTypeSelector initialValue={selectedType} onSelect={setSelectedType} />
+            <TransactionTypeSelector initialValue={selectedType} onSelect={onTypeChange} />
           </div>
 
           <div>
@@ -271,11 +283,13 @@ export const TransactionForm = () => {
                   onChange={onSelectedCategory}
                 >
                   <option value={undefined}>Select Category</option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
+                  {categories
+                    .filter((cat) => cat.type === selectedType)
+                    .map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
                 </Select>
               </div>
 

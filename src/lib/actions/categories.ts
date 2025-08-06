@@ -29,6 +29,7 @@ export const createCategory = async (formData: FormData): Promise<CategoryRespon
     name: String(data.name),
     color: String(data.color),
     iconName: String(data.iconName),
+    type: String(data.type),
   };
 
   const baseUrl = await getBaseUrl();
@@ -57,6 +58,7 @@ export const editCategory = async (formData: FormData): Promise<CategoryResponse
     name: String(data.name),
     color: String(data.color),
     iconName: String(data.iconName),
+    type: String(data.type),
   };
   const baseUrl = await getBaseUrl();
   const cookie = (await nextHeaders()).get('cookie')!;

@@ -3,4 +3,5 @@ export interface CategoryRequest {
   name: string;
   iconName: string | null;
   color: string | null;
+  type: string;
 }
