@@ -1,9 +1,10 @@
 'use client';
 
-import { ButtonSelector, Button, ButtonVariant } from '@/components';
+import { Button, ButtonVariant } from '@/components';
 import { ToastType } from '@/components/Toast';
 import { useToaster } from '@/components/Toast/ToastProvider';
 import { useTransactionForm } from '@/components/TransactionForm/TransactionFormProvider';
+import { TransactionTypeSelector } from '@/components/TransactionTypeSelector';
 import { createTransaction, editTransaction } from '@/lib/actions/transactions';
 import { useAccounts } from '@/lib/providers/AccountsProvider';
 import { useCategories } from '@/lib/providers/CategoriesProvider';
@@ -13,27 +14,6 @@ import { parseISO } from 'date-fns';
 
 import { Checkbox, Datepicker, Label, Modal, Select, TextInput } from 'flowbite-react';
 import { useCallback, useEffect, useState } from 'react';
-
-interface Props {
-  initialValue?: TransactionType;
-  onSelect: (type: TransactionType) => void;
-}
-
-const TransactionTypeSelector = ({ initialValue, onSelect }: Props) => {
-  const options = [
-    { id: TransactionType.INCOME, label: 'Income', colorClass: 'before:bg-green-500' },
-    { id: TransactionType.EXPENSE, label: 'Expense', colorClass: 'before:bg-red-500' },
-    { id: TransactionType.TRANSFER, label: 'Transfer', colorClass: 'before:bg-blue-500' },
-  ];
-  return (
-    <ButtonSelector
-      options={options}
-      onChange={(id: string) => onSelect(id as TransactionType)}
-      value={initialValue}
-      fieldName="type"
-    />
-  );
-};
 
 export const TransactionForm = () => {
   const { showToast } = useToaster();

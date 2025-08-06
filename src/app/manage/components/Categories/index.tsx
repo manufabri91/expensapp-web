@@ -32,8 +32,8 @@ export const Categories = async () => {
             return (
               <AccordionPanel key={category.id}>
                 <AccordionTitle>
-                  <span className="flex gap-2">
-                    <Icon className="mr-2 size-6" />
+                  <span className="flex items-center gap-2">
+                    <Icon className="mr-1 size-6" color={category.color ?? undefined} />
                     {category.name}
                   </span>
                 </AccordionTitle>
@@ -48,6 +48,6 @@ export const Categories = async () => {
           })}
         </Accordion>
       </Suspense>
-    </> 
+    </>
   );
 };

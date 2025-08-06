@@ -100,7 +100,7 @@ export const createTransaction = async (formData: FormData): Promise<Transaction
 
   revalidatePath('/dashboard');
   revalidatePath('/transactions');
-  revalidatePath('/accounts');
+  revalidatePath('/manage');
   return await response.json();
 };
 
@@ -135,7 +135,7 @@ export const editTransaction = async (formData: FormData): Promise<TransactionRe
 
   revalidatePath('/dashboard');
   revalidatePath('/transactions');
-  revalidatePath('/accounts');
+  revalidatePath('/manage');
   return await response.json();
 };
 

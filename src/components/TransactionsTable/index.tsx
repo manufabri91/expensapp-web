@@ -109,7 +109,10 @@ export const TransactionsTable = ({
               <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
                 <span className="flex items-center gap-2">
                   {AVAILABLE_ICONS.has(transaction.category.iconName) &&
-                    React.createElement(AVAILABLE_ICONS.get(transaction.category.iconName)!)}
+                    React.createElement(AVAILABLE_ICONS.get(transaction.category.iconName)!, {
+                      color: transaction.category.color ?? undefined,
+                      className: 'size-6 mr-1',
+                    })}
                   {transaction.description}
                 </span>
               </Table.Cell>

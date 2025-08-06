@@ -38,6 +38,12 @@ export const POST = async (req: NextRequest) => {
       },
     });
     const newTransaction = await response.json();
+
+    if (!response.ok) {
+      console.error('Failed to create transaction:', newTransaction);
+      throw new Error(newTransaction.message || 'UNEXPECTED_ERROR');
+    }
+
     return NextResponse.json(newTransaction);
   } catch (error) {
     console.log(error);

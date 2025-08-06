@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { Label, Modal, TextInput } from 'flowbite-react';
 
 import { Button, ButtonVariant } from '@/components/Button';
@@ -35,6 +35,21 @@ export const CategoryForm = () => {
       setProcessing(false);
     }
   }, [closeCategoryForm, createdCategory, editedCategory, showToast]);
+
+  useEffect(() => {
+    if (categoryFormData) {
+      setType(categoryFormData.type);
+    }
+  }, [categoryFormData]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setType(TransactionType.EXPENSE);
+      setCreatedCategory(null);
+      setEditedCategory(null);
+      setProcessing(false);
+    }
+  }, [isOpen]);
 
   const submitHandler = async (formData: FormData) => {
     setProcessing(true);

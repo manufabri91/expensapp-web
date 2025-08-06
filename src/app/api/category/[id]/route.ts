@@ -26,8 +26,9 @@ export const GET = async (_: NextRequest, { params }: { params: tParams }) => {
   }
 };
 
-export const PUT = async (_: NextRequest, { params }: { params: tParams }) => {
+export const PUT = async (req: NextRequest, { params }: { params: tParams }) => {
   const { id } = await params;
+  const payload = await req.json();
   try {
     const session = await auth();
     if (!session) {
@@ -35,10 +36,17 @@ export const PUT = async (_: NextRequest, { params }: { params: tParams }) => {
     }
     const response = await fetch(`${process.env.API_URL}/category/${id}`, {
       method: 'PUT',
+      body: JSON.stringify(payload),
       headers: {
         Authorization: session.user.token,
+        ['Content-Type']: 'application/json',
       },
     });
+
+    if (!response.ok) {
+      throw new Error('Failed to update category');
+    }
+
     const category = await response.json();
     return NextResponse.json(category);
   } catch (error) {
@@ -61,7 +69,11 @@ export const DELETE = async (_: NextRequest, { params }: { params: tParams }) =>
       },
     });
 
-    return response.status === 200 ? NextResponse.json({ deleted: true }) : NextResponse.error();
+    if (!response.ok) {
+      throw new Error('Failed to delete category');
+    }
+
+    return NextResponse.json({ deleted: true });
   } catch (error) {
     console.log(error);
     return NextResponse.error();
