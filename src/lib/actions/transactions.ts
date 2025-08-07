@@ -75,11 +75,14 @@ export const createTransaction = async (formData: FormData): Promise<Transaction
   const data = Object.fromEntries(formData);
   const payload: TransactionRequest = {
     eventDate: parseEventDate(data.eventDate ? new Date(String(data.eventDate)) : null),
-    amount: data.type === TransactionType.EXPENSE ? -Number(data.amount) : Number(data.amount),
+    amount: Math.abs(Number(data.amount)),
     description: String(data.description),
     accountId: Number(data.account),
     categoryId: Number(data.category),
     subcategoryId: Number(data.subcategory),
+    type: data.type as TransactionType,
+    destinationAccountId: data.destinationAccount ? Number(data.destinationAccount) : undefined,
+    excludeFromTotals: data.excludeFromTotals === 'on',
   };
   const baseUrl = await getBaseUrl();
   const cookie = (await nextHeaders()).get('cookie')!;
@@ -97,6 +100,7 @@ export const createTransaction = async (formData: FormData): Promise<Transaction
 
   revalidatePath('/dashboard');
   revalidatePath('/transactions');
+  revalidatePath('/manage');
   return await response.json();
 };
 
@@ -106,11 +110,14 @@ export const editTransaction = async (formData: FormData): Promise<TransactionRe
 
   const payload: TransactionRequest = {
     eventDate: parseEventDate(data.eventDate ? new Date(String(data.eventDate)) : null),
-    amount: data.type === TransactionType.EXPENSE ? -Number(data.amount) : Number(data.amount),
+    amount: Math.abs(Number(data.amount)),
     description: String(data.description),
     accountId: Number(data.account),
     categoryId: Number(data.category),
     subcategoryId: Number(data.subcategory),
+    type: data.type as TransactionType,
+    destinationAccountId: data.destinationAccount ? Number(data.destinationAccount) : undefined,
+    excludeFromTotals: data.excludeFromTotals === 'on',
   };
   const baseUrl = await getBaseUrl();
   const cookie = (await nextHeaders()).get('cookie')!;
@@ -128,6 +135,7 @@ export const editTransaction = async (formData: FormData): Promise<TransactionRe
 
   revalidatePath('/dashboard');
   revalidatePath('/transactions');
+  revalidatePath('/manage');
   return await response.json();
 };
 

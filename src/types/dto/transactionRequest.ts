@@ -1,3 +1,5 @@
+import { TransactionType } from "@/types/enums/transactionType";
+
 export interface TransactionRequest {
   id?: number;
   amount: number;
@@ -6,4 +8,7 @@ export interface TransactionRequest {
   accountId: number;
   categoryId: number;
   subcategoryId: number;
+  type: TransactionType;
+  excludeFromTotals?: boolean;
+  destinationAccountId?: number;
 }

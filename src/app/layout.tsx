@@ -29,6 +29,7 @@ export default function RootLayout({
         <ThemeModeScript />
       </head>
       <Flowbite
+        // eslint-disable-next-line tailwindcss/no-custom-classname
         theme={{
           mode: 'auto',
         }}

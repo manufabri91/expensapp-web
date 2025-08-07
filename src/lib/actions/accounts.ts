@@ -47,7 +47,7 @@ export const createAccount = async (formData: FormData): Promise<AccountResponse
   }
 
   revalidatePath('/dashboard');
-  revalidatePath('/accounts');
+  revalidatePath('/manage');
   return await response.json();
 };
 
@@ -76,7 +76,7 @@ export const editAccount = async (formData: FormData): Promise<AccountResponse> 
   }
 
   revalidatePath('/dashboard');
-  revalidatePath('/accounts');
+  revalidatePath('/manage');
   return await response.json();
 };
 
