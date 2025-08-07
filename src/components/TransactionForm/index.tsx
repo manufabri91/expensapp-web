@@ -178,38 +178,17 @@ export const TransactionForm = () => {
             </div>
           )}
 
-          <div className="max-w-md">
-            <div className="mb-2 block">
-              <Label
-                htmlFor="account"
-                value={selectedType !== TransactionType.TRANSFER ? 'Account' : 'Origin Account'}
-              />
-            </div>
-            <Select
-              id="account"
-              name="account"
-              defaultValue={transactionFormData?.accountId ?? accounts[0]?.id}
-              required
-              onChange={onAccountChange}
-            >
-              <option value={undefined}>Select Account</option>
-              {accounts.map((account) => (
-                <option key={account.id} value={account.id}>
-                  {account.name}
-                </option>
-              ))}
-            </Select>
-          </div>
-          {selectedType === TransactionType.TRANSFER && (
+          {selectedType !== TransactionType.TRANSFER && (
             <div className="max-w-md">
               <div className="mb-2 block">
-                <Label htmlFor="destinationAccount" value="Destination Account" />
+                <Label htmlFor="account" value="Account" />
               </div>
               <Select
-                id="destinationAccount"
-                name="destinationAccount"
-                defaultValue={transactionFormData?.linkedTransaction?.accountId}
+                id="account"
+                name="account"
+                defaultValue={transactionFormData?.accountId ?? accounts[0]?.id}
                 required
+                onChange={onAccountChange}
               >
                 <option value={undefined}>Select Account</option>
                 {accounts.map((account) => (
@@ -219,6 +198,56 @@ export const TransactionForm = () => {
                 ))}
               </Select>
             </div>
+          )}
+          {selectedType === TransactionType.TRANSFER && (
+            <>
+              <div className="max-w-md">
+                <div className="mb-2 block">
+                  <Label htmlFor="account" value="Origin Account" />
+                </div>
+                <Select
+                  id="account"
+                  name="account"
+                  defaultValue={
+                    (transactionFormData && transactionFormData.subcategory.name === 'TRANSFER.OUT.SUBCATEGORY'
+                      ? transactionFormData?.accountId
+                      : transactionFormData?.linkedTransaction?.accountId) ?? accounts[0]?.id
+                  }
+                  required
+                  onChange={onAccountChange}
+                >
+                  <option value={undefined}>Select Account</option>
+                  {accounts.map((account) => (
+                    <option key={account.id} value={account.id}>
+                      {account.name}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+
+              <div className="max-w-md">
+                <div className="mb-2 block">
+                  <Label htmlFor="destinationAccount" value="Destination Account" />
+                </div>
+                <Select
+                  id="destinationAccount"
+                  name="destinationAccount"
+                  defaultValue={
+                    transactionFormData && transactionFormData.subcategory.name === 'TRANSFER.IN.SUBCATEGORY'
+                      ? transactionFormData?.accountId
+                      : transactionFormData?.linkedTransaction?.accountId
+                  }
+                  required
+                >
+                  <option value={undefined}>Select Account</option>
+                  {accounts.map((account) => (
+                    <option key={account.id} value={account.id}>
+                      {account.name}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+            </>
           )}
           {selectedType !== TransactionType.TRANSFER && (
             <div>
