@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Label, Modal, TextInput } from 'flowbite-react';
 
 import { Button, ButtonVariant } from '@/components/Button';
