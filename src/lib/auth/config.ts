@@ -31,17 +31,29 @@ export const authConfig: NextAuthConfig = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
+        let res;
+        let retries = 0;
+        const maxRetries = 3;
+        const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
         try {
-          const res = await login((credentials?.email || '') as string, (credentials?.password || '') as string);
-          const responseData: BackendJWT = await res.json();
+          do {
+            res = await login((credentials?.email || '') as string, (credentials?.password || '') as string);
+            if (res.status !== 502) break;
+            console.warn(`Retrying login due to 502 error... Attempt ${retries + 1}`);
+            retries++;
+            if (retries <= maxRetries) {
+              await wait(2000 * retries); // exponential backoff
+            }
+          } while (res.status === 502 && retries <= maxRetries);
 
-          if (!res.ok) {
-            console.error(responseData);
+          if (!res?.ok) {
+            console.error(res);
             if (res.status === 404 || res.status === 422) {
               throw new InvalidLoginError();
-            } 
+            }
             throw new UnreachableLoginError();
           }
+          const responseData: BackendJWT = await res.json();
 
           const access: DecodedJWT = jwtDecode(responseData.token);
           // Extract the user from the access token
