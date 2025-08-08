@@ -3,7 +3,7 @@
 import { headers as nextHeaders } from 'next/headers';
 import { getBaseUrl } from '@/lib/utils/url';
 import { CategoryRequest, CategoryResponse } from '@/types/dto';
-import { unstable_noStore } from 'next/cache';
+import { unstable_noStore, revalidatePath } from 'next/cache';
 import { ActionResult } from '@/types/viewModel/actionResult';
 
 export const getCategories = async (): Promise<CategoryResponse[]> => {
@@ -46,6 +46,8 @@ export const createCategory = async (formData: FormData): Promise<CategoryRespon
     throw new Error(`Failed to create category`);
   }
 
+  revalidatePath('/dashboard');
+  revalidatePath('/manage');
   return await response.json();
 };
 
@@ -74,6 +76,8 @@ export const editCategory = async (formData: FormData): Promise<CategoryResponse
     throw new Error(`Failed to edit category`);
   }
 
+  revalidatePath('/dashboard');
+  revalidatePath('/manage');
   return await response.json();
 };
 
@@ -89,5 +93,8 @@ export const deleteCategoryById = async (id: number): Promise<ActionResult> => {
   if (!response.ok) {
     return { success: false, message: `Failed to delete Category: ${id}` };
   }
+
+  revalidatePath('/dashboard');
+  revalidatePath('/manage');
   return { success: true, message: `Category ${id} deleted` };
 };

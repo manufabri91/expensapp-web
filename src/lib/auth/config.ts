@@ -39,7 +39,7 @@ export const authConfig: NextAuthConfig = {
           do {
             res = await login((credentials?.email || '') as string, (credentials?.password || '') as string);
             if (res.status <= 499) break;
-            console.warn(`Retrying login due to 5xx error... Attempt ${retries + 1}`);
+            console.warn(`Retrying login due to ${res.status} error... Attempt ${retries + 1}`);
             retries++;
             if (retries <= maxRetries) {
               await wait(2000 * retries); // exponential backoff

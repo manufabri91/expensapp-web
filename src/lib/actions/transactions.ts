@@ -150,7 +150,7 @@ export const deleteTransactionById = async (id: number): Promise<ActionResult> =
 
   revalidatePath('/dashboard');
   revalidatePath('/transactions');
-
+  revalidatePath('/manage');
   if (!response.ok) {
     return { success: false, message: `Failed to delete Transaction: ${id}` };
   }

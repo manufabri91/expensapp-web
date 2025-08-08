@@ -3,6 +3,9 @@
 import { CategoryResponse, SubCategoryResponse } from '@/types/dto';
 import React, { createContext, useState, ReactNode, useContext } from 'react';
 
+import { getCategories } from '@/lib/actions/categories';
+import { getSubcategories } from '@/lib/actions/subcategories';
+
 interface CategoriesContextProps {
   categories: CategoryResponse[];
   subcategories: SubCategoryResponse[];
@@ -10,6 +13,7 @@ interface CategoriesContextProps {
   addSubcategory: (subcategory: SubCategoryResponse) => void;
   deleteCategory: (id: number) => void;
   deleteSubcategory: (id: number) => void;
+  refetchAll: () => Promise<void>;
 }
 
 const CategoriesContext = createContext<CategoriesContextProps>({
@@ -19,6 +23,7 @@ const CategoriesContext = createContext<CategoriesContextProps>({
   addSubcategory: () => {},
   deleteCategory: () => {},
   deleteSubcategory: () => {},
+  refetchAll: async () => {},
 });
 
 const useCategories = (): CategoriesContextProps => {
@@ -55,9 +60,15 @@ const CategoriesProvider: React.FC<{
     setSubcategories(newSubcategories);
   };
 
+  const refetchAll = async () => {
+    const [fetchedCategories, fetchedSubcategories] = await Promise.all([getCategories(), getSubcategories()]);
+    setCategories(fetchedCategories);
+    setSubcategories(fetchedSubcategories);
+  };
+
   return (
     <CategoriesContext.Provider
-      value={{ categories, subcategories, addCategory, addSubcategory, deleteCategory, deleteSubcategory }}
+      value={{ categories, subcategories, addCategory, addSubcategory, deleteCategory, deleteSubcategory, refetchAll }}
     >
       {children}
     </CategoriesContext.Provider>

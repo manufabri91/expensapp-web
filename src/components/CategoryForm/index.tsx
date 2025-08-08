@@ -16,7 +16,7 @@ import { TransactionTypeSelector } from '@/components/TransactionTypeSelector';
 export const CategoryForm = () => {
   const { showToast } = useToaster();
   const { categoryFormData, isOpen, closeCategoryForm } = useCategoryForm();
-  const { addCategory } = useCategories();
+  const { refetchAll } = useCategories();
   const [createdCategory, setCreatedCategory] = useState<CategoryResponse | null>(null);
   const [editedCategory, setEditedCategory] = useState<CategoryResponse | null>(null);
   const [type, setType] = useState<TransactionType>(categoryFormData?.type || TransactionType.EXPENSE);
@@ -33,8 +33,9 @@ export const CategoryForm = () => {
       setEditedCategory(null);
       closeCategoryForm();
       setProcessing(false);
+      refetchAll();
     }
-  }, [closeCategoryForm, createdCategory, editedCategory, showToast]);
+  }, [closeCategoryForm, createdCategory, editedCategory, showToast, refetchAll]);
 
   useEffect(() => {
     if (categoryFormData) {
@@ -55,10 +56,11 @@ export const CategoryForm = () => {
     setProcessing(true);
     if (!categoryFormData) {
       const createdCategory = await createCategory(formData);
+      await refetchAll();
       setCreatedCategory(createdCategory);
-      addCategory(createdCategory);
     } else {
       const updatedAccocreatedCategory = await editCategory(formData);
+      await refetchAll();
       setEditedCategory(updatedAccocreatedCategory);
     }
   };

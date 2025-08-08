@@ -4,7 +4,7 @@ import { headers as nextHeaders } from 'next/headers';
 import { getBaseUrl } from '@/lib/utils/url';
 import { SubCategoryResponse } from '@/types/dto';
 import { ActionResult } from '@/types/viewModel/actionResult';
-import { unstable_noStore } from 'next/cache';
+import { revalidatePath, unstable_noStore } from 'next/cache';
 import { SubCategoryRequest } from '@/types/dto/subcategoryRequest';
 
 export const getSubcategories = async (): Promise<SubCategoryResponse[]> => {
@@ -62,6 +62,8 @@ export const createSubcategory = async (formData: FormData): Promise<SubCategory
     throw new Error(`Failed to create Subcategory`);
   }
 
+  revalidatePath('/dashboard');
+  revalidatePath('/manage');
   return await response.json();
 };
 
@@ -88,6 +90,8 @@ export const editSubcategory = async (formData: FormData): Promise<SubCategoryRe
     throw new Error(`Failed to edit Subcategory`);
   }
 
+  revalidatePath('/dashboard');
+  revalidatePath('/manage');
   return await response.json();
 };
 
@@ -103,5 +107,8 @@ export const deleteSubcategoryById = async (id: number): Promise<ActionResult> =
   if (!response.ok) {
     return { success: false, message: `Failed to delete Subcategory: ${id}` };
   }
+
+  revalidatePath('/dashboard');
+  revalidatePath('/manage');
   return { success: true, message: `Subcategory ${id} deleted` };
 };

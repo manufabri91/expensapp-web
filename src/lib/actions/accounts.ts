@@ -90,7 +90,7 @@ export const deleteAccountById = async (id: number): Promise<ActionResult> => {
   });
 
   revalidatePath('/dashboard');
-  revalidatePath('/transactions');
+  revalidatePath('/manage');
   if (!response.ok) {
     return { success: false, message: `Failed to delete Account: ${id}` };
   }
