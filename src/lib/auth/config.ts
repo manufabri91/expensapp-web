@@ -38,13 +38,13 @@ export const authConfig: NextAuthConfig = {
         try {
           do {
             res = await login((credentials?.email || '') as string, (credentials?.password || '') as string);
-            if (res.status !== 502) break;
-            console.warn(`Retrying login due to 502 error... Attempt ${retries + 1}`);
+            if (res.status <= 499) break;
+            console.warn(`Retrying login due to 5xx error... Attempt ${retries + 1}`);
             retries++;
             if (retries <= maxRetries) {
               await wait(2000 * retries); // exponential backoff
             }
-          } while (res.status === 502 && retries <= maxRetries);
+          } while (res.status > 499 && retries <= maxRetries);
 
           if (!res?.ok) {
             console.error(res);
