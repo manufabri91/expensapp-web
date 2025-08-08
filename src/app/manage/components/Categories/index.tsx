@@ -4,7 +4,7 @@ import { Accordion, AccordionContent, AccordionPanel, AccordionTitle, Spinner } 
 
 import { getCategories } from '@/lib/actions/categories';
 
-import { CreateCategoryButton, EditCategoryButton } from './components/CategoryActions';
+import { CreateCategoryButton, DeleteCategoryButton, EditCategoryButton } from './components/CategoryActions';
 import { SubcategoriesList } from './components/SubcategoriesList';
 import { AVAILABLE_ICONS } from '@/components/IconPicker/constants';
 
@@ -26,27 +26,38 @@ export const Categories = async () => {
           </Accordion>
         }
       >
-        <Accordion collapseAll className="mt-4">
-          {categories.map((category) => {
-            const Icon = AVAILABLE_ICONS.get(category.iconName) ?? React.Fragment;
-            return (
-              <AccordionPanel key={category.id}>
-                <AccordionTitle>
-                  <span className="flex items-center gap-2">
-                    <Icon className="mr-1 size-6" color={category.color ?? undefined} />
-                    {category.name}
-                  </span>
-                </AccordionTitle>
-                <AccordionContent>
-                  <div className="flex items-center justify-end">
-                    <EditCategoryButton category={category} />
+        <div className="mt-4 flex flex-col gap-4">
+          {categories
+            .filter(({ readOnly }) => !readOnly)
+            .map((category) => {
+              const Icon = AVAILABLE_ICONS.get(category.iconName) ?? React.Fragment;
+              return (
+                <div
+                  key={category.id}
+                  className="rounded-lg border border-gray-200 bg-white p-4 shadow-md dark:border-gray-700 dark:bg-gray-800"
+                >
+                  <div className="mb-4 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Icon className="mr-1 size-6" color={category.color ?? undefined} />
+                      <span className="font-medium">{category.name}</span>
+                    </div>
+                    <div className="flex items-center justify-start gap-2">
+                      <EditCategoryButton category={category} />
+                      <DeleteCategoryButton categoryId={category.id} />
+                    </div>
                   </div>
-                  <SubcategoriesList parentCategoryId={category.id} key={category.id} />
-                </AccordionContent>
-              </AccordionPanel>
-            );
-          })}
-        </Accordion>
+                  <Accordion collapseAll>
+                    <AccordionPanel>
+                      <AccordionTitle>Subcategories</AccordionTitle>
+                      <AccordionContent>
+                        <SubcategoriesList parentCategoryId={category.id} key={category.id} />
+                      </AccordionContent>
+                    </AccordionPanel>
+                  </Accordion>
+                </div>
+              );
+            })}
+        </div>
       </Suspense>
     </>
   );

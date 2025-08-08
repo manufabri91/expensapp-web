@@ -10,9 +10,10 @@ import { Spinner } from 'flowbite-react';
 
 interface CreateSubcategoryButtonProps {
   parentCategoryId: number;
+  className?: string;
 }
 
-export const CreateSubcategoryButton = ({ parentCategoryId }: CreateSubcategoryButtonProps) => {
+export const CreateSubcategoryButton = ({ parentCategoryId, className }: CreateSubcategoryButtonProps) => {
   const { showSubcategoryCreateForm } = useSubcategoryForm();
   return (
     <Button
@@ -20,9 +21,10 @@ export const CreateSubcategoryButton = ({ parentCategoryId }: CreateSubcategoryB
       onClick={() => {
         showSubcategoryCreateForm(parentCategoryId);
       }}
+      className={className}
     >
       <HiPlus className="mr-1 size-5" />
-      New Subcategory
+      Add Subcategory
     </Button>
   );
 };

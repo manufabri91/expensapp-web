@@ -85,7 +85,7 @@ export const deleteCategoryById = async (id: number): Promise<ActionResult> => {
   unstable_noStore();
   const baseUrl = await getBaseUrl();
   const cookie = (await nextHeaders()).get('cookie')!;
-  const response = await fetch(`${baseUrl}/api/account/${id}`, {
+  const response = await fetch(`${baseUrl}/api/category/${id}`, {
     method: 'DELETE',
     headers: { cookie },
   });

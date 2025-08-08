@@ -7,5 +7,5 @@ export interface CategoryResponse {
   iconName: Icon;
   color: string | null;
   type: TransactionType;
-  readonly?: boolean;
+  readOnly?: boolean;
 }
