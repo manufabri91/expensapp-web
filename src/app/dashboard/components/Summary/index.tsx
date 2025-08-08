@@ -64,20 +64,25 @@ export const Summary = async () => {
           </h3>
           <div>
             <div className="flex h-full flex-col justify-start gap-4">
-              <div className="col-auto grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div className="col-auto grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                 {categorySummaries.map((categorySummary) => (
                   <Card key={categorySummary.id}>
-                    <div className="mb-1 flex items-start justify-between">
-                      <span className="text-nowrap text-lg font-semibold">{categorySummary.name}</span>
+                    <div className="flex h-full flex-col justify-start">
+                      <div className="flex items-start justify-between">
+                        <span className="text-nowrap text-lg font-semibold">{categorySummary.name}</span>
 
-                      <div className="flex flex-col items-end">
-                        {Object.entries(categorySummary.totals).map(([currency, total]) => (
-                          <Money key={currency} amount={total} currency={currency} className="text-base" />
-                        ))}
+                        <div className="flex flex-col items-end">
+                          {Object.entries(categorySummary.totals).map(([currency, total]) => (
+                            <Money
+                              key={currency}
+                              amount={total}
+                              currency={currency}
+                              className="text-base font-semibold"
+                            />
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                    <HR className="my-0" />
-                    <div>
+                      <HR className="my-3" />
                       {categorySummary.subTotalsPerSubCategory.map((subCategory, idx) => (
                         <div key={subCategory.id}>
                           <div className="mb-1 flex items-start justify-between">

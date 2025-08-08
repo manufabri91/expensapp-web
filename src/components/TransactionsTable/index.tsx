@@ -124,7 +124,7 @@ export const TransactionsTable = ({
               <Table.Cell className="md:hidden">{format(parseISO(transaction.eventDate), 'P')}</Table.Cell>
               <Table.Cell className="hidden md:table-cell">{format(parseISO(transaction.eventDate), 'PP')}</Table.Cell>
               <Table.Cell className="font-medium">
-                <Money amount={transaction.amount} currency={transaction.currencyCode} />
+                <Money amount={transaction.amount} currency={transaction.currencyCode} className="font-semibold" />
               </Table.Cell>
               <Table.Cell className="table-cell md:hidden">
                 <div className="mr-5 flex justify-end md:hidden">
