@@ -38,7 +38,7 @@ And for unit tests, you can use
 
 ## Screenshots
 
-![App Screenshot](https://images.pexels.com/photos/211122/pexels-photo-211122.jpeg?auto=compress)
+![App Screenshot](https://imgur.com/a/vuWNfXT)
 
 ## License
 
