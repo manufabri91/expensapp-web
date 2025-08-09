@@ -7,6 +7,7 @@ import './globals.css';
 import { Flowbite, ThemeModeScript } from 'flowbite-react';
 import { AppProviders } from '@/lib/providers';
 import { ToastProvider } from '@/components/Toast/ToastProvider';
+import { NextIntlClientProvider } from 'next-intl';
 
 const montserrat = Montserrat({ subsets: ['latin'] });
 
@@ -37,20 +38,22 @@ export default function RootLayout({
         <body
           className={`${montserrat.className} bg-stone-100 text-black antialiased dark:bg-slate-950 dark:text-white`}
         >
-          <ToastProvider>
-            <div className="flex h-svh max-h-svh w-full">
-              <div className="h-full flex-1">
-                <div className="flex h-full flex-col justify-between">
-                  <Navbar />
-                  <AppProviders>
-                    <div className="flex-1">{children}</div>
-                  </AppProviders>
-                  <Toast />
-                  <Footer />
+          <NextIntlClientProvider>
+            <ToastProvider>
+              <div className="flex h-svh max-h-svh w-full">
+                <div className="h-full flex-1">
+                  <div className="flex h-full flex-col justify-between">
+                    <Navbar />
+                    <AppProviders>
+                      <div className="flex-1">{children}</div>
+                    </AppProviders>
+                    <Toast />
+                    <Footer />
+                  </div>
                 </div>
               </div>
-            </div>
-          </ToastProvider>
+            </ToastProvider>
+          </NextIntlClientProvider>
         </body>
       </Flowbite>
     </html>

@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import createNextIntlPlugin from 'next-intl/plugin';
 
 const nextConfig: NextConfig = {
   publicRuntimeConfig: {
@@ -8,5 +9,5 @@ const nextConfig: NextConfig = {
       'https://expensapp.manuelfabri.com',
   },
 };
-
-export default nextConfig;
+const withNextIntl = createNextIntlPlugin();
+export default withNextIntl(nextConfig);

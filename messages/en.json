@@ -1,0 +1,63 @@
+{
+  "HomePage": {
+    "hero": {
+      "title": "Want to organize your expenses?",
+      "subtitle": "We have your back",
+      "description": "e-XpensApp is a simple and intuitive expense tracking app that helps you to manage your expenses and finances"
+    },
+    "features": {
+      "title": "Top Features",
+      "1": {
+        "title": "Multi-account and categorization",
+        "description": "Manage multiple accounts and categories with ease.",
+        "imageTitle": "Save in comfort"
+      },
+      "2": {
+        "title": "Reach your saving goals",
+        "description": "Configure and track your saving goals. We help you to reach your financial freedom.",
+        "imageTitle": "Reach your goals"
+      }
+    },
+    "engage": {
+      "title": "Start saving now",
+      "subtitle": "And reach your financial freedom!"
+    }
+  },
+  "Navbar": {
+    "settings": "Setting",
+    "userAccountSettings": "User account settings",
+    "signOut": "Sign Out"
+  },
+  "Footer": {
+    "rights": "All rights reserved"
+  },
+  "Auth": {
+    "register": {
+      "title": "Register",
+      "button": "Register",
+      "success": "Registration successful! Please check your email and verify your account before you log in.",
+      "cta": "Register your account"
+    },
+    "login": {
+      "title": "Sign in",
+      "button": "Login",
+      "success": "Welcome back!",
+      "cta": "Log in to your account"
+    },
+    "form": {
+      "username": "Username",
+      "name": "Name",
+      "surname": "Surname",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "submit": "Submit",
+      "forgotPassword": "Forgot your password?",
+      "noAccount": "Don't have an account? ",
+      "createAccount": "Create account",
+      "alreadyHaveAccount": "Already have an account? ",
+      "login": "Login",
+      "loading": "Loading..."
+    }
+  }
+}

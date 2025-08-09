@@ -5,8 +5,10 @@ import { Modal } from 'flowbite-react';
 
 import { Button, ButtonVariant } from '@/components/Button';
 import { LoginForm } from '@/components/LoginForm';
+import { useTranslations } from 'next-intl';
 
 export const LoginButton = ({ className }: { className?: string }) => {
+  const t = useTranslations('Auth');
   const [openModal, setOpenModal] = useState(false);
 
   const onCloseModal = () => {
@@ -16,7 +18,7 @@ export const LoginButton = ({ className }: { className?: string }) => {
   return (
     <div className={className}>
       <Button variant={ButtonVariant.Primary} onClick={() => setOpenModal(true)}>
-        Login
+        {t('login.button')}
       </Button>
       <Modal show={openModal} size="lg" onClose={onCloseModal} popup>
         <Modal.Header />

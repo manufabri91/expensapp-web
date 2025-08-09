@@ -10,6 +10,7 @@ import { Button, ButtonVariant } from '@/components/Button';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { SettingsDrawer } from '@/components/Navbar/components/SettingsDrawer';
+import { useTranslations } from 'next-intl';
 
 interface Props {
   session: Session | null;
@@ -22,8 +23,8 @@ const AUTHORIZED_LINKS = [
 ];
 
 export const NavbarContent = ({ session }: Props) => {
+  const t = useTranslations('Navbar');
   const [isOpenSettings, setIsOpenSettings] = useState(false);
-
   const handleSettingsDrawerClose = () => setIsOpenSettings(false);
   const handleSettingsDrawerOpen = () => setIsOpenSettings(true);
   const pathname = usePathname();
@@ -42,18 +43,18 @@ export const NavbarContent = ({ session }: Props) => {
         <div className="flex md:order-2">
           <LoginButtons session={session} />
           {session && (
-            <Dropdown arrowIcon={false} inline label={<Avatar alt="User settings" rounded />}>
+            <Dropdown arrowIcon={false} inline label={<Avatar alt={t('userAccountSettings')} rounded />}>
               <Dropdown.Header>
                 <span className="block text-sm">
                   {session.user.firstName} {session.user.lastName}
                 </span>
                 <span className="block truncate text-sm font-medium">{session.user.email}</span>
               </Dropdown.Header>
-              <Dropdown.Item onClick={handleSettingsDrawerOpen}>Settings</Dropdown.Item>
+              <Dropdown.Item onClick={handleSettingsDrawerOpen}>{t('settings')}</Dropdown.Item>
               <Dropdown.Divider />
               <div className="m-3">
                 <Button variant={ButtonVariant.Primary} onClick={handleLogoutAction} className="w-full items-center">
-                  Log Out
+                  {t('signOut')}
                 </Button>
               </div>
             </Dropdown>
