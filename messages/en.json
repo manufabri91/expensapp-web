@@ -8,14 +8,30 @@
       "male": "New",
       "female": "New"
     },
+    "save": "Save",
+    "saving": "Saving",
     "description": "Description",
     "account": "Account",
     "category": "Category",
     "subcategory": "Subcategory",
     "date": "Date",
     "amount": "Amount",
-    "incomes": "Incomes",
-    "expenses": "Expenses"
+    "income": {
+      "singular": "Income",
+      "plural": "Incomes"
+    },
+    "expense": {
+      "singular": "Expense",
+      "plural": "Expenses"
+    },
+    "transfer": {
+      "singular": "Transfer",
+      "plural": "Transfers"
+    },
+    "transaction": {
+      "singular": "Transaction",
+      "plural": "Transactions"
+    }
   },
   "HomePage": {
     "hero": {
@@ -64,6 +80,17 @@
   },
   "TransactionsTable": {
     "noTransactions": "No transactions"
+  },
+  "TransactionForm": {
+    "createdSuccess": "Created transaction {id}",
+    "editedSuccess": "Edited transaction {id}",
+    "unexpectedError": "Something went wrong! Couldn't save transaction",
+    "excludeFromTotals": "Exclude from balances",
+    "selectCategory": "Select category",
+    "selectSubcategory": "Select subcategory",
+    "selectAccount": "Select account",
+    "originAccount": "Origin Account",
+    "destinationAccount": "Destination Account"
   },
   "Footer": {
     "rights": "All rights reserved"

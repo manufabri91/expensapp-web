@@ -8,14 +8,30 @@
       "male": "Nuevo",
       "female": "Nueva"
     },
+    "save": "Guardar",
+    "saving": "Guardando",
     "description": "Descripción",
     "account": "Cuenta",
     "category": "Categoría",
     "subcategory": "Subcategoría",
     "date": "Fecha",
     "amount": "Importe",
-    "incomes": "Ingresos",
-    "expenses": "Gastos"
+    "income": {
+      "singular": "Ingreso",
+      "plural": "Ingresos"
+    },
+    "expense": {
+      "singular": "Gasto",
+      "plural": "Gastos"
+    },
+    "transfer": {
+      "singular": "Transferencia",
+      "plural": "Transferencias"
+    },
+    "transaction": {
+      "singular": "Transacción",
+      "plural": "Transacciones"
+    }
   },
   "HomePage": {
     "hero": {
@@ -90,6 +106,17 @@
       "transactions": "Transacciones",
       "manage": "Cuentas y Categorias"
     }
+  },
+  "TransactionForm": {
+    "createdSuccess": "Transacción {id} creada exitosamente",
+    "editedSuccess": "Transacción {id} editada exitosamente",
+    "unexpectedError": "Algo fue mal! No se ha podido guardar la transacción",
+    "excludeFromTotals": "Excluir de los balances",
+    "selectCategory": "Seleccionar categoría",
+    "selectSubcategory": "Seleccionar subcategoría",
+    "selectAccount": "Seleccionar cuenta",
+    "originAccount": "Cuenta de origen",
+    "destinationAccount": "Cuenta de destino"
   },
   "TransactionsTable": {
     "noTransactions": "No hay transacciones"

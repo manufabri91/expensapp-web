@@ -52,7 +52,7 @@ export const Summary = async () => {
               </div>
               <div>
                 <div className="flex justify-between">
-                  <span className="mr-1">{t('Generics.incomes')}:</span>
+                  <span className="mr-1">{t('Generics.income.plural')}:</span>
                   <Money
                     amount={currencySummary.incomes}
                     currency={currencySummary.currency}
@@ -61,7 +61,7 @@ export const Summary = async () => {
                   />
                 </div>
                 <div className="flex justify-between">
-                  <span className="mr-1">{t('Generics.expenses')}:</span>
+                  <span className="mr-1">{t('Generics.expense.plural')}:</span>
                   <Money
                     amount={currencySummary.expenses}
                     currency={currencySummary.currency}
