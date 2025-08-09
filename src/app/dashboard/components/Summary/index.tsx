@@ -4,6 +4,8 @@ import { code } from 'currency-codes';
 import { Money } from '@/components';
 import { CategorySummaryResponse, CurrencySummaryResponse } from '@/types/dto';
 import { getMonthSummary, getTotalsByCategory } from '@/lib/actions/summaries';
+import { getLocale, getTranslations } from 'next-intl/server';
+import { SYSTEM_TRANSLATION_KEYS } from '@/constants';
 
 const TrendIcon = ({ amount }: { amount: number }) => {
   if (amount < 0) {
@@ -16,6 +18,8 @@ const TrendIcon = ({ amount }: { amount: number }) => {
 };
 
 export const Summary = async () => {
+  const t = await getTranslations();
+  const locale = await getLocale();
   const date = new Date();
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
@@ -30,9 +34,12 @@ export const Summary = async () => {
             <Card key={currencySummary.currency} className="md:min-w-[300px]">
               <div className="flex flex-col items-center justify-between">
                 <h3 className="text-nowrap text-lg font-semibold">
-                  Balance in {code(currencySummary.currency)?.currency}
+                  {t('Dashboard.summary.balance.title', {
+                    currencyCode: code(currencySummary.currency)?.currency ?? '',
+                  })}
                 </h3>
                 <Money
+                  locale={locale}
                   amount={currencySummary.totalBalance}
                   currency={currencySummary.currency}
                   className="text-2xl font-bold"
@@ -45,12 +52,22 @@ export const Summary = async () => {
               </div>
               <div>
                 <div className="flex justify-between">
-                  <span className="mr-1">Incomes:</span>
-                  <Money amount={currencySummary.incomes} currency={currencySummary.currency} className="text-base" />
+                  <span className="mr-1">{t('Generics.incomes')}:</span>
+                  <Money
+                    amount={currencySummary.incomes}
+                    currency={currencySummary.currency}
+                    locale={locale}
+                    className="text-base"
+                  />
                 </div>
                 <div className="flex justify-between">
-                  <span className="mr-1">Expenses:</span>
-                  <Money amount={currencySummary.expenses} currency={currencySummary.currency} className="text-base" />
+                  <span className="mr-1">{t('Generics.expenses')}:</span>
+                  <Money
+                    amount={currencySummary.expenses}
+                    currency={currencySummary.currency}
+                    locale={locale}
+                    className="text-base"
+                  />
                 </div>
               </div>
             </Card>
@@ -60,7 +77,7 @@ export const Summary = async () => {
       {categorySummaries.length > 0 && (
         <div className="h-full">
           <h3 className="mb-4 mt-8 text-xl font-semibold text-gray-800 dark:text-gray-100 md:mt-16">
-            Expenses per Category
+            {t('Dashboard.summary.totalsPerCategory.title')}
           </h3>
           <div>
             <div className="flex h-full flex-col justify-start gap-4">
@@ -74,6 +91,7 @@ export const Summary = async () => {
                         <div className="flex flex-col items-end">
                           {Object.entries(categorySummary.totals).map(([currency, total]) => (
                             <Money
+                              locale={locale}
                               key={currency}
                               amount={total}
                               currency={currency}
@@ -86,10 +104,20 @@ export const Summary = async () => {
                       {categorySummary.subTotalsPerSubCategory.map((subCategory, idx) => (
                         <div key={subCategory.id}>
                           <div className="mb-1 flex items-start justify-between">
-                            <span>{subCategory.name}</span>
+                            <span>
+                              {SYSTEM_TRANSLATION_KEYS.includes(subCategory.name)
+                                ? t(`System.${subCategory.name}`)
+                                : subCategory.name}
+                            </span>
                             <div className="flex flex-col items-end">
                               {Object.entries(subCategory.subtotals).map(([currency, subtotal]) => (
-                                <Money key={currency} amount={subtotal} currency={currency} className="text-base" />
+                                <Money
+                                  key={currency}
+                                  amount={subtotal}
+                                  currency={currency}
+                                  locale={locale}
+                                  className="text-base"
+                                />
                               ))}
                             </div>
                           </div>

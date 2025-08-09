@@ -7,13 +7,15 @@ import { ToastType } from '@/components/Toast';
 import { useToaster } from '@/components/Toast/ToastProvider';
 import { deleteTransactionById } from '@/lib/actions/transactions';
 import { TransactionResponse } from '@/types/dto';
-import { format, parseISO } from 'date-fns';
+import { parseISO } from 'date-fns';
 import { Dropdown, Pagination, Table } from 'flowbite-react';
 import React, { useEffect, useState } from 'react';
 import { ActionResult } from '@/types/viewModel/actionResult';
 import { useTransactionForm } from '@/components/TransactionForm/TransactionFormProvider';
 import { useTransactionsFilters } from '@/lib/providers/TransactionFiltersProvider';
 import { AVAILABLE_ICONS } from '@/components/IconPicker/constants';
+import { useTrySystemTranslations } from '@/hooks/useTrySystemTranslations';
+import { useFormatter, useLocale, useTranslations } from 'next-intl';
 
 interface Props {
   transactions: TransactionResponse[];
@@ -21,11 +23,11 @@ interface Props {
   noTransactionsMessage?: string;
 }
 
-export const TransactionsTable = ({
-  transactions,
-  showPagination = false,
-  noTransactionsMessage = 'No transactions',
-}: Props) => {
+export const TransactionsTable = ({ transactions, showPagination = false, noTransactionsMessage }: Props) => {
+  const t = useTranslations();
+  const format = useFormatter();
+  const locale = useLocale();
+  const trySystemTranslations = useTrySystemTranslations();
   const { showToast, clearToast } = useToaster();
   const { showTransactionForm, isOpen: openedTransactionForm } = useTransactionForm();
   const { filters, patchFilters } = useTransactionsFilters();
@@ -70,9 +72,11 @@ export const TransactionsTable = ({
           }}
         >
           <HiPlus className="mr-1 size-5" />
-          <div className="hidden md:block">New</div>
+          <div className="hidden md:block">{t('Generics.new.female')}</div>
         </Button>
-        <p className="text-center text-slate-800 dark:text-white">{noTransactionsMessage}</p>
+        <p className="text-center text-slate-800 dark:text-white">
+          {noTransactionsMessage ?? t('TransactionsTable.noTransactions')}
+        </p>
       </div>
     );
   }
@@ -81,12 +85,12 @@ export const TransactionsTable = ({
     <>
       <Table hoverable>
         <Table.Head>
-          <Table.HeadCell>Description</Table.HeadCell>
-          <Table.HeadCell>Account</Table.HeadCell>
-          <Table.HeadCell className="hidden md:table-cell">Category</Table.HeadCell>
-          <Table.HeadCell className="hidden lg:table-cell">subcategory</Table.HeadCell>
-          <Table.HeadCell>Date</Table.HeadCell>
-          <Table.HeadCell>Amount</Table.HeadCell>
+          <Table.HeadCell>{t('Generics.description')}</Table.HeadCell>
+          <Table.HeadCell>{t('Generics.account')}</Table.HeadCell>
+          <Table.HeadCell className="hidden md:table-cell">{t('Generics.category')}</Table.HeadCell>
+          <Table.HeadCell className="hidden lg:table-cell">{t('Generics.subcategory')}</Table.HeadCell>
+          <Table.HeadCell>{t('Generics.date')}</Table.HeadCell>
+          <Table.HeadCell>{t('Generics.amount')}</Table.HeadCell>
           <Table.HeadCell className="flex justify-end">
             <Button
               size="sm"
@@ -98,7 +102,7 @@ export const TransactionsTable = ({
               }}
             >
               <HiPlus className="mr-1 size-5" />
-              <div className="hidden md:block">New</div>
+              <div className="hidden md:block">{t('Generics.new.female')}</div>
             </Button>
             <span className="sr-only">Actions</span>
           </Table.HeadCell>
@@ -113,27 +117,42 @@ export const TransactionsTable = ({
                       color: transaction.category.color ?? undefined,
                       className: 'size-6 mr-1',
                     })}
-                  {transaction.description}
+                  {trySystemTranslations(transaction.description)}
                 </span>
               </Table.Cell>
               <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
                 {transaction.accountName}
               </Table.Cell>
-              <Table.Cell className="hidden md:table-cell">{transaction.category.name}</Table.Cell>
-              <Table.Cell className="hidden lg:table-cell">{transaction.subcategory.name}</Table.Cell>
-              <Table.Cell className="md:hidden">{format(parseISO(transaction.eventDate), 'P')}</Table.Cell>
-              <Table.Cell className="hidden md:table-cell">{format(parseISO(transaction.eventDate), 'PP')}</Table.Cell>
+              <Table.Cell className="hidden md:table-cell">
+                {trySystemTranslations(transaction.category.name)}
+              </Table.Cell>
+              <Table.Cell className="hidden lg:table-cell">
+                {trySystemTranslations(transaction.subcategory.name)}
+              </Table.Cell>
+              <Table.Cell>
+                {format.dateTime(parseISO(transaction.eventDate), {
+                  year: '2-digit',
+                  month: '2-digit',
+                  day: '2-digit',
+                })}
+              </Table.Cell>
+
               <Table.Cell className="font-medium">
-                <Money amount={transaction.amount} currency={transaction.currencyCode} className="font-semibold" />
+                <Money
+                  amount={transaction.amount}
+                  currency={transaction.currencyCode}
+                  locale={locale}
+                  className="font-semibold"
+                />
               </Table.Cell>
               <Table.Cell className="table-cell md:hidden">
                 <div className="mr-5 flex justify-end md:hidden">
                   <Dropdown inline>
                     <Dropdown.Item disabled={isEditing === transaction.id} onClick={() => editHandler(transaction)}>
-                      Edit
+                      {t('Generics.edit')}
                     </Dropdown.Item>
                     <Dropdown.Item disabled={isDeleting === transaction.id} onClick={() => deleteHandler(transaction)}>
-                      Delete
+                      {t('Generics.delete')}
                     </Dropdown.Item>
                   </Dropdown>
                 </div>
@@ -149,12 +168,12 @@ export const TransactionsTable = ({
                       onClick={() => editHandler(transaction)}
                     >
                       <HiPencil className="mr-1 size-5" />
-                      Edit
+                      {t('Generics.edit')}
                     </Button>
                   )}
                   {isEditing === transaction.id && (
                     <Button className="mb-2 lg:mb-0" size="sm" variant={ButtonVariant.Secondary} isProcessing>
-                      Editing
+                      {t('Generics.editing')}
                     </Button>
                   )}
                   {isDeleting !== transaction.id && (
@@ -166,12 +185,12 @@ export const TransactionsTable = ({
                       onClick={() => deleteHandler(transaction)}
                     >
                       <HiTrash className="mr-1 size-5" />
-                      Delete
+                      {t('Generics.delete')}
                     </Button>
                   )}
                   {isDeleting === transaction.id && (
                     <Button size="sm" variant={ButtonVariant.Critical} isProcessing>
-                      Deleting
+                      {t('Generics.deleting')}
                     </Button>
                   )}
                 </div>

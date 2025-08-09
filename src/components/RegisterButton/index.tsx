@@ -10,12 +10,12 @@ import { ToastType } from '@/components/Toast';
 import { useTranslations } from 'next-intl';
 
 export const RegisterButton = ({ className }: { className?: string }) => {
-  const t = useTranslations('Auth');
+  const t = useTranslations('Auth.register');
   const [openModal, setOpenModal] = useState(false);
   const { showToast } = useToaster();
 
   const handleRegistrationSuccess = () => {
-    showToast(t('register.success'), ToastType.Success);
+    showToast(t('success'), ToastType.Success);
   };
 
   const onCloseModal = (succeededRegistration = false) => {
@@ -28,7 +28,7 @@ export const RegisterButton = ({ className }: { className?: string }) => {
   return (
     <div className={className}>
       <Button variant={ButtonVariant.Secondary} onClick={() => setOpenModal(true)}>
-        {t('register.button')}
+        {t('button')}
       </Button>
       <Modal show={openModal} size="lg" onClose={() => onCloseModal(false)} popup>
         <Modal.Header />

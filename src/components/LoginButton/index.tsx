@@ -8,7 +8,7 @@ import { LoginForm } from '@/components/LoginForm';
 import { useTranslations } from 'next-intl';
 
 export const LoginButton = ({ className }: { className?: string }) => {
-  const t = useTranslations('Auth');
+  const t = useTranslations('Auth.login');
   const [openModal, setOpenModal] = useState(false);
 
   const onCloseModal = () => {
@@ -18,7 +18,7 @@ export const LoginButton = ({ className }: { className?: string }) => {
   return (
     <div className={className}>
       <Button variant={ButtonVariant.Primary} onClick={() => setOpenModal(true)}>
-        {t('login.button')}
+        {t('button')}
       </Button>
       <Modal show={openModal} size="lg" onClose={onCloseModal} popup>
         <Modal.Header />

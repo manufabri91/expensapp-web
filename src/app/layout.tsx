@@ -1,31 +1,33 @@
-import type { Metadata } from 'next';
+import { PropsWithChildren } from 'react';
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { Montserrat } from 'next/font/google';
-
-import { Footer, Navbar, Toast } from '@/components';
+import { Flowbite, ThemeModeScript } from 'flowbite-react';
 
 import './globals.css';
-import { Flowbite, ThemeModeScript } from 'flowbite-react';
 import { AppProviders } from '@/lib/providers';
+import { Footer, Navbar, Toast } from '@/components';
 import { ToastProvider } from '@/components/Toast/ToastProvider';
-import { NextIntlClientProvider } from 'next-intl';
 
 const montserrat = Montserrat({ subsets: ['latin'] });
 
-export const metadata: Metadata = {
-  title: {
-    default: 'e-XpensApp | Expense tracking made easy',
-    template: '%s | e-XpensApp',
-  },
-  description: 'Expense tracking made easy',
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata' });
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+  return {
+    title: {
+      default: t('title.default'),
+      template: t('title.template'),
+    },
+    description: t('description'),
+  };
+}
+
+export default async function RootLayout({ children }: PropsWithChildren) {
+  const locale = await getLocale();
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         <ThemeModeScript />
       </head>

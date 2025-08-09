@@ -3,14 +3,14 @@ import { getTranslations } from 'next-intl/server';
 import Image from 'next/image';
 
 export const Hero = async () => {
-  const t = await getTranslations('HomePage');
+  const t = await getTranslations('HomePage.hero');
   return (
     <div className="pt-24">
       <div className="container mx-auto flex flex-col flex-wrap items-center px-3 md:flex-row">
         <div className="flex w-full flex-col items-start justify-center text-center sm:items-center md:w-2/5 md:text-left">
-          <p className="w-full uppercase -tracking-wide">{t('hero.title')}</p>
-          <h1 className="my-4 w-full text-5xl font-bold leading-tight">{t('hero.subtitle')}</h1>
-          <p className="mb-8 text-2xl leading-normal">{t('hero.description')}</p>
+          <p className="w-full uppercase -tracking-wide">{t('title')}</p>
+          <h1 className="my-4 w-full text-5xl font-bold leading-tight">{t('subtitle')}</h1>
+          <p className="mb-8 text-2xl leading-normal">{t('description')}</p>
           <div className="flex w-full justify-center">
             <RegisterButton />
           </div>
