@@ -2,6 +2,7 @@
   "Generics": {
     "actions": "Acciones",
     "delete": "Elminar",
+    "clear": "Limpiar",
     "deleting": "Elminando",
     "edit": "Editar",
     "editing": "Editando",
@@ -119,6 +120,19 @@
       "manage": "Cuentas y Categorias"
     }
   },
+  "CategoryForm": {
+    "color": "Color",
+    "name": "Nombre",
+    "createdSuccess": "Categoría {id} creada exitosamente",
+    "editedSuccess": "Categoría {id} editada exitosamente"
+  },
+  "SubcategoryForm": {
+    "name": "Nombre",
+    "belongsTo": "Categoría",
+    "selectCategory": "Seleccionar categoría",
+    "createdSuccess": "Subcategoría {id} creada exitosamente",
+    "editedSuccess": "Subcategoría {id} editada exitosamente"
+  },
   "TransactionForm": {
     "createdSuccess": "Transacción {id} creada exitosamente",
     "editedSuccess": "Transacción {id} editada exitosamente",
@@ -142,6 +156,9 @@
     "es": "Español (España)",
     "es-AR": "Español (Argentina)",
     "label": "Idioma"
+  },
+  "IconPicker": {
+    "noIcon": "Sin icono"
   },
   "Metadata": {
     "title": {

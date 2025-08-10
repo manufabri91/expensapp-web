@@ -5,13 +5,14 @@ import { ToastType } from '@/components/Toast';
 import { useToaster } from '@/components/Toast/ToastProvider';
 import { useTransactionForm } from '@/components/TransactionForm/TransactionFormProvider';
 import { TransactionTypeSelector } from '@/components/TransactionTypeSelector';
+import { useTrySystemTranslations } from '@/hooks/useTrySystemTranslations';
 import { createTransaction, editTransaction } from '@/lib/actions/transactions';
 import { useAccounts } from '@/lib/providers/AccountsProvider';
 import { useCategories } from '@/lib/providers/CategoriesProvider';
 import { SubCategoryResponse, TransactionResponse } from '@/types/dto';
 import { TransactionType } from '@/types/enums/transactionType';
 import { getCurrencySymbol } from '@/utils/currency';
-import { parseISO } from 'date-fns';
+import { formatISO, parseISO } from 'date-fns';
 
 import { Checkbox, Datepicker, Label, Modal, Select, TextInput } from 'flowbite-react';
 import { useLocale, useTranslations } from 'next-intl';
@@ -20,6 +21,7 @@ import { useCallback, useEffect, useState } from 'react';
 export const TransactionForm = () => {
   const t = useTranslations();
   const locale = useLocale();
+  const trySystemTranslations = useTrySystemTranslations();
   const { showToast } = useToaster();
   const { transactionFormData, isOpen, closeTransactionForm } = useTransactionForm();
   const { accounts } = useAccounts();
@@ -111,6 +113,7 @@ export const TransactionForm = () => {
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    formData.set('eventDate', formatISO(selectedDate!, { representation: 'date' }));
     setProcessing(true);
     try {
       if (!transactionFormData) {
@@ -328,7 +331,7 @@ export const TransactionForm = () => {
                   <option value={undefined}>{t('TransactionForm.selectSubcategory')}</option>
                   {filteredSubcategories.map((subcategory) => (
                     <option key={subcategory.id} value={subcategory.id}>
-                      {subcategory.name}
+                      {trySystemTranslations(subcategory.name)}
                     </option>
                   ))}
                 </Select>

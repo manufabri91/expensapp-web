@@ -4,8 +4,10 @@ import { Dropdown, TextInput } from 'flowbite-react';
 
 import { AVAILABLE_ICONS } from './constants';
 import { Icon } from '@/types/enums/icon';
+import { useTranslations } from 'next-intl';
 
 export const IconPicker: React.FC<{ value: Icon; onChange: (icon: Icon) => void }> = ({ value, onChange }) => {
+  const t = useTranslations('IconPicker');
   const handleSelect = (iconName: Icon) => {
     onChange(iconName);
   };
@@ -14,10 +16,10 @@ export const IconPicker: React.FC<{ value: Icon; onChange: (icon: Icon) => void 
 
   return (
     <>
-      <Dropdown label={SelectedIcon ? <SelectedIcon /> : 'No icon'} inline>
+      <Dropdown label={SelectedIcon ? <SelectedIcon /> : t('noIcon')} inline>
         <Dropdown.Item onClick={() => handleSelect(Icon.NONE)}>
           <div className="flex items-center space-x-2">
-            <span>No icon</span>
+            <span>{t('noIcon')}</span>
           </div>
         </Dropdown.Item>
         {AVAILABLE_ICONS.entries()

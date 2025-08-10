@@ -2,6 +2,7 @@
   "Generics": {
     "actions": "Actions",
     "delete": "Delete",
+    "clear": "Clear",
     "deleting": "Deleting",
     "edit": "Edit",
     "editing": "Editing",
@@ -92,6 +93,22 @@
   },
   "TransactionsTable": {
     "noTransactions": "No transactions"
+  },
+  "CategoryForm": {
+    "color": "Color",
+    "name": "Name",
+    "createdSuccess": "Created category {id}",
+    "editedSuccess": "Edited category {id}"
+  },
+  "SubcategoryForm": {
+    "name": "Name",
+    "belongsTo": "Category",
+    "selectCategory": "Select category",
+    "createdSuccess": "Created subcategory {id}",
+    "editedSuccess": "Edited subcategory {id}"
+  },
+  "IconPicker": {
+    "noIcon": "No icon"
   },
   "TransactionForm": {
     "createdSuccess": "Created transaction {id}",

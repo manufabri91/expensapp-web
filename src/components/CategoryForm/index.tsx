@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Label, Modal, TextInput } from 'flowbite-react';
+import { useTranslations } from 'next-intl';
 
 import { Button, ButtonVariant } from '@/components/Button';
 import { useToaster } from '@/components/Toast/ToastProvider';
@@ -12,8 +13,11 @@ import { createCategory, editCategory } from '@/lib/actions/categories';
 import { IconPickerFormField } from '@/components/IconPicker';
 import { TransactionType } from '@/types/enums/transactionType';
 import { TransactionTypeSelector } from '@/components/TransactionTypeSelector';
+import { ColorPicker } from '@/components/ColorPicker';
+import { ToastType } from '@/components/Toast';
 
 export const CategoryForm = () => {
+  const t = useTranslations();
   const { showToast } = useToaster();
   const { categoryFormData, isOpen, closeCategoryForm } = useCategoryForm();
   const { refetchAll } = useCategories();
@@ -21,25 +25,29 @@ export const CategoryForm = () => {
   const [editedCategory, setEditedCategory] = useState<CategoryResponse | null>(null);
   const [type, setType] = useState<TransactionType>(categoryFormData?.type || TransactionType.EXPENSE);
   const [processing, setProcessing] = useState<boolean>(false);
+  const [color, setColor] = useState<string>(categoryFormData?.color ?? '');
 
   useEffect(() => {
     if (createdCategory) {
-      showToast(`Created Category with ID: ${createdCategory.id}`);
+      showToast(t('CategoryForm.createdSuccess', { id: createdCategory.id }), ToastType.Success);
       setCreatedCategory(null);
       closeCategoryForm();
       setProcessing(false);
+      setColor('');
     } else if (editedCategory) {
-      showToast(`Edited Category with ID: ${editedCategory.id}`);
+      showToast(t('CategoryForm.editedSuccess', { id: editedCategory.id }), ToastType.Success);
       setEditedCategory(null);
       closeCategoryForm();
       setProcessing(false);
+      setColor('');
       refetchAll();
     }
-  }, [closeCategoryForm, createdCategory, editedCategory, showToast, refetchAll]);
+  }, [closeCategoryForm, createdCategory, editedCategory, showToast, refetchAll, t]);
 
   useEffect(() => {
     if (categoryFormData) {
       setType(categoryFormData.type);
+      setColor(categoryFormData.color ?? '');
     }
   }, [categoryFormData]);
 
@@ -49,6 +57,7 @@ export const CategoryForm = () => {
       setCreatedCategory(null);
       setEditedCategory(null);
       setProcessing(false);
+      setColor('');
     }
   }, [isOpen]);
 
@@ -70,7 +79,9 @@ export const CategoryForm = () => {
   return (
     <Modal show={isOpen} size="2xl" onClose={closeCategoryForm} popup>
       <Modal.Header as={'div'} className="m-4">
-        <h3>{categoryFormData ? 'Edit ' : 'Create '}Category</h3>
+        <h3>
+          {categoryFormData ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.category')}
+        </h3>
       </Modal.Header>
       <Modal.Body>
         <form className="flex flex-col gap-4" action={submitHandler}>
@@ -87,7 +98,7 @@ export const CategoryForm = () => {
           </div>
           <div>
             <div className="mb-2 block">
-              <Label htmlFor="name" value="Category Name" />
+              <Label htmlFor="name" value={t('CategoryForm.name')} />
             </div>
             <TextInput
               addon={
@@ -105,15 +116,25 @@ export const CategoryForm = () => {
               shadow
             />
           </div>
-          <div>
+          <div className="flex gap-2">
             <div className="mb-2 block">
-              <Label htmlFor="color" value="Category Color" />
+              <Label htmlFor="color" value={t('CategoryForm.color')} />
             </div>
-            <TextInput id="color" name="color" type="text" defaultValue={categoryFormData?.color ?? ''} shadow />
+            <ColorPicker color={color} onChange={setColor} />
+            <div className="hidden">
+              <TextInput
+                id="color"
+                name="color"
+                type="text"
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                shadow
+              />
+            </div>
           </div>
 
           <Button type="submit" variant={ButtonVariant.Primary} isProcessing={processing}>
-            {categoryFormData ? 'Edit' : 'Create'}
+            {categoryFormData ? t('Generics.edit') : t('Generics.save')}
           </Button>
         </form>
       </Modal.Body>

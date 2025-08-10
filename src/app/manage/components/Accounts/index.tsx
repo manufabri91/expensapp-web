@@ -8,8 +8,8 @@ export const Accounts = async () => {
   const t = await getTranslations('Manage.accounts');
   return (
     <>
-      <div className="flex items-baseline gap-4">
-        <h3 className="my-4 text-xl font-semibold text-gray-800 dark:text-gray-100 md:mt-16">{t('title')}</h3>
+      <div className="mt-10 flex items-baseline gap-4 md:mt-14">
+        <h3 className="mb-4 text-xl font-semibold text-gray-800 dark:text-gray-100">{t('title')}</h3>
         <AccountActions />
       </div>
 

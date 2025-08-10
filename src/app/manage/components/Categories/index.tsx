@@ -1,21 +1,23 @@
 import React from 'react';
 import { Suspense } from 'react';
 import { Accordion, AccordionContent, AccordionPanel, AccordionTitle, Spinner } from 'flowbite-react';
+import { getTranslations } from 'next-intl/server';
 
 import { getCategories } from '@/lib/actions/categories';
+import { AVAILABLE_ICONS } from '@/components/IconPicker/constants';
+import { TypeBadge } from '@/components/TypeBadge';
 
 import { CreateCategoryButton, DeleteCategoryButton, EditCategoryButton } from './components/CategoryActions';
 import { SubcategoriesList } from './components/SubcategoriesList';
-import { AVAILABLE_ICONS } from '@/components/IconPicker/constants';
-import { getTranslations } from 'next-intl/server';
 
 export const Categories = async () => {
   const categories = await getCategories();
   const t = await getTranslations('Manage.categories');
+
   return (
     <>
-      <div className="flex items-baseline gap-4">
-        <h3 className="my-4 text-xl font-semibold text-gray-800 dark:text-gray-100 md:mt-16">{t('title')}</h3>
+      <div className="mt-10 flex items-baseline gap-4 md:mt-14">
+        <h3 className="mb-4 text-xl font-semibold text-gray-800 dark:text-gray-100">{t('title')}</h3>
         <CreateCategoryButton />
       </div>
       <Suspense
@@ -40,10 +42,11 @@ export const Categories = async () => {
                   key={category.id}
                   className="rounded-lg border border-gray-200 bg-white p-4 shadow-md dark:border-gray-700 dark:bg-gray-800"
                 >
-                  <div className="mb-4 flex items-center justify-between">
+                  <div className="mb-2 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Icon className="mr-1 size-6" color={category.color ?? undefined} />
                       <span className="font-medium">{category.name}</span>
+                      <TypeBadge size="xs" type={category.type} />
                     </div>
                     <div className="flex items-center justify-start gap-2">
                       <EditCategoryButton category={category} />

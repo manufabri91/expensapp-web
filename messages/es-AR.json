@@ -1,6 +1,7 @@
 {
   "Generics": {
     "actions": "Acciones",
+    "clear": "Limpiar",
     "delete": "Borrar",
     "deleting": "Borrando",
     "edit": "Editar",
@@ -131,11 +132,27 @@
     "originAccount": "Cuenta de origen",
     "destinationAccount": "Cuenta de destino"
   },
+  "CategoryForm": {
+    "color": "Color",
+    "name": "Nombre",
+    "createdSuccess": "Categoría {id} creada con éxito",
+    "editedSuccess": "Categoría {id} editada con éxito"
+  },
+  "SubcategoryForm": {
+    "name": "Nombre",
+    "belongsTo": "Categoría",
+    "selectCategory": "Elegír categoría",
+    "createdSuccess": "Subcategoría {id} creada con éxito",
+    "editedSuccess": "Subcategoría {id} editada con éxito"
+  },
   "TransactionsTable": {
     "noTransactions": "No hay movimientos"
   },
   "Footer": {
     "rights": "Todos los derechos reservados"
+  },
+  "IconPicker": {
+    "noIcon": "Sin ícono"
   },
   "LocaleSwitcher": {
     "en": "Inglés",
