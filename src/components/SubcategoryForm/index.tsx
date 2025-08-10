@@ -9,8 +9,13 @@ import { SubCategoryResponse } from '@/types/dto';
 import { useSubcategoryForm } from '@/components/SubcategoryForm/SubcategoryFormProvider';
 import { createSubcategory, editSubcategory } from '@/lib/actions/subcategories';
 import { useCategories } from '@/lib/providers/CategoriesProvider';
+import { useTranslations } from 'next-intl';
+import { ToastType } from '@/components/Toast';
+import { useTrySystemTranslations } from '@/hooks/useTrySystemTranslations';
 
 export const SubcategoryForm = () => {
+  const t = useTranslations();
+  const trySystemTranslation = useTrySystemTranslations();
   const { showToast } = useToaster();
   const { subcategoryFormData, isOpen, closeSubcategoryForm } = useSubcategoryForm();
 
@@ -22,18 +27,18 @@ export const SubcategoryForm = () => {
 
   useEffect(() => {
     if (createdSubcategory) {
-      showToast(`Created Subcategory with ID: ${createdSubcategory.id}`);
+      showToast(t('SubcategoryForm.createdSuccess', { id: createdSubcategory.id }), ToastType.Success);
       addSubcategory(createdSubcategory);
       setCreatedSubcategory(null);
       closeSubcategoryForm();
       setProcessing(false);
     } else if (editedSubcategory) {
-      showToast(`Edited Subcategory with ID: ${editedSubcategory.id}`);
+      showToast(t('SubcategoryForm.editedSuccess', { id: editedSubcategory.id }), ToastType.Success);
       setEditedSubcategory(null);
       closeSubcategoryForm();
       setProcessing(false);
     }
-  }, [addSubcategory, closeSubcategoryForm, createdSubcategory, editedSubcategory, showToast]);
+  }, [addSubcategory, closeSubcategoryForm, createdSubcategory, editedSubcategory, showToast, t]);
 
   const submitHandler = async (formData: FormData) => {
     setProcessing(true);
@@ -51,7 +56,7 @@ export const SubcategoryForm = () => {
   return (
     <Modal show={isOpen} size="2xl" onClose={closeSubcategoryForm} popup>
       <Modal.Header as={'div'} className="m-4">
-        <h3>{isEditMode ? 'Edit ' : 'Create '}Subcategory</h3>
+        {isEditMode ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.subcategory')}
       </Modal.Header>
       <Modal.Body>
         <form className="flex flex-col gap-4" action={submitHandler}>
@@ -65,13 +70,20 @@ export const SubcategoryForm = () => {
           )}
           <div>
             <div className="mb-2 block">
-              <Label htmlFor="name" value="Subcategory Name" />
+              <Label htmlFor="name" value={t('SubcategoryForm.name')} />
             </div>
-            <TextInput id="name" name="name" type="text" defaultValue={subcategoryFormData?.name} required shadow />
+            <TextInput
+              id="name"
+              name="name"
+              type="text"
+              defaultValue={trySystemTranslation(subcategoryFormData?.name ?? '')}
+              required
+              shadow
+            />
           </div>
           <div>
             <div className="mb-2 block">
-              <Label htmlFor="parentCategoryId" value="Belongs to category" />
+              <Label htmlFor="parentCategoryId" value={t('SubcategoryForm.belongsTo')} />
             </div>
             <Select
               id="parentCategoryId"
@@ -79,17 +91,19 @@ export const SubcategoryForm = () => {
               defaultValue={subcategoryFormData?.parentCategoryId ?? undefined}
               required
             >
-              <option value={undefined}>Select Category</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
+              <option value={undefined}>{t('SubcategoryForm.selectCategory')}</option>
+              {categories
+                .filter((cat) => !cat.readOnly)
+                .map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
             </Select>
           </div>
 
           <Button type="submit" variant={ButtonVariant.Primary} isProcessing={processing}>
-            {isEditMode ? 'Edit' : 'Create'}
+            {isEditMode ? t('Generics.edit') : t('Generics.save')}
           </Button>
         </form>
       </Modal.Body>
