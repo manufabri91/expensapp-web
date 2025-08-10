@@ -46,7 +46,9 @@ export const Categories = async () => {
                     <div className="flex items-center gap-2">
                       <Icon className="mr-1 size-6" color={category.color ?? undefined} />
                       <span className="font-medium">{category.name}</span>
-                      <TypeBadge size="xs" type={category.type} />
+                      <div className="hidden md:block">
+                        <TypeBadge size="xs" type={category.type} />
+                      </div>
                     </div>
                     <div className="flex items-center justify-start gap-2">
                       <EditCategoryButton category={category} />
