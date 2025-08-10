@@ -1,5 +1,6 @@
 {
   "Generics": {
+    "actions": "Actions",
     "delete": "Delete",
     "deleting": "Deleting",
     "edit": "Edit",
@@ -68,6 +69,17 @@
       }
     }
   },
+  "Manage": {
+    "title": "Manage accounts and categories",
+    "accounts": {
+      "title": "Accounts"
+    },
+    "categories": {
+      "title": "Categories",
+      "loading": "Loading categories...",
+      "subcategoriesTitle": "Subcategories"
+    }
+  },
   "Navbar": {
     "settings": "Setting",
     "userAccountSettings": "User account settings",
@@ -88,6 +100,7 @@
     "excludeFromTotals": "Exclude from balances",
     "selectCategory": "Select category",
     "selectSubcategory": "Select subcategory",
+    "eventDate": "Event Date",
     "selectAccount": "Select account",
     "originAccount": "Origin Account",
     "destinationAccount": "Destination Account"

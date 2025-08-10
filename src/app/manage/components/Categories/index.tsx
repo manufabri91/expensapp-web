@@ -7,20 +7,24 @@ import { getCategories } from '@/lib/actions/categories';
 import { CreateCategoryButton, DeleteCategoryButton, EditCategoryButton } from './components/CategoryActions';
 import { SubcategoriesList } from './components/SubcategoriesList';
 import { AVAILABLE_ICONS } from '@/components/IconPicker/constants';
+import { getTranslations } from 'next-intl/server';
 
 export const Categories = async () => {
   const categories = await getCategories();
+  const t = await getTranslations('Manage.categories');
   return (
     <>
-      <h3 className="my-4 mt-8 text-xl font-semibold text-gray-800 dark:text-gray-100">Categories</h3>
-      <CreateCategoryButton />
+      <div className="flex items-baseline gap-4">
+        <h3 className="my-4 text-xl font-semibold text-gray-800 dark:text-gray-100 md:mt-16">{t('title')}</h3>
+        <CreateCategoryButton />
+      </div>
       <Suspense
         fallback={
           <Accordion collapseAll className="mt-4">
             <AccordionPanel>
               <AccordionTitle>
                 <Spinner className="mr-2" />
-                Loading categories...
+                {t('loading')}
               </AccordionTitle>
             </AccordionPanel>
           </Accordion>
@@ -48,7 +52,7 @@ export const Categories = async () => {
                   </div>
                   <Accordion collapseAll>
                     <AccordionPanel>
-                      <AccordionTitle>Subcategories</AccordionTitle>
+                      <AccordionTitle>{t('subcategoriesTitle')}</AccordionTitle>
                       <AccordionContent>
                         <SubcategoriesList parentCategoryId={category.id} key={category.id} />
                       </AccordionContent>

@@ -1,5 +1,6 @@
 {
   "Generics": {
+    "actions": "Acciones",
     "delete": "Borrar",
     "deleting": "Borrando",
     "edit": "Editar",
@@ -68,6 +69,17 @@
       }
     }
   },
+  "Manage": {
+    "title": "Gestioná cuentas y categorías",
+    "accounts": {
+      "title": "Cuentas"
+    },
+    "categories": {
+      "title": "Categorías",
+      "loading": "Cargando categorías...",
+      "subcategoriesTitle": "Subcategorías"
+    }
+  },
   "Auth": {
     "register": {
       "title": "Registrarse",
@@ -114,6 +126,7 @@
     "excludeFromTotals": "Excluir de los totales",
     "selectCategory": "Seleccionar categoría",
     "selectSubcategory": "Seleccionar subcategoría",
+    "eventDate": "Fecha del evento",
     "selectAccount": "Seleccionar cuenta",
     "originAccount": "Cuenta de origen",
     "destinationAccount": "Cuenta de destino"

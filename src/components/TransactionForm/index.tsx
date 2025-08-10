@@ -10,6 +10,7 @@ import { useAccounts } from '@/lib/providers/AccountsProvider';
 import { useCategories } from '@/lib/providers/CategoriesProvider';
 import { SubCategoryResponse, TransactionResponse } from '@/types/dto';
 import { TransactionType } from '@/types/enums/transactionType';
+import { getCurrencySymbol } from '@/utils/currency';
 import { parseISO } from 'date-fns';
 
 import { Checkbox, Datepicker, Label, Modal, Select, TextInput } from 'flowbite-react';
@@ -158,10 +159,14 @@ export const TransactionForm = () => {
               <Label htmlFor="amount" value={t('Generics.amount')} />
             </div>
             <TextInput
+              theme={{
+                addon:
+                  'inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-slate-300 px-3 text-lg font-medium text-gray-900 dark:border-gray-600 dark:bg-slate-800 dark:text-stone-100',
+              }}
               id="amount"
               name="amount"
               type="number"
-              addon={accounts.find((acc) => acc.id === selectedAccount)?.currency}
+              addon={getCurrencySymbol(locale, accounts.find((acc) => acc.id === selectedAccount)?.currency ?? '')}
               defaultValue={transactionFormData && Math.abs(transactionFormData.amount)}
               min="0"
               step=".01"
@@ -275,7 +280,7 @@ export const TransactionForm = () => {
             </div>
             <Datepicker
               language={locale}
-              title="Event Date"
+              title={t('TransactionForm.eventDate')}
               id="eventDate"
               name="eventDate"
               value={selectedDate ?? undefined}

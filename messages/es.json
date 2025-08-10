@@ -1,5 +1,6 @@
 {
   "Generics": {
+    "actions": "Acciones",
     "delete": "Elminar",
     "deleting": "Elminando",
     "edit": "Editar",
@@ -68,6 +69,17 @@
       }
     }
   },
+  "Manage": {
+    "title": "Gestiona cuentas y categorías",
+    "accounts": {
+      "title": "Cuentas"
+    },
+    "categories": {
+      "title": "Categorías",
+      "loading": "Cargando categorías...",
+      "subcategoriesTitle": "Subcategorías"
+    }
+  },
   "Auth": {
     "register": {
       "title": "Registrarse",
@@ -112,6 +124,7 @@
     "editedSuccess": "Transacción {id} editada exitosamente",
     "unexpectedError": "Algo fue mal! No se ha podido guardar la transacción",
     "excludeFromTotals": "Excluir de los balances",
+    "eventDate": "Fecha del evento",
     "selectCategory": "Seleccionar categoría",
     "selectSubcategory": "Seleccionar subcategoría",
     "selectAccount": "Seleccionar cuenta",

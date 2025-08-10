@@ -17,13 +17,14 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 
-export default function ManagePage() {
+export default async function ManagePage() {
+  const t = await getTranslations('Manage');
   return (
     <CategoryFormProvider>
       <SubcategoryFormProvider>
         <AccountFormProvider>
           <main className="max-w-[100vw] p-6">
-            <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">Manage Accounts & Categories</h2>
+            <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">{t('title')}</h2>
             <Accounts />
             <Categories />
           </main>

@@ -66,7 +66,7 @@ export const TransactionsTable = ({ transactions, showPagination = false, noTran
           size="sm"
           variant={ButtonVariant.Primary}
           className="w-min justify-self-end md:min-w-28"
-          title="Add"
+          title={t('Generics.new.female')}
           onClick={() => {
             showTransactionForm();
           }}
@@ -96,7 +96,7 @@ export const TransactionsTable = ({ transactions, showPagination = false, noTran
               size="sm"
               variant={ButtonVariant.Primary}
               className="w-min md:min-w-28"
-              title="Add"
+              title={t('Generics.new.female')}
               onClick={() => {
                 showTransactionForm();
               }}
@@ -104,7 +104,7 @@ export const TransactionsTable = ({ transactions, showPagination = false, noTran
               <HiPlus className="mr-1 size-5" />
               <div className="hidden md:block">{t('Generics.new.female')}</div>
             </Button>
-            <span className="sr-only">Actions</span>
+            <span className="sr-only">{t('Generics.actions')}</span>
           </Table.HeadCell>
         </Table.Head>
         <Table.Body className="divide-y text-base">
@@ -163,7 +163,7 @@ export const TransactionsTable = ({ transactions, showPagination = false, noTran
                     <Button
                       className="mb-2 min-w-28 lg:mb-0"
                       size="sm"
-                      title="Edit"
+                      title={t('Generics.edit')}
                       variant={ButtonVariant.Secondary}
                       onClick={() => editHandler(transaction)}
                     >
@@ -179,7 +179,7 @@ export const TransactionsTable = ({ transactions, showPagination = false, noTran
                   {isDeleting !== transaction.id && (
                     <Button
                       size="sm"
-                      title="Delete"
+                      title={t('Generics.delete')}
                       className="min-w-28"
                       variant={ButtonVariant.Critical}
                       onClick={() => deleteHandler(transaction)}
