@@ -10,20 +10,22 @@ import { Button, ButtonVariant } from '@/components/Button';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { SettingsDrawer } from '@/components/Navbar/components/SettingsDrawer';
+import { useTranslations } from 'next-intl';
+import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 
 interface Props {
   session: Session | null;
 }
 
 const AUTHORIZED_LINKS = [
-  { label: 'Dashboard', href: '/dashboard' },
-  { label: 'Transactions', href: '/transactions' },
-  { label: 'Accounts & Categories', href: '/manage' },
+  { id: 'dashboard', href: '/dashboard' },
+  { id: 'transactions', href: '/transactions' },
+  { id: 'manage', href: '/manage' },
 ];
 
 export const NavbarContent = ({ session }: Props) => {
+  const t = useTranslations('Navbar');
   const [isOpenSettings, setIsOpenSettings] = useState(false);
-
   const handleSettingsDrawerClose = () => setIsOpenSettings(false);
   const handleSettingsDrawerOpen = () => setIsOpenSettings(true);
   const pathname = usePathname();
@@ -40,20 +42,23 @@ export const NavbarContent = ({ session }: Props) => {
           </span>
         </Navbar.Brand>
         <div className="flex md:order-2">
+          <div className="mr-2">
+            <LocaleSwitcher />
+          </div>
           <LoginButtons session={session} />
           {session && (
-            <Dropdown arrowIcon={false} inline label={<Avatar alt="User settings" rounded />}>
+            <Dropdown arrowIcon={false} inline label={<Avatar alt={t('userAccountSettings')} rounded />}>
               <Dropdown.Header>
                 <span className="block text-sm">
                   {session.user.firstName} {session.user.lastName}
                 </span>
                 <span className="block truncate text-sm font-medium">{session.user.email}</span>
               </Dropdown.Header>
-              <Dropdown.Item onClick={handleSettingsDrawerOpen}>Settings</Dropdown.Item>
+              <Dropdown.Item onClick={handleSettingsDrawerOpen}>{t('settings')}</Dropdown.Item>
               <Dropdown.Divider />
               <div className="m-3">
                 <Button variant={ButtonVariant.Primary} onClick={handleLogoutAction} className="w-full items-center">
-                  Log Out
+                  {t('signOut')}
                 </Button>
               </div>
             </Dropdown>
@@ -64,8 +69,8 @@ export const NavbarContent = ({ session }: Props) => {
         <Navbar.Collapse>
           {session &&
             AUTHORIZED_LINKS.map((link) => (
-              <Navbar.Link key={link.label} as={Link} href={link.href} active={link.href === pathname}>
-                {link.label}
+              <Navbar.Link key={link.id} as={Link} href={link.href} active={link.href === pathname}>
+                {t(`links.${link.id}`)}
               </Navbar.Link>
             ))}
         </Navbar.Collapse>

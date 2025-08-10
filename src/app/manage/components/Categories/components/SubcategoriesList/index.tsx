@@ -3,7 +3,9 @@ import {
   DeleteSubcategoryButton,
   EditSubcategoryButton,
 } from '@/app/manage/components/Categories/components/SubcategoryActions';
+import { SYSTEM_TRANSLATION_KEYS } from '@/constants';
 import { getSubcategoriesByParentCategoryId } from '@/lib/actions/subcategories';
+import { getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
 
 interface Props {
@@ -11,6 +13,7 @@ interface Props {
 }
 
 export const SubcategoriesList = async ({ parentCategoryId }: Props) => {
+  const t = await getTranslations();
   const subcategories = await getSubcategoriesByParentCategoryId(parentCategoryId);
 
   return (
@@ -22,7 +25,7 @@ export const SubcategoriesList = async ({ parentCategoryId }: Props) => {
           className={`${idx < subcategories.length - 1 ? 'border-b dark:border-slate-600' : ''}`}
         >
           <div className="my-4 flex items-center justify-between">
-            {subcategory.name}
+            {SYSTEM_TRANSLATION_KEYS.includes(subcategory.name) ? t(`System.${subcategory.name}`) : subcategory.name}
             <div className="flex gap-2">
               <EditSubcategoryButton subcategory={subcategory} />
               <DeleteSubcategoryButton subcategoryId={subcategory.id} />

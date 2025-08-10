@@ -6,6 +6,7 @@ import { HiInformationCircle } from 'react-icons/hi2';
 import { Alert, Label, TextInput } from 'flowbite-react';
 import Link from 'next/link';
 import { useActionState, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 type FormMode = 'login' | 'register';
 
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
+  const t = useTranslations('Auth');
   const [formMode, setFormMode] = useState<FormMode>(mode);
   const isLoginMode = formMode === 'login';
   const actionFn = isLoginMode ? handleLoginAction : handleRegisterAction;
@@ -46,12 +48,14 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
           <span className="font-medium">Whoops!</span> {error}.
         </Alert>
       )}
-      <h3 className="text-xl font-medium text-gray-900 dark:text-white">{isLoginMode ? 'Sign in' : 'Register'}</h3>
+      <h3 className="text-xl font-medium text-gray-900 dark:text-white">
+        {isLoginMode ? t('login.title') : t('register.title')}
+      </h3>
       {!isLoginMode && (
         <>
           <div>
             <div className="mb-2 block">
-              <Label htmlFor="firstName" value="First Name" />
+              <Label htmlFor="firstName" value={t('form.name')} />
             </div>
             <TextInput
               id="firstName"
@@ -63,7 +67,7 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
           </div>
           <div>
             <div className="mb-2 block">
-              <Label htmlFor="lastName" value="Last Name" />
+              <Label htmlFor="lastName" value={t('form.surname')} />
             </div>
             <TextInput
               id="lastName"
@@ -75,7 +79,7 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
           </div>
           <div>
             <div className="mb-2 block">
-              <Label htmlFor="userName" value="Username" />
+              <Label htmlFor="userName" value={t('form.username')} />
             </div>
             <TextInput
               id="userName"
@@ -89,7 +93,7 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
       )}
       <div>
         <div className="mb-2 block">
-          <Label htmlFor="email" value="Your email" />
+          <Label htmlFor="email" value={t('form.email')} />
         </div>
         <TextInput
           id="email"
@@ -101,7 +105,7 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
       </div>
       <div>
         <div className="mb-2 block">
-          <Label htmlFor="password" value="Your password" />
+          <Label htmlFor="password" value={t('form.password')} />
         </div>
         <TextInput
           id="password"
@@ -115,7 +119,7 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
         <>
           <div>
             <div className="mb-2 block">
-              <Label htmlFor="passwordRepeat" value="Repeat password" />
+              <Label htmlFor="passwordRepeat" value={t('form.confirmPassword')} />
             </div>
             <TextInput
               id="passwordRepeat"
@@ -140,7 +144,7 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
             onClick={() => callback()}
             className="text-sm text-cyan-700 hover:underline dark:text-cyan-500"
           >
-            Forgot Password?
+            {t('form.forgotPassword')}
           </Link>
         )}
       </div>
@@ -149,17 +153,17 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
       </div>
       {isLoginMode && (
         <div className="flex justify-between text-sm font-medium text-gray-500 dark:text-gray-300">
-          Not registered?&nbsp;
+          {t('form.noAccount')}
           <a onClick={() => setFormMode('register')} className="text-cyan-700 hover:underline dark:text-cyan-500">
-            Create account
+            {t('form.createAccount')}
           </a>
         </div>
       )}
       {!isLoginMode && (
         <div className="flex justify-between text-sm font-medium text-gray-500 dark:text-gray-300">
-          Already registered?&nbsp;
+          {t('form.alreadyHaveAccount')}
           <a onClick={() => setFormMode('login')} className="text-cyan-700 hover:underline dark:text-cyan-500">
-            Log in
+            {t('form.login')}
           </a>
         </div>
       )}

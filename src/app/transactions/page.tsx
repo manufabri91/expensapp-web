@@ -1,14 +1,21 @@
-import { Metadata } from 'next';
 import { ListSkeleton } from '@/components';
 import { TransactionFormProvider } from '@/components/TransactionForm/TransactionFormProvider';
 import { Suspense } from 'react';
 import { LatestTransactions } from '@/app/transactions/components/LatestTransactions';
 import { MonthPicker } from '@/app/transactions/components/MonthPicker';
+import { getTranslations } from 'next-intl/server';
 
-export const metadata: Metadata = {
-  title: 'Transactions',
-  description: 'List of all your transactions',
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata.transactions' });
+
+  return {
+    title: {
+      default: t('title'),
+    },
+    description: t('description'),
+  };
+}
 
 export default function Transactions() {
   return (

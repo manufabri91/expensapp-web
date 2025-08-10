@@ -1,0 +1,181 @@
+{
+  "Generics": {
+    "actions": "Actions",
+    "delete": "Delete",
+    "deleting": "Deleting",
+    "edit": "Edit",
+    "editing": "Editing",
+    "new": {
+      "male": "New",
+      "female": "New"
+    },
+    "save": "Save",
+    "saving": "Saving",
+    "description": "Description",
+    "account": "Account",
+    "category": "Category",
+    "subcategory": "Subcategory",
+    "date": "Date",
+    "amount": "Amount",
+    "income": {
+      "singular": "Income",
+      "plural": "Incomes"
+    },
+    "expense": {
+      "singular": "Expense",
+      "plural": "Expenses"
+    },
+    "transfer": {
+      "singular": "Transfer",
+      "plural": "Transfers"
+    },
+    "transaction": {
+      "singular": "Transaction",
+      "plural": "Transactions"
+    }
+  },
+  "HomePage": {
+    "hero": {
+      "title": "Want to organize your expenses?",
+      "subtitle": "We have your back",
+      "description": "e-XpensApp is a simple and intuitive expense tracking app that helps you to manage your expenses and finances"
+    },
+    "features": {
+      "1": {
+        "title": "Multi-account and categorization",
+        "description": "Manage multiple accounts and categories with ease.",
+        "imageTitle": "Save in comfort"
+      },
+      "2": {
+        "title": "Reach your saving goals",
+        "description": "Configure and track your saving goals. We help you to reach your financial freedom.",
+        "imageTitle": "Reach your goals"
+      },
+      "title": "Top Features"
+    },
+    "engage": {
+      "title": "Start saving now",
+      "subtitle": "And reach your financial freedom!"
+    }
+  },
+  "Dashboard": {
+    "latestTransactions": "Latest Transactions",
+    "summary": {
+      "balance": {
+        "title": "Balance in {currencyCode}"
+      },
+      "totalsPerCategory": {
+        "title": "Expenses per Category"
+      }
+    }
+  },
+  "Manage": {
+    "title": "Manage accounts and categories",
+    "accounts": {
+      "title": "Accounts"
+    },
+    "categories": {
+      "title": "Categories",
+      "loading": "Loading categories...",
+      "subcategoriesTitle": "Subcategories"
+    }
+  },
+  "Navbar": {
+    "settings": "Setting",
+    "userAccountSettings": "User account settings",
+    "signOut": "Sign Out",
+    "links": {
+      "dashboard": "Dashboard",
+      "transactions": "Transactions",
+      "manage": "Accounts & Categories"
+    }
+  },
+  "TransactionsTable": {
+    "noTransactions": "No transactions"
+  },
+  "TransactionForm": {
+    "createdSuccess": "Created transaction {id}",
+    "editedSuccess": "Edited transaction {id}",
+    "unexpectedError": "Something went wrong! Couldn't save transaction",
+    "excludeFromTotals": "Exclude from balances",
+    "selectCategory": "Select category",
+    "selectSubcategory": "Select subcategory",
+    "eventDate": "Event Date",
+    "selectAccount": "Select account",
+    "originAccount": "Origin Account",
+    "destinationAccount": "Destination Account"
+  },
+  "Footer": {
+    "rights": "All rights reserved"
+  },
+  "Auth": {
+    "register": {
+      "title": "Register",
+      "button": "Register",
+      "success": "Registration successful! Please check your email and verify your account before you log in.",
+      "cta": "Register your account"
+    },
+    "login": {
+      "title": "Sign in",
+      "button": "Login",
+      "success": "Welcome back!",
+      "cta": "Log in to your account"
+    },
+    "form": {
+      "username": "Username",
+      "name": "Name",
+      "surname": "Surname",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "submit": "Submit",
+      "forgotPassword": "Forgot your password?",
+      "noAccount": "Don't have an account? ",
+      "createAccount": "Create account",
+      "alreadyHaveAccount": "Already have an account? ",
+      "login": "Login",
+      "loading": "Loading..."
+    }
+  },
+  "LocaleSwitcher": {
+    "en": "English",
+    "es": "Spanish (Spain)",
+    "es-AR": "Spanish (Argentina)",
+    "label": "Language"
+  },
+  "Metadata": {
+    "title": {
+      "default": "e-XpensApp | Expense tracking made easy",
+      "template": "%s | e-XpensApp"
+    },
+    "description": "Expense tracking made easy",
+    "dashboard": {
+      "title": "Dashboard",
+      "description": "Summary of your financial status"
+    },
+    "manage": {
+      "title": "Accounts & Categories",
+      "description": "Manage your accounts and categories"
+    },
+    "transactions": {
+      "title": "Transactions",
+      "description": "Here you see all your transactions"
+    }
+  },
+  "System": {
+    "SUBCATEGORY": {
+      "GENERAL": "General"
+    },
+    "TRANSFER": {
+      "CATEGORY": "Transfer",
+      "IN": {
+        "SUBCATEGORY": "Incoming",
+        "DESCRIPTION": "Transfer received"
+      },
+      "OUT": {
+        "SUBCATEGORY": "Outcoming",
+        "DESCRIPTION": "Transfer sent"
+      }
+    }
+  }
+}

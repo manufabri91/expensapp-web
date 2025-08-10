@@ -1,19 +1,26 @@
 import { Suspense } from 'react';
-import { Metadata } from 'next';
-
 import { ListSkeleton } from '@/components';
 import { TransactionFormProvider } from '@/components/TransactionForm/TransactionFormProvider';
 import { LatestTransactions } from '@/app/dashboard/components/LatestTransactions';
 import { AccountFormProvider } from '@/components/AccountForm/AccountFormProvider';
 import { Summary } from '@/app/dashboard/components/Summary';
 import LoadingSummary from '@/app/dashboard/components/Summary/loading';
+import { getTranslations } from 'next-intl/server';
 
-export const metadata: Metadata = {
-  title: 'Dashboard',
-  description: 'Summary of your account balance, expenses, and investments',
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Metadata.dashboard' });
 
-const Dashboard = () => {
+  return {
+    title: {
+      default: t('title'),
+    },
+    description: t('description'),
+  };
+}
+
+const Dashboard = async () => {
+  const t = await getTranslations('Dashboard');
   return (
     <TransactionFormProvider>
       <AccountFormProvider>
@@ -22,7 +29,9 @@ const Dashboard = () => {
             <Summary />
           </Suspense>
 
-          <h3 className="mt-8 text-xl font-semibold text-gray-800 dark:text-gray-100 md:mt-16">Latest Transactions</h3>
+          <h3 className="mt-8 text-xl font-semibold text-gray-800 dark:text-gray-100 md:mt-16">
+            {t('latestTransactions')}
+          </h3>
           <Suspense fallback={<ListSkeleton className="mt-4" rows={3} />}>
             <LatestTransactions />
           </Suspense>

@@ -1,0 +1,181 @@
+{
+  "Generics": {
+    "actions": "Acciones",
+    "delete": "Elminar",
+    "deleting": "Elminando",
+    "edit": "Editar",
+    "editing": "Editando",
+    "new": {
+      "male": "Nuevo",
+      "female": "Nueva"
+    },
+    "save": "Guardar",
+    "saving": "Guardando",
+    "description": "Descripción",
+    "account": "Cuenta",
+    "category": "Categoría",
+    "subcategory": "Subcategoría",
+    "date": "Fecha",
+    "amount": "Importe",
+    "income": {
+      "singular": "Ingreso",
+      "plural": "Ingresos"
+    },
+    "expense": {
+      "singular": "Gasto",
+      "plural": "Gastos"
+    },
+    "transfer": {
+      "singular": "Transferencia",
+      "plural": "Transferencias"
+    },
+    "transaction": {
+      "singular": "Transacción",
+      "plural": "Transacciones"
+    }
+  },
+  "HomePage": {
+    "hero": {
+      "title": "¿Quieres organizar tus gastos?",
+      "subtitle": "Te apoyamos",
+      "description": "e-XpensApp es una aplicación sencilla e intuitiva que te ayudará a controlar tus gastos y finanzas"
+    },
+    "features": {
+      "title": "Características principales",
+      "1": {
+        "title": "Multi-cuenta y categorización",
+        "description": "Gestiona varias cuentas y categorías fácilmente.",
+        "imageTitle": "Ahorra con comodidad"
+      },
+      "2": {
+        "title": "Alcanza tus metas de ahorro",
+        "description": "Configura y sigue tus metas de ahorro. Te ayudamos a alcanzar tu libertad financiera.",
+        "imageTitle": "Alcanza tus objetivos"
+      }
+    },
+    "engage": {
+      "title": "Empieza a ahorrar ahora",
+      "subtitle": "¡Y alcanza tu libertad financiera!"
+    }
+  },
+  "Dashboard": {
+    "latestTransactions": "Transacciones recientes",
+    "summary": {
+      "balance": {
+        "title": "Balance en {currencyCode}"
+      },
+      "totalsPerCategory": {
+        "title": "Gastos por categoría"
+      }
+    }
+  },
+  "Manage": {
+    "title": "Gestiona cuentas y categorías",
+    "accounts": {
+      "title": "Cuentas"
+    },
+    "categories": {
+      "title": "Categorías",
+      "loading": "Cargando categorías...",
+      "subcategoriesTitle": "Subcategorías"
+    }
+  },
+  "Auth": {
+    "register": {
+      "title": "Registrarse",
+      "button": "Registrarse",
+      "success": "¡Registro exitoso! Por favor revisa tu correo y verifica tu cuenta antes de iniciar sesión.",
+      "cta": "Registra tu cuenta"
+    },
+    "login": {
+      "title": "Iniciar sesión",
+      "button": "Ingresar",
+      "success": "¡Bienvenido de nuevo!",
+      "cta": "Ingresa a tu cuenta"
+    },
+    "form": {
+      "username": "Usuario",
+      "name": "Nombre",
+      "surname": "Apellido",
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "confirmPassword": "Confirmar contraseña",
+      "submit": "Enviar",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "noAccount": "¿No tienes una cuenta? ",
+      "createAccount": "Crear cuenta",
+      "alreadyHaveAccount": "¿Ya tienes una cuenta? ",
+      "login": "Ingresar",
+      "loading": "Cargando..."
+    }
+  },
+  "Navbar": {
+    "settings": "Ajustes",
+    "userAccountSettings": "Ajustes de usuario",
+    "signOut": "Cerrar sesión",
+    "links": {
+      "dashboard": "Inicio",
+      "transactions": "Transacciones",
+      "manage": "Cuentas y Categorias"
+    }
+  },
+  "TransactionForm": {
+    "createdSuccess": "Transacción {id} creada exitosamente",
+    "editedSuccess": "Transacción {id} editada exitosamente",
+    "unexpectedError": "Algo fue mal! No se ha podido guardar la transacción",
+    "excludeFromTotals": "Excluir de los balances",
+    "eventDate": "Fecha del evento",
+    "selectCategory": "Seleccionar categoría",
+    "selectSubcategory": "Seleccionar subcategoría",
+    "selectAccount": "Seleccionar cuenta",
+    "originAccount": "Cuenta de origen",
+    "destinationAccount": "Cuenta de destino"
+  },
+  "TransactionsTable": {
+    "noTransactions": "No hay transacciones"
+  },
+  "Footer": {
+    "rights": "Todos los derechos reservados"
+  },
+  "LocaleSwitcher": {
+    "en": "Inglés",
+    "es": "Español (España)",
+    "es-AR": "Español (Argentina)",
+    "label": "Idioma"
+  },
+  "Metadata": {
+    "title": {
+      "default": "e-XpensApp | Registra tus gastos, fácil",
+      "template": "%s | e-XpensApp"
+    },
+    "description": "Registra tus gastos, gestiona varias cuentas y categorías fácilmente.",
+    "dashboard": {
+      "title": "Inicio",
+      "description": "Resumen de tu situación financiera"
+    },
+    "manage": {
+      "title": "Cuentas y Categorias",
+      "description": "Gestiona tus cuentas y categorias"
+    },
+    "transactions": {
+      "title": "Transacciones",
+      "description": "Aquí verás todos tus movimientos"
+    }
+  },
+  "System": {
+    "SUBCATEGORY": {
+      "GENERAL": "General"
+    },
+    "TRANSFER": {
+      "CATEGORY": "Transferencia",
+      "IN": {
+        "SUBCATEGORY": "Ingreso",
+        "DESCRIPTION": "Transferencia recibida"
+      },
+      "OUT": {
+        "SUBCATEGORY": "Salida",
+        "DESCRIPTION": "Transferencia emitida"
+      }
+    }
+  }
+}

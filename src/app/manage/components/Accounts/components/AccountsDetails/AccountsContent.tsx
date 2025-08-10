@@ -9,11 +9,14 @@ import { useEffect, useState } from 'react';
 import { ActionResult } from '@/types/viewModel/actionResult';
 import { deleteTransactionById } from '@/lib/actions/transactions';
 import { useToaster } from '@/components/Toast/ToastProvider';
+import { useLocale, useTranslations } from 'next-intl';
 
 interface Props {
   accounts: AccountResponse[];
 }
 export const AccountsDetailsContent = ({ accounts }: Props) => {
+  const t = useTranslations();
+  const locale = useLocale();
   const [changedTransaction, setChangedTransaction] = useState<ActionResult | null>(null);
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
   const [isEditing, setIsEditing] = useState<number | null>(null);
@@ -57,7 +60,7 @@ export const AccountsDetailsContent = ({ accounts }: Props) => {
           <div className="flex justify-between">
             <div className="flex flex-col justify-between pr-4">
               <h3 className="text-lg font-semibold">{account.name}</h3>
-              <Money amount={account.accountBalance} currency={account.currency} className="text-2xl" />
+              <Money amount={account.accountBalance} currency={account.currency} locale={locale} className="text-2xl" />
             </div>
             <div className="flex h-full flex-col justify-evenly gap-4">
               {!isEditing && (
@@ -66,15 +69,15 @@ export const AccountsDetailsContent = ({ accounts }: Props) => {
                   variant={ButtonVariant.Secondary}
                   onClick={() => editHandler(account)}
                   size="sm"
-                  title="Edit"
+                  title={t('Generics.edit')}
                 >
-                  <HiPencil className="mr-1 size-5" aria-label="edit" />
-                  <span>Edit</span>
+                  <HiPencil className="mr-1 size-5" aria-label="" />
+                  <span>{t('Generics.edit')}</span>
                 </Button>
               )}
               {isEditing && (
-                <Button isProcessing variant={ButtonVariant.Secondary} size="sm" title="Editing">
-                  <span>Editing</span>
+                <Button isProcessing variant={ButtonVariant.Secondary} size="sm" title={t('Generics.editing')}>
+                  <span>{t('Generics.editing')}</span>
                 </Button>
               )}
               {!isDeleting && (
@@ -83,15 +86,15 @@ export const AccountsDetailsContent = ({ accounts }: Props) => {
                   variant={ButtonVariant.Critical}
                   onClick={() => deleteHandler(account)}
                   size="sm"
-                  title="Delete"
+                  title={t('Generics.delete')}
                 >
-                  <HiTrash className="mr-1 size-5" aria-label="delete" />
-                  <span>Delete</span>
+                  <HiTrash className="mr-1 size-5" aria-label="" />
+                  <span>{t('Generics.delete')}</span>
                 </Button>
               )}
               {isDeleting && (
-                <Button isProcessing variant={ButtonVariant.Critical} size="sm" title="Deleting">
-                  <span>Deleting</span>
+                <Button isProcessing variant={ButtonVariant.Critical} size="sm" title={t('Generics.deleting')}>
+                  <span>{t('Generics.deleting')}</span>
                 </Button>
               )}
             </div>

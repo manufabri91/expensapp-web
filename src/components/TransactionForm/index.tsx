@@ -10,12 +10,16 @@ import { useAccounts } from '@/lib/providers/AccountsProvider';
 import { useCategories } from '@/lib/providers/CategoriesProvider';
 import { SubCategoryResponse, TransactionResponse } from '@/types/dto';
 import { TransactionType } from '@/types/enums/transactionType';
+import { getCurrencySymbol } from '@/utils/currency';
 import { parseISO } from 'date-fns';
 
 import { Checkbox, Datepicker, Label, Modal, Select, TextInput } from 'flowbite-react';
+import { useLocale, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 
 export const TransactionForm = () => {
+  const t = useTranslations();
+  const locale = useLocale();
   const { showToast } = useToaster();
   const { transactionFormData, isOpen, closeTransactionForm } = useTransactionForm();
   const { accounts } = useAccounts();
@@ -64,16 +68,16 @@ export const TransactionForm = () => {
   // execute when submit
   useEffect(() => {
     if (createdTransaction) {
-      showToast(`Created transaction with ID: ${createdTransaction.id}`);
+      showToast(t('TransactionForm.createdSuccess', { id: createdTransaction.id }));
       setCreatedTransaction(null);
       closeTransactionForm();
       restoreFormState();
     } else if (editedTransaction) {
-      showToast(`Edited transaction with ID: ${editedTransaction.id}`);
+      showToast(t('TransactionForm.editedSuccess', { id: editedTransaction.id }));
       setEditedTransaction(null);
       restoreFormState();
     }
-  }, [accounts, closeTransactionForm, createdTransaction, editedTransaction, restoreFormState, showToast]);
+  }, [accounts, closeTransactionForm, createdTransaction, editedTransaction, restoreFormState, showToast, t]);
 
   const onSelectedCategory = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedCategory(Number(event.target.value));
@@ -120,7 +124,7 @@ export const TransactionForm = () => {
       if (error instanceof Error) {
         showToast(error.message, ToastType.Error);
       } else {
-        showToast('An unexpected error occurred', ToastType.Error);
+        showToast(t('TransactionForm.unexpectedError'), ToastType.Error);
       }
       setEditedTransaction(null);
       setCreatedTransaction(null);
@@ -134,7 +138,9 @@ export const TransactionForm = () => {
   return (
     <Modal show={isOpen} size="md" onClose={closeTransactionForm} popup>
       <Modal.Header as={'div'} className="m-4">
-        <h3>{transactionFormData ? 'Edit ' : 'Create '}transaction</h3>
+        <h3>
+          {transactionFormData ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.transaction.singular')}
+        </h3>
       </Modal.Header>
       <Modal.Body>
         <form className="flex max-w-md flex-col gap-4" onSubmit={submitHandler}>
@@ -150,13 +156,17 @@ export const TransactionForm = () => {
 
           <div>
             <div className="mb-2 block">
-              <Label htmlFor="amount" value="Amount" />
+              <Label htmlFor="amount" value={t('Generics.amount')} />
             </div>
             <TextInput
+              theme={{
+                addon:
+                  'inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-slate-300 px-3 text-lg font-medium text-gray-900 dark:border-gray-600 dark:bg-slate-800 dark:text-stone-100',
+              }}
               id="amount"
               name="amount"
               type="number"
-              addon={accounts.find((acc) => acc.id === selectedAccount)?.currency}
+              addon={getCurrencySymbol(locale, accounts.find((acc) => acc.id === selectedAccount)?.currency ?? '')}
               defaultValue={transactionFormData && Math.abs(transactionFormData.amount)}
               min="0"
               step=".01"
@@ -173,7 +183,7 @@ export const TransactionForm = () => {
                 defaultChecked={transactionFormData?.excludeFromTotals ?? false}
               />
               <Label htmlFor="excludeFromTotals" className="flex">
-                Exclude from balances
+                {t('TransactionForm.excludeFromTotals')}
               </Label>
             </div>
           )}
@@ -181,7 +191,7 @@ export const TransactionForm = () => {
           {selectedType !== TransactionType.TRANSFER && (
             <div className="max-w-md">
               <div className="mb-2 block">
-                <Label htmlFor="account" value="Account" />
+                <Label htmlFor="account" value={t('Generics.account')} />
               </div>
               <Select
                 id="account"
@@ -190,7 +200,7 @@ export const TransactionForm = () => {
                 required
                 onChange={onAccountChange}
               >
-                <option value={undefined}>Select Account</option>
+                <option value={undefined}>{t('TransactionForm.selectAccount')}</option>
                 {accounts.map((account) => (
                   <option key={account.id} value={account.id}>
                     {account.name}
@@ -203,7 +213,7 @@ export const TransactionForm = () => {
             <>
               <div className="max-w-md">
                 <div className="mb-2 block">
-                  <Label htmlFor="account" value="Origin Account" />
+                  <Label htmlFor="account" value={t('TransactionForm.originAccount')} />
                 </div>
                 <Select
                   id="account"
@@ -216,7 +226,7 @@ export const TransactionForm = () => {
                   required
                   onChange={onAccountChange}
                 >
-                  <option value={undefined}>Select Account</option>
+                  <option value={undefined}>{t('TransactionForm.selectAccount')}</option>
                   {accounts.map((account) => (
                     <option key={account.id} value={account.id}>
                       {account.name}
@@ -227,7 +237,7 @@ export const TransactionForm = () => {
 
               <div className="max-w-md">
                 <div className="mb-2 block">
-                  <Label htmlFor="destinationAccount" value="Destination Account" />
+                  <Label htmlFor="destinationAccount" value={t('TransactionForm.destinationAccount')} />
                 </div>
                 <Select
                   id="destinationAccount"
@@ -239,7 +249,7 @@ export const TransactionForm = () => {
                   }
                   required
                 >
-                  <option value={undefined}>Select Account</option>
+                  <option value={undefined}>{t('TransactionForm.selectAccount')}</option>
                   {accounts.map((account) => (
                     <option key={account.id} value={account.id}>
                       {account.name}
@@ -252,7 +262,7 @@ export const TransactionForm = () => {
           {selectedType !== TransactionType.TRANSFER && (
             <div>
               <div className="mb-2 block">
-                <Label htmlFor="description" value="Description" />
+                <Label htmlFor="description" value={t('Generics.description')} />
               </div>
               <TextInput
                 id="description"
@@ -266,10 +276,11 @@ export const TransactionForm = () => {
           )}
           <div>
             <div className="mb-2 block">
-              <Label htmlFor="eventDate" value="Date" />
+              <Label htmlFor="eventDate" value={t('Generics.date')} />
             </div>
             <Datepicker
-              title="Event Date"
+              language={locale}
+              title={t('TransactionForm.eventDate')}
               id="eventDate"
               name="eventDate"
               value={selectedDate ?? undefined}
@@ -282,7 +293,7 @@ export const TransactionForm = () => {
             <>
               <div className="max-w-md">
                 <div className="mb-2 block">
-                  <Label htmlFor="category" value="Category" />
+                  <Label htmlFor="category" value={t('Generics.category')} />
                 </div>
                 <Select
                   id="category"
@@ -291,7 +302,7 @@ export const TransactionForm = () => {
                   required
                   onChange={onSelectedCategory}
                 >
-                  <option value={undefined}>Select Category</option>
+                  <option value={undefined}>{t('TransactionForm.selectCategory')}</option>
                   {categories
                     .filter((cat) => cat.type === selectedType)
                     .map((category) => (
@@ -304,7 +315,7 @@ export const TransactionForm = () => {
 
               <div className="max-w-md">
                 <div className="mb-2 block">
-                  <Label htmlFor="subcategory" value="Sub-Category" />
+                  <Label htmlFor="subcategory" value={t('Generics.subcategory')} />
                 </div>
                 <Select
                   id="subcategory"
@@ -314,7 +325,7 @@ export const TransactionForm = () => {
                   onChange={onSelectedSubcategory}
                   value={selectedSubcategory}
                 >
-                  <option value={undefined}>Select Sub-Category</option>
+                  <option value={undefined}>{t('TransactionForm.selectSubcategory')}</option>
                   {filteredSubcategories.map((subcategory) => (
                     <option key={subcategory.id} value={subcategory.id}>
                       {subcategory.name}
@@ -326,12 +337,12 @@ export const TransactionForm = () => {
           )}
           {!processing && (
             <Button type="submit" variant={ButtonVariant.Primary}>
-              {transactionFormData ? 'Edit' : 'Create'}
+              {transactionFormData ? t('Generics.edit') : t('Generics.save')}
             </Button>
           )}
           {processing && (
             <Button type="button" variant={ButtonVariant.Primary} isProcessing disabled>
-              {transactionFormData ? 'Editing' : 'Creating'}...
+              {transactionFormData ? t('Generics.editing') : t('Generics.saving')}...
             </Button>
           )}
         </form>

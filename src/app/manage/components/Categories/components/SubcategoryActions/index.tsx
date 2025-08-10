@@ -7,6 +7,7 @@ import { useSubcategoryForm } from '@/components/SubcategoryForm/SubcategoryForm
 import { useState } from 'react';
 import { deleteSubcategoryById } from '@/lib/actions/subcategories';
 import { Spinner } from 'flowbite-react';
+import { useTranslations } from 'next-intl';
 
 interface CreateSubcategoryButtonProps {
   parentCategoryId: number;
@@ -14,6 +15,7 @@ interface CreateSubcategoryButtonProps {
 }
 
 export const CreateSubcategoryButton = ({ parentCategoryId, className }: CreateSubcategoryButtonProps) => {
+  const t = useTranslations('Generics');
   const { showSubcategoryCreateForm } = useSubcategoryForm();
   return (
     <Button
@@ -24,12 +26,13 @@ export const CreateSubcategoryButton = ({ parentCategoryId, className }: CreateS
       className={className}
     >
       <HiPlus className="mr-1 size-5" />
-      Add Subcategory
+      {t('new.female')}
     </Button>
   );
 };
 
 export const EditSubcategoryButton = ({ subcategory }: { subcategory: SubCategoryResponse }) => {
+  const t = useTranslations('Generics');
   const { showSubcategoryEditForm, isOpen } = useSubcategoryForm();
   return (
     <Button
@@ -40,12 +43,13 @@ export const EditSubcategoryButton = ({ subcategory }: { subcategory: SubCategor
     >
       {!isOpen && <HiPencil className="mr-1 size-5" />}
       {isOpen && <Spinner className="mr-1 size-5" />}
-      <span className="hidden md:block">{isOpen ? 'Editing...' : 'Edit'}</span>
+      <span className="hidden md:block">{isOpen ? `${t('editing')}...` : t('edit')}</span>
     </Button>
   );
 };
 
 export const DeleteSubcategoryButton = ({ subcategoryId }: { subcategoryId: number }) => {
+  const t = useTranslations('Generics');
   const [isDeleting, setIsDeleting] = useState(false);
 
   const deleteHandler = async () => {
@@ -64,7 +68,7 @@ export const DeleteSubcategoryButton = ({ subcategoryId }: { subcategoryId: numb
     >
       {!isDeleting && <HiTrash className="mr-1 size-5" />}
       {isDeleting && <Spinner className="mr-1 size-5" />}
-      <span className="hidden md:block">{isDeleting ? 'Deleting...' : 'Delete'}</span>
+      <span className="hidden md:block">{isDeleting ? `${t('deleting')}...` : t('delete')}</span>
     </Button>
   );
 };
