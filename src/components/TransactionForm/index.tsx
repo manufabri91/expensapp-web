@@ -32,7 +32,7 @@ export const TransactionForm = () => {
   const [selectedCategory, setSelectedCategory] = useState<number | undefined>(undefined);
   const [filteredSubcategories, setFilteredSubcategories] = useState<SubCategoryResponse[]>([]);
   const [selectedSubcategory, setSelectedSubcategory] = useState<number | undefined>(undefined);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedAccount, setSelectedAccount] = useState<number>(accounts[0]?.id);
   const [selectedType, setSelectedType] = useState<TransactionType>(TransactionType.EXPENSE);
 
@@ -40,7 +40,7 @@ export const TransactionForm = () => {
     setProcessing(false);
     setSelectedCategory(undefined);
     setSelectedSubcategory(undefined);
-    setSelectedDate(null);
+    setSelectedDate(new Date());
     setFilteredSubcategories([]);
     setSelectedAccount(accounts[0]?.id);
     setSelectedType(TransactionType.EXPENSE);
@@ -77,6 +77,7 @@ export const TransactionForm = () => {
     } else if (editedTransaction) {
       showToast(t('TransactionForm.editedSuccess', { id: editedTransaction.id }));
       setEditedTransaction(null);
+      closeTransactionForm();
       restoreFormState();
     }
   }, [accounts, closeTransactionForm, createdTransaction, editedTransaction, restoreFormState, showToast, t]);
@@ -110,10 +111,14 @@ export const TransactionForm = () => {
     setSelectedType(type);
   };
 
+  const onDateChanged = (date: Date | null) => {
+    setSelectedDate(date ?? new Date());
+  };
+
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    formData.set('eventDate', formatISO(selectedDate!, { representation: 'date' }));
+    formData.set('eventDate', formatISO(selectedDate, { representation: 'date' }));
     setProcessing(true);
     try {
       if (!transactionFormData) {
@@ -286,8 +291,8 @@ export const TransactionForm = () => {
               title={t('TransactionForm.eventDate')}
               id="eventDate"
               name="eventDate"
-              value={selectedDate ?? undefined}
-              onChange={setSelectedDate}
+              value={selectedDate}
+              onChange={onDateChanged}
               shadow
               required
             />

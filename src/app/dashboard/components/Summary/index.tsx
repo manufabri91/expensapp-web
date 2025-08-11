@@ -1,6 +1,5 @@
 import { HiArrowTrendingDown, HiArrowTrendingUp, HiEquals } from 'react-icons/hi2';
 import { Card, HR } from 'flowbite-react';
-import { code } from 'currency-codes';
 import { Money } from '@/components';
 import { CategorySummaryResponse, CurrencySummaryResponse } from '@/types/dto';
 import { getMonthSummary, getTotalsByCategory } from '@/lib/actions/summaries';
@@ -12,7 +11,7 @@ const TrendIcon = ({ amount }: { amount: number }) => {
     return <HiArrowTrendingDown className="text-2xl font-bold text-red-600" />;
   }
   if (amount > 0) {
-    return <HiArrowTrendingUp className="text-2xl font-bold text-green-600" />;
+    return <HiArrowTrendingUp className="text-2xl font-bold text-emerald-600 dark:text-emerald-500" />;
   }
   return <HiEquals className="text-2xl font-bold text-amber-600 dark:text-amber-300" />;
 };
@@ -35,7 +34,7 @@ export const Summary = async () => {
               <div className="flex flex-col items-center justify-between">
                 <h3 className="text-nowrap text-lg font-semibold">
                   {t('Dashboard.summary.balance.title', {
-                    currencyCode: code(currencySummary.currency)?.currency ?? '',
+                    currencyCode: t(`Generics.currencies.${currencySummary.currency}.plural`),
                   })}
                 </h3>
                 <Money

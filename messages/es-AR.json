@@ -33,6 +33,20 @@
     "transaction": {
       "singular": "Transacción",
       "plural": "Transacciones"
+    },
+    "currencies": {
+      "ARS": {
+        "singular": "Peso",
+        "plural": "Pesos"
+      },
+      "EUR": {
+        "singular": "Euro",
+        "plural": "Euros"
+      },
+      "USD": {
+        "singular": "Dólar",
+        "plural": "Dólares"
+      }
     }
   },
   "HomePage": {
@@ -123,6 +137,7 @@
   "TransactionForm": {
     "createdSuccess": "Transacción {id} creada con éxito",
     "editedSuccess": "Transacción {id} editada con éxito",
+    "deletedSuccess": "Transacción {id} eliminada con éxito",
     "unexpectedError": "Algo salió mal! No se pudo guardar la transacción",
     "excludeFromTotals": "Excluir de los totales",
     "selectCategory": "Seleccionar categoría",
@@ -136,14 +151,28 @@
     "color": "Color",
     "name": "Nombre",
     "createdSuccess": "Categoría {id} creada con éxito",
-    "editedSuccess": "Categoría {id} editada con éxito"
+    "editedSuccess": "Categoría {id} editada con éxito",
+    "deletedSuccess": "Categoría {id} eliminada con éxito",
+    "unexpectedError": "Algo salió mal! No se pudo guardar la categoría"
   },
   "SubcategoryForm": {
     "name": "Nombre",
     "belongsTo": "Categoría",
     "selectCategory": "Elegír categoría",
     "createdSuccess": "Subcategoría {id} creada con éxito",
-    "editedSuccess": "Subcategoría {id} editada con éxito"
+    "editedSuccess": "Subcategoría {id} editada con éxito",
+    "deletedSuccess": "Subcategoría {id} eliminada con éxito",
+    "unexpectedError": "Algo salió mal! No se pudo guardar la subcategoría"
+  },
+  "AccountForm": {
+    "createdSuccess": "Cuenta {id} creada con éxito",
+    "editedSuccess": "Cuenta {id} editada con éxito",
+    "deletedSuccess": "Cuenta {id} eliminada con éxito",
+    "unexpectedError": "Algo salió mal! No se pudo guardar la categoría",
+    "name": "Nombre",
+    "initialBalance": "Saldo inicial",
+    "currency": "Moneda",
+    "selectCurrency": "Seleccionar moneda"
   },
   "TransactionsTable": {
     "noTransactions": "No hay movimientos"

@@ -36,10 +36,10 @@ export const TransactionsTable = ({ transactions, showPagination = false, noTran
   const [isEditing, setIsEditing] = useState<number | null>(null);
 
   useEffect(() => {
-    if (changedTransaction) {
-      showToast(changedTransaction.message, changedTransaction.success ? ToastType.Success : ToastType.Error);
+    if (changedTransaction && !changedTransaction.success) {
+      showToast(t('TransactionForm.unexpectedError'));
     }
-  }, [changedTransaction, showToast, clearToast]);
+  }, [changedTransaction, showToast, clearToast, t]);
 
   useEffect(() => {
     if (!openedTransactionForm) {
@@ -49,9 +49,19 @@ export const TransactionsTable = ({ transactions, showPagination = false, noTran
 
   const deleteHandler = async (tx: TransactionResponse) => {
     setIsDeleting(tx.id);
-    const result = await deleteTransactionById(tx.id);
-    setChangedTransaction(result);
-    setIsDeleting(null);
+    try {
+      const result = await deleteTransactionById(tx.id);
+      setChangedTransaction(result);
+      showToast(t('TransactionForm.deletedSuccess', { id: tx.id }), ToastType.Success);
+    } catch (error) {
+      if (error instanceof Error) {
+        showToast(error.message, ToastType.Error);
+      } else {
+        showToast(t('TransactionForm.unexpectedError'), ToastType.Error);
+      }
+    } finally {
+      setIsDeleting(null);
+    }
   };
 
   const editHandler = async (tx: TransactionResponse) => {
