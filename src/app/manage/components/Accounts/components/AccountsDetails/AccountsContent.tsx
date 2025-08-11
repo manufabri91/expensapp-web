@@ -6,10 +6,9 @@ import { Button, ButtonVariant, Money, ToastType } from '@/components';
 import { useAccountForm } from '@/components/AccountForm/AccountFormProvider';
 import { AccountResponse } from '@/types/dto';
 import { useEffect, useState } from 'react';
-import { ActionResult } from '@/types/viewModel/actionResult';
-import { deleteTransactionById } from '@/lib/actions/transactions';
 import { useToaster } from '@/components/Toast/ToastProvider';
 import { useLocale, useTranslations } from 'next-intl';
+import { deleteAccountById } from '@/lib/actions/accounts';
 
 interface Props {
   accounts: AccountResponse[];
@@ -17,29 +16,18 @@ interface Props {
 export const AccountsDetailsContent = ({ accounts }: Props) => {
   const t = useTranslations();
   const locale = useLocale();
-  const [changedTransaction, setChangedTransaction] = useState<ActionResult | null>(null);
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
   const [isEditing, setIsEditing] = useState<number | null>(null);
   const { showToast, clearToast } = useToaster();
   const { showAccountForm, isOpen: isAccountFormOpen } = useAccountForm();
 
   useEffect(() => {
-    if (changedTransaction) {
-      clearToast();
-    }
-  }, [changedTransaction, clearToast]);
-
-  useEffect(() => {
-    if (changedTransaction) {
-      showToast(changedTransaction.message, changedTransaction.success ? ToastType.Success : ToastType.Error);
-    }
-  }, [changedTransaction, showToast, clearToast]);
-
-  useEffect(() => {
     if (!isAccountFormOpen) {
       setIsEditing(null);
+    } else {
+      clearToast();
     }
-  }, [isAccountFormOpen]);
+  }, [isAccountFormOpen, clearToast]);
 
   const editHandler = (account: AccountResponse) => {
     setIsEditing(account.id);
@@ -48,9 +36,20 @@ export const AccountsDetailsContent = ({ accounts }: Props) => {
 
   const deleteHandler = async (account: AccountResponse) => {
     setIsDeleting(account.id);
-    const result = await deleteTransactionById(account.id);
-    setChangedTransaction(result);
-    setIsDeleting(null);
+
+    try {
+      await deleteAccountById(account.id);
+
+      showToast(t('AccountForm.deletedSuccess', { id: account.id }), ToastType.Success);
+    } catch (error) {
+      if (error instanceof Error) {
+        showToast(error.message, ToastType.Error);
+      } else {
+        showToast(t('AccountForm.unexpectedError'), ToastType.Error);
+      }
+    } finally {
+      setIsDeleting(null);
+    }
   };
 
   return (
@@ -63,7 +62,7 @@ export const AccountsDetailsContent = ({ accounts }: Props) => {
               <Money amount={account.accountBalance} currency={account.currency} locale={locale} className="text-2xl" />
             </div>
             <div className="flex h-full flex-col justify-evenly gap-4">
-              {!isEditing && (
+              {!(isEditing === account.id) && (
                 <Button
                   className="min-w-28"
                   variant={ButtonVariant.Secondary}
@@ -75,12 +74,12 @@ export const AccountsDetailsContent = ({ accounts }: Props) => {
                   <span>{t('Generics.edit')}</span>
                 </Button>
               )}
-              {isEditing && (
+              {isEditing === account.id && (
                 <Button isProcessing variant={ButtonVariant.Secondary} size="sm" title={t('Generics.editing')}>
                   <span>{t('Generics.editing')}</span>
                 </Button>
               )}
-              {!isDeleting && (
+              {!(isDeleting === account.id) && (
                 <Button
                   className="min-w-28"
                   variant={ButtonVariant.Critical}
@@ -92,7 +91,7 @@ export const AccountsDetailsContent = ({ accounts }: Props) => {
                   <span>{t('Generics.delete')}</span>
                 </Button>
               )}
-              {isDeleting && (
+              {isDeleting === account.id && (
                 <Button isProcessing variant={ButtonVariant.Critical} size="sm" title={t('Generics.deleting')}>
                   <span>{t('Generics.deleting')}</span>
                 </Button>

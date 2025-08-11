@@ -63,14 +63,26 @@ export const CategoryForm = () => {
 
   const submitHandler = async (formData: FormData) => {
     setProcessing(true);
-    if (!categoryFormData) {
-      const createdCategory = await createCategory(formData);
-      await refetchAll();
-      setCreatedCategory(createdCategory);
-    } else {
-      const updatedAccocreatedCategory = await editCategory(formData);
-      await refetchAll();
-      setEditedCategory(updatedAccocreatedCategory);
+    try {
+      if (!categoryFormData) {
+        const createdCategory = await createCategory(formData);
+        await refetchAll();
+        setCreatedCategory(createdCategory);
+      } else {
+        const updatedAccocreatedCategory = await editCategory(formData);
+        await refetchAll();
+        setEditedCategory(updatedAccocreatedCategory);
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        showToast(error.message, ToastType.Error);
+      } else {
+        showToast(t('CategoryForm.unexpectedError'), ToastType.Error);
+      }
+      setCreatedCategory(null);
+      setEditedCategory(null);
+      setProcessing(false);
+      closeCategoryForm();
     }
   };
 

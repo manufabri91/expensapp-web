@@ -33,6 +33,20 @@
     "transaction": {
       "singular": "Transacción",
       "plural": "Transacciones"
+    },
+    "currencies": {
+      "ARS": {
+        "singular": "Peso Argentino",
+        "plural": "Pesos Argentinos"
+      },
+      "EUR": {
+        "singular": "Euro",
+        "plural": "Euros"
+      },
+      "USD": {
+        "singular": "Dólar",
+        "plural": "Dólares"
+      }
     }
   },
   "HomePage": {
@@ -124,18 +138,33 @@
     "color": "Color",
     "name": "Nombre",
     "createdSuccess": "Categoría {id} creada exitosamente",
-    "editedSuccess": "Categoría {id} editada exitosamente"
+    "editedSuccess": "Categoría {id} editada exitosamente",
+    "deletedSuccess": "Categoría {id} eliminada exitosamente",
+    "unexpectedError": "Algo fue mal! No se pudo guardar la categoría"
   },
   "SubcategoryForm": {
     "name": "Nombre",
     "belongsTo": "Categoría",
     "selectCategory": "Seleccionar categoría",
     "createdSuccess": "Subcategoría {id} creada exitosamente",
-    "editedSuccess": "Subcategoría {id} editada exitosamente"
+    "editedSuccess": "Subcategoría {id} editada exitosamente",
+    "deletedSuccess": "Subcategoría {id} eliminada exitosamente",
+    "unexpectedError": "Algo fue mal! No se pudo guardar la subcategoría"
+  },
+  "AccountForm": {
+    "createdSuccess": "Cuenta {id} creada exitosamente",
+    "editedSuccess": "Cuenta {id} editada exitosamente",
+    "deletedSuccess": "Cuenta {id} eliminada exitosamente",
+    "unexpectedError": "Algo fue mal! No se pudo guardar la categoría",
+    "name": "Nombre",
+    "initialBalance": "Balance inicial",
+    "currency": "Divisa",
+    "selectCurrency": "Seleccionar divisa"
   },
   "TransactionForm": {
     "createdSuccess": "Transacción {id} creada exitosamente",
     "editedSuccess": "Transacción {id} editada exitosamente",
+    "deletedSuccess": "Transacción {id} eliminada exitosamente",
     "unexpectedError": "Algo fue mal! No se ha podido guardar la transacción",
     "excludeFromTotals": "Excluir de los balances",
     "eventDate": "Fecha del evento",

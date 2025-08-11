@@ -33,6 +33,20 @@
     "transaction": {
       "singular": "Transaction",
       "plural": "Transactions"
+    },
+    "currencies": {
+      "ARS": {
+        "singular": "Argentine Peso",
+        "plural": "Argentine Pesos"
+      },
+      "EUR": {
+        "singular": "Euro",
+        "plural": "Euros"
+      },
+      "USD": {
+        "singular": "Dollar",
+        "plural": "Dollars"
+      }
     }
   },
   "HomePage": {
@@ -98,14 +112,18 @@
     "color": "Color",
     "name": "Name",
     "createdSuccess": "Created category {id}",
-    "editedSuccess": "Edited category {id}"
+    "editedSuccess": "Edited category {id}",
+    "deletedSuccess": "Deleted category {id}",
+    "unexpectedError": "Something went wrong! Couldn't save category"
   },
   "SubcategoryForm": {
     "name": "Name",
     "belongsTo": "Category",
     "selectCategory": "Select category",
     "createdSuccess": "Created subcategory {id}",
-    "editedSuccess": "Edited subcategory {id}"
+    "editedSuccess": "Edited subcategory {id}",
+    "deletedSuccess": "Deleted subcategory {id}",
+    "unexpectedError": "Something went wrong! Couldn't save subcategory"
   },
   "IconPicker": {
     "noIcon": "No icon"
@@ -113,6 +131,7 @@
   "TransactionForm": {
     "createdSuccess": "Created transaction {id}",
     "editedSuccess": "Edited transaction {id}",
+    "deletedSuccess": "Deleted transaction {id}",
     "unexpectedError": "Something went wrong! Couldn't save transaction",
     "excludeFromTotals": "Exclude from balances",
     "selectCategory": "Select category",
@@ -121,6 +140,16 @@
     "selectAccount": "Select account",
     "originAccount": "Origin Account",
     "destinationAccount": "Destination Account"
+  },
+  "AccountForm": {
+    "createdSuccess": "Created account {id}",
+    "editedSuccess": "Edited account {id}",
+    "deletedSuccess": "Deleted account {id}",
+    "unexpectedError": "Something went wrong! Couldn't save account",
+    "name": "Name",
+    "initialBalance": "Initial balance",
+    "currency": "Currency",
+    "selectCurrency": "Select Currency"
   },
   "Footer": {
     "rights": "All rights reserved"
