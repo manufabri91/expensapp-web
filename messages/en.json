@@ -222,6 +222,17 @@
         "SUBCATEGORY": "Outcoming",
         "DESCRIPTION": "Transfer sent"
       }
+    },
+    "ERRORS": {
+      "PASSWORDS_NOT_MATCH": "Passwords do not match",
+      "REGISTRATION_FAILED": "Failed to create user. Please retry",
+      "USER_EXISTS": "User already exists",
+      "INVALID_DATA_PROVIDED": "Invalid data provided",
+      "UNHANDLED_EXCEPTION": "Something went wrong. Please retry",
+      "USER_CREATION_FAIL": "Failed to create user. Please retry",
+      "SERVICE_UNAVAILABLE": "Service unavailable. Please retry",
+      "WRONG_CREDENTIALS": "User or password isn't correct",
+      "LOGIN_FAILED": "Failed to login. Please retry"
     }
   }
 }

@@ -31,20 +31,8 @@ export const authConfig: NextAuthConfig = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        let res;
-        let retries = 0;
-        const maxRetries = 3;
-        const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
         try {
-          do {
-            res = await login((credentials?.email || '') as string, (credentials?.password || '') as string);
-            if (res.status <= 499) break;
-            console.warn(`Retrying login due to ${res.status} error... Attempt ${retries + 1}`);
-            retries++;
-            if (retries <= maxRetries) {
-              await wait(2000 * retries); // exponential backoff
-            }
-          } while (res.status > 499 && retries <= maxRetries);
+          const res = await login((credentials?.email || '') as string, (credentials?.password || '') as string);
 
           if (!res?.ok) {
             console.error(res);
@@ -81,7 +69,11 @@ export const authConfig: NextAuthConfig = {
           } as User;
         } catch (error) {
           console.error(error);
-          if (error instanceof TypeError || error instanceof SyntaxError) {
+          if (
+            error instanceof TypeError ||
+            error instanceof SyntaxError ||
+            (error instanceof DOMException && error.name === 'TimeoutError')
+          ) {
             throw new UnreachableLoginError();
           }
           return null;

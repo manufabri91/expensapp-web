@@ -45,7 +45,7 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
     <form className="space-y-6" action={action}>
       {error && (
         <Alert color="failure" icon={HiInformationCircle}>
-          <span className="font-medium">Whoops!</span> {error}.
+          {error}.
         </Alert>
       )}
       <h3 className="text-xl font-medium text-gray-900 dark:text-white">
