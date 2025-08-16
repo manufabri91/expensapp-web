@@ -55,9 +55,6 @@ export async function register(
   firstName: string,
   lastName: string
 ): Promise<Response> {
-  console.debug('Creating user');
-
-  // Verify that the token is valid and not expired
   const response = await fetch(`${process.env.API_URL}/auth/register`, {
     signal: AbortSignal.timeout(2000),
     method: 'POST',
@@ -73,18 +70,19 @@ export async function register(
     },
   });
   if (response.status === 424) {
-    throw new RegisterError('User already exists');
+    throw new RegisterError('System.ERRORS.USER_EXISTS');
   }
   if (response.status === 400) {
-    throw new RegisterError('Invalid data provided');
+    throw new RegisterError('System.ERRORS.INVALID_DATA_PROVIDED');
   }
   if (response.status === 500) {
-    throw new RegisterError('Internal server error');
+    throw new RegisterError('System.ERRORS.UNHANDLED_EXCEPTION');
   }
 
   if (!response.ok) {
-    throw new RegisterError('Failed to create user');
+    throw new RegisterError('System.ERRORS.USER_CREATION_FAIL');
   }
 
+  console.log(`New user: ${email} created`);
   return await response.json();
 }

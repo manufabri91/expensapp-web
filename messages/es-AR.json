@@ -222,6 +222,17 @@
         "SUBCATEGORY": "Salida",
         "DESCRIPTION": "Transferencia emitida"
       }
+    },
+    "ERRORS": {
+      "PASSWORDS_NOT_MATCH": "Las contraseñas no coinciden",
+      "REGISTRATION_FAILED": "No se pudo crear el usuario. Por favor, intentá de nuevo",
+      "USER_EXISTS": "El usuario ya existe",
+      "INVALID_DATA_PROVIDED": "Datos inválidos proporcionados",
+      "UNHANDLED_EXCEPTION": "Algo salió mal. Por favor, intentá de nuevo",
+      "USER_CREATION_FAIL": "No se pudo crear el usuario. Por favor, intentá de nuevo",
+      "SERVICE_UNAVAILABLE": "Servicio no disponible. Por favor, intentá de nuevo",
+      "WRONG_CREDENTIALS": "El usuario o la contraseña no son correctos",
+      "LOGIN_FAILED": "No se pudo iniciar sesión. Por favor, intentá de nuevo"
     }
   }
 }

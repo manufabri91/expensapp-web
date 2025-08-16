@@ -72,7 +72,7 @@ export const authConfig: NextAuthConfig = {
           if (
             error instanceof TypeError ||
             error instanceof SyntaxError ||
-            (error instanceof Error && error.name === 'AbortError')
+            (error instanceof DOMException && error.name === 'TimeoutError')
           ) {
             throw new UnreachableLoginError();
           }
