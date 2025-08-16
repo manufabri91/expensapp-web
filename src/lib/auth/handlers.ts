@@ -1,4 +1,4 @@
-import { RegisterError } from "@/types/exceptions/RegisterError";
+import { RegisterError } from '@/types/exceptions/RegisterError';
 
 /**
  * Log in a user by sending a POST request to the backend using the supplied
@@ -13,6 +13,7 @@ export async function login(email: string, password: string): Promise<Response> 
   console.debug('Logging in');
 
   return fetch(`${process.env.API_URL}/auth/login`, {
+    signal: AbortSignal.timeout(2000),
     method: 'POST',
     body: JSON.stringify({ email, password }),
     headers: {
@@ -58,6 +59,7 @@ export async function register(
 
   // Verify that the token is valid and not expired
   const response = await fetch(`${process.env.API_URL}/auth/register`, {
+    signal: AbortSignal.timeout(2000),
     method: 'POST',
     body: JSON.stringify({
       userName,
