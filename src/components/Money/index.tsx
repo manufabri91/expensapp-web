@@ -2,7 +2,7 @@ import NumberFlow from '@number-flow/react';
 
 interface Props {
   amount: number;
-  currency: string;
+  currency?: string;
   warnIfZero?: boolean;
   className?: string;
   locale?: string;
@@ -23,7 +23,11 @@ export const Money = ({ amount, currency, locale, warnIfZero, className }: Props
       locales={locale}
       className={`${getColor(amount, warnIfZero)} ${className}`}
       value={amount}
-      format={{ style: 'currency', currency, trailingZeroDisplay: 'stripIfInteger' }}
+      format={
+        currency
+          ? { style: 'currency', currency, trailingZeroDisplay: 'stripIfInteger' }
+          : { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2, signDisplay: 'exceptZero' }
+      }
     />
   );
 };
