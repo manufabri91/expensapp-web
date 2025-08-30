@@ -3,7 +3,7 @@
   "short_name": "e-Xpens",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#f5f5f5",
+  "background_color": "#ffffff",
   "theme_color": "#14b8a6",
   "description": "Expense tracking made easy",
   "icons": [
