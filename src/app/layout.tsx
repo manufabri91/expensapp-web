@@ -37,6 +37,7 @@ export default async function RootLayout({ children }: PropsWithChildren) {
       <head>
         <ThemeModeScript />
         <link rel="manifest" href="/manifest.json" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="#1f2937" media="(prefers-color-scheme: dark)" />
         <link rel="icon" href="/icons/icon-192x192.png" />
