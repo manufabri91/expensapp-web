@@ -147,7 +147,7 @@ export const TransactionsTable = ({ transactions, showPagination = false, noTran
                 })}
               </Table.Cell>
 
-              <Table.Cell className="font-medium">
+              <Table.Cell className="text-right font-medium">
                 <Money
                   amount={transaction.amount}
                   currency={transaction.currencyCode}

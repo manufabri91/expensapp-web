@@ -53,7 +53,7 @@
     "hero": {
       "title": "Want to organize your expenses?",
       "subtitle": "We have your back",
-      "description": "e-XpensApp is a simple and intuitive expense tracking app that helps you to manage your expenses and finances"
+      "description": "e-Xpens is a simple and intuitive expense tracking app that helps you to manage your expenses and finances"
     },
     "features": {
       "1": {
@@ -191,8 +191,8 @@
   },
   "Metadata": {
     "title": {
-      "default": "e-XpensApp | Expense tracking made easy",
-      "template": "%s | e-XpensApp"
+      "default": "e-Xpens | Expense tracking made easy",
+      "template": "%s | e-Xpens"
     },
     "description": "Expense tracking made easy",
     "dashboard": {

@@ -53,7 +53,7 @@
     "hero": {
       "title": "¿Querés organizar tus gastos?",
       "subtitle": "Te bancamos",
-      "description": "e-XpensApp es una app simple e intuitiva que te va a ayudar a controlar tus gastos y finanzas"
+      "description": "e-Xpens es una app simple e intuitiva que te va a ayudar a controlar tus gastos y finanzas"
     },
     "features": {
       "title": "Características principales",
@@ -191,8 +191,8 @@
   },
   "Metadata": {
     "title": {
-      "default": "e-XpensApp | Registrá tus gastos, fácil",
-      "template": "%s | e-XpensApp"
+      "default": "e-Xpens | Registrá tus gastos, fácil",
+      "template": "%s | e-Xpens"
     },
     "description": "Registrá tus gastos, gestioná varias cuentas y categorías fácilmente.",
     "dashboard": {

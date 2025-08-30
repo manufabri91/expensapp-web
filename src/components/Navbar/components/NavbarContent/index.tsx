@@ -37,8 +37,8 @@ export const NavbarContent = ({ session }: Props) => {
             <Image src="/images/logo.png" className="object-cover" alt="" fill />
           </div>
 
-          <span className="hidden self-center whitespace-nowrap text-xl font-semibold dark:text-white sm:block">
-            e-XpensApp
+          <span className="hidden self-center whitespace-nowrap font-Poppins text-3xl font-semibold dark:text-white sm:block">
+            e-<span className="text-[#2acfb9]">X</span>pens
           </span>
         </Navbar.Brand>
         <div className="flex md:order-2">

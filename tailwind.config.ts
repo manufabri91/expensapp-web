@@ -10,6 +10,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        Poppins: ['var(--font-poppins)'],
+        Montserrat: ['var(--font-montserrat)'],
+      },
       colors: {
         background: 'var(--background)',
         foreground: 'var(--foreground)',

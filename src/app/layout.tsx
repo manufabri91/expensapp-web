@@ -1,7 +1,7 @@
 import { PropsWithChildren } from 'react';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getTranslations } from 'next-intl/server';
-import { Montserrat } from 'next/font/google';
+import { Montserrat, Miriam_Libre } from 'next/font/google';
 import { Flowbite, ThemeModeScript } from 'flowbite-react';
 
 import './globals.css';
@@ -9,7 +9,13 @@ import { AppProviders } from '@/lib/providers';
 import { Footer, Navbar, Toast } from '@/components';
 import { ToastProvider } from '@/components/Toast/ToastProvider';
 
-const montserrat = Montserrat({ subsets: ['latin'] });
+const montserrat = Montserrat({ subsets: ['latin'], variable: '--font-montserrat' });
+const poppins = Miriam_Libre({
+  subsets: ['latin'],
+  weight: ['400', '600', '700'],
+  display: 'swap',
+  variable: '--font-poppins',
+});
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -30,6 +36,10 @@ export default async function RootLayout({ children }: PropsWithChildren) {
     <html lang={locale} suppressHydrationWarning>
       <head>
         <ThemeModeScript />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#14b8a6" />
+        <link rel="icon" href="/icons/icon-192x192.png" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
       </head>
       <Flowbite
         // eslint-disable-next-line tailwindcss/no-custom-classname
@@ -38,7 +48,7 @@ export default async function RootLayout({ children }: PropsWithChildren) {
         }}
       >
         <body
-          className={`${montserrat.className} bg-stone-100 text-black antialiased dark:bg-slate-950 dark:text-white`}
+          className={`${poppins.variable} ${montserrat.variable} bg-stone-100 font-Montserrat text-black antialiased dark:bg-slate-950 dark:text-white`}
         >
           <NextIntlClientProvider>
             <ToastProvider>
