@@ -46,6 +46,26 @@ export default async function RootLayout({ children }: PropsWithChildren) {
       <Flowbite
         // eslint-disable-next-line tailwindcss/no-custom-classname
         theme={{
+          theme: {
+            select: {
+              field: {
+                select: {
+                  sizes: {
+                    md: 'p-2.5 text-base',
+                  },
+                },
+              },
+            },
+            textInput: {
+              field: {
+                input: {
+                  sizes: {
+                    md: 'p-2.5 text-base',
+                  },
+                },
+              },
+            },
+          },
           mode: 'auto',
         }}
       >
