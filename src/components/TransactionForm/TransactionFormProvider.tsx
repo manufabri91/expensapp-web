@@ -1,13 +1,15 @@
 'use client';
 
+import { useDisclosure } from '@heroui/modal';
+import React, { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 import { TransactionForm } from '@/components/TransactionForm';
 import { TransactionResponse } from '@/types/dto';
-import React, { createContext, useContext, useState, ReactNode, useMemo } from 'react';
 
 interface TransactionFormContextProps {
   isOpen: boolean;
+  onOpenChange: () => void;
   showTransactionForm: (transaction?: TransactionResponse) => void;
-  closeTransactionForm: () => void;
+  clearForm: () => void;
   transactionFormData: TransactionResponse | undefined;
 }
 
@@ -15,26 +17,27 @@ const TransactionFormContext = createContext<TransactionFormContextProps | undef
 
 export const TransactionFormProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [transactionFormData, setTransactionFormData] = useState<TransactionResponse | undefined>();
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const { onOpen, isOpen, onOpenChange } = useDisclosure();
 
   const showTransactionForm = useMemo(
     () => (transaction?: TransactionResponse) => {
       setTransactionFormData(transaction);
-      setIsOpen(true);
+      onOpen();
     },
     [setTransactionFormData]
   );
 
-  const closeTransactionForm = useMemo(
+  const clearForm = useMemo(
     () => () => {
       setTransactionFormData(undefined);
-      setIsOpen(false);
     },
     [setTransactionFormData]
   );
 
   return (
-    <TransactionFormContext.Provider value={{ showTransactionForm, closeTransactionForm, transactionFormData, isOpen }}>
+    <TransactionFormContext.Provider
+      value={{ showTransactionForm, clearForm, transactionFormData, isOpen, onOpenChange }}
+    >
       {children}
       <TransactionForm />
     </TransactionFormContext.Provider>

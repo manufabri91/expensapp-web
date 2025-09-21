@@ -1,17 +1,29 @@
 'use client';
 
-import Link from 'next/link';
-import { Avatar, Dropdown, Navbar } from 'flowbite-react';
-import { Session } from 'next-auth';
+import { Avatar } from '@heroui/avatar';
+import { Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger } from '@heroui/dropdown';
+import { Link } from '@heroui/link';
+import {
+  Navbar as HeroUINavbar,
+  NavbarContent as HeroUINavbarContent,
+  NavbarBrand,
+  NavbarItem,
+  NavbarMenu,
+  NavbarMenuItem,
+  NavbarMenuToggle,
+} from '@heroui/navbar';
+import { link as linkStyles } from '@heroui/theme';
+import clsx from 'clsx';
+
 import Image from 'next/image';
+import NextLink from 'next/link';
+import { Session } from 'next-auth';
+import { useTranslations } from 'next-intl';
+import { Key } from 'react';
+import { HiCog, HiOutlineArrowRightStartOnRectangle, HiOutlineUser } from 'react-icons/hi2';
+import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 import { LoginButtons } from '@/components/Navbar/components/LoginButtons';
 import { handleLogoutAction } from '@/lib/actions/auth';
-import { Button, ButtonVariant } from '@/components/Button';
-import { usePathname } from 'next/navigation';
-import { useState } from 'react';
-import { SettingsDrawer } from '@/components/Navbar/components/SettingsDrawer';
-import { useTranslations } from 'next-intl';
-import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 
 interface Props {
   session: Session | null;
@@ -25,56 +37,114 @@ const AUTHORIZED_LINKS = [
 
 export const NavbarContent = ({ session }: Props) => {
   const t = useTranslations('Navbar');
-  const [isOpenSettings, setIsOpenSettings] = useState(false);
-  const handleSettingsDrawerClose = () => setIsOpenSettings(false);
-  const handleSettingsDrawerOpen = () => setIsOpenSettings(true);
-  const pathname = usePathname();
-  return (
-    <>
-      <Navbar fluid rounded className="sticky top-0 z-50">
-        <Navbar.Brand as={Link} href="/">
-          <div className="relative mr-2 size-10">
-            <Image src="/images/logo.png" className="object-cover" alt="" fill />
-          </div>
 
-          <span className="hidden self-center whitespace-nowrap font-Poppins text-3xl font-semibold dark:text-white sm:block">
-            e-<span className="text-[#2acfb9]">X</span>pens
-          </span>
-        </Navbar.Brand>
-        <div className="flex md:order-2">
-          <div className="mr-2">
-            <LocaleSwitcher />
-          </div>
-          <LoginButtons session={session} />
-          {session && (
-            <Dropdown arrowIcon={false} inline label={<Avatar alt={t('userAccountSettings')} rounded />}>
-              <Dropdown.Header>
-                <span className="block text-sm">
-                  {session.user.firstName} {session.user.lastName}
-                </span>
-                <span className="block truncate text-sm font-medium">{session.user.email}</span>
-              </Dropdown.Header>
-              <Dropdown.Item onClick={handleSettingsDrawerOpen}>{t('settings')}</Dropdown.Item>
-              <Dropdown.Divider />
-              <div className="m-3">
-                <Button variant={ButtonVariant.Primary} onClick={handleLogoutAction} className="w-full items-center">
-                  {t('signOut')}
-                </Button>
-              </div>
-            </Dropdown>
-          )}
-          {session && <Navbar.Toggle className="ml-2" />}
-        </div>
-        <SettingsDrawer open={isOpenSettings} onClose={handleSettingsDrawerClose} />
-        <Navbar.Collapse>
-          {session &&
-            AUTHORIZED_LINKS.map((link) => (
-              <Navbar.Link key={link.id} as={Link} href={link.href} active={link.href === pathname}>
-                {t(`links.${link.id}`)}
-              </Navbar.Link>
+  const menuActionHandler = (key: Key) => {
+    const actionMappings = {
+      logout: handleLogoutAction,
+    };
+    const action = actionMappings[key as keyof typeof actionMappings];
+    if (action) {
+      action();
+    }
+  };
+
+  return (
+    <HeroUINavbar maxWidth="full" position="sticky" shouldHideOnScroll>
+      <HeroUINavbarContent className="basis-full sm:basis-full" justify="start">
+        <NavbarBrand as="li" className="max-w-fit gap-3">
+          <NextLink className="flex items-center justify-start gap-1" href="/">
+            <div className="relative mr-2 size-10">
+              <Image src="/images/logo.png" className="object-cover" alt="" fill />
+            </div>
+
+            <span className="font-brand hidden self-center text-3xl font-semibold whitespace-nowrap sm:block dark:text-white">
+              e-<span className="text-[#2acfb9]">X</span>pens
+            </span>
+          </NextLink>
+        </NavbarBrand>
+      </HeroUINavbarContent>
+      <HeroUINavbarContent justify="center">
+        {session && (
+          <ul className="ml-2 hidden justify-start gap-4 lg:flex">
+            {AUTHORIZED_LINKS.map((link) => (
+              <NavbarItem key={link.id}>
+                <NextLink
+                  className={clsx(
+                    linkStyles({ color: 'foreground' }),
+                    'data-[active=true]:text-primary data-[active=true]:font-medium'
+                  )}
+                  color="foreground"
+                  href={link.href}
+                >
+                  {t(`links.${link.id}`)}
+                </NextLink>
+              </NavbarItem>
             ))}
-        </Navbar.Collapse>
-      </Navbar>
-    </>
+          </ul>
+        )}
+      </HeroUINavbarContent>
+      <HeroUINavbarContent className="hidden basis-1/5 sm:flex sm:basis-full" justify="end">
+        <NavbarItem className="hidden gap-2 sm:flex">
+          <LocaleSwitcher />
+        </NavbarItem>
+        <NavbarItem className="hidden md:flex">
+          <LoginButtons session={session} />
+        </NavbarItem>
+        {session && (
+          <Dropdown placement="bottom-end">
+            <DropdownTrigger>
+              <Avatar
+                isBordered
+                as="button"
+                className="transition-transform"
+                color="primary"
+                name={`${session.user.firstName.charAt(0)}${session.user.lastName.charAt(0)}`}
+                size="sm"
+                src={session.user.imageUrl ?? undefined}
+              />
+            </DropdownTrigger>
+            <DropdownMenu aria-label="Profile Actions" color="primary" variant="shadow" onAction={menuActionHandler}>
+              <DropdownSection showDivider>
+                <DropdownItem key="profile" className="h-14 gap-2" isReadOnly>
+                  <p className="font-semibold">Signed in as</p>
+                  <p className="font-semibold">{session.user.email}</p>
+                </DropdownItem>
+              </DropdownSection>
+              <DropdownItem key="settings" startContent={<HiCog size={24} />}>
+                {t('settings')}
+              </DropdownItem>
+              <DropdownItem key="configurations" startContent={<HiOutlineUser size={24} />}>
+                {t('userAccountSettings')}
+              </DropdownItem>
+              <DropdownItem
+                key="logout"
+                color="danger"
+                startContent={<HiOutlineArrowRightStartOnRectangle size={24} />}
+              >
+                {t('signOut')}
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+        )}
+      </HeroUINavbarContent>
+
+      <HeroUINavbarContent className="basis-1 pl-4 sm:hidden" justify="end">
+        <LocaleSwitcher />
+        <LoginButtons session={session} />
+        {session && <NavbarMenuToggle />}
+      </HeroUINavbarContent>
+
+      <NavbarMenu>
+        <div className="mx-4 mt-2 flex flex-col gap-2">
+          {AUTHORIZED_LINKS.map((link) => (
+            <NavbarMenuItem key={link.id}>
+              <Link href={link.href} size="lg">
+                {t(`links.${link.id}`)}
+              </Link>
+            </NavbarMenuItem>
+          ))}
+        </div>
+      </NavbarMenu>
+    </HeroUINavbar>
   );
 };

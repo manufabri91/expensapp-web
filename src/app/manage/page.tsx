@@ -1,9 +1,9 @@
-import { AccountFormProvider } from '@/components/AccountForm/AccountFormProvider';
-import { Categories } from '@/app/manage/components/Categories';
+import { getTranslations } from 'next-intl/server';
 import { Accounts } from '@/app/manage/components/Accounts';
+import { Categories } from '@/app/manage/components/Categories';
+import { AccountFormProvider } from '@/components/AccountForm/AccountFormProvider';
 import { CategoryFormProvider } from '@/components/CategoryForm/CategoryFormProvider';
 import { SubcategoryFormProvider } from '@/components/SubcategoryForm/SubcategoryFormProvider';
-import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

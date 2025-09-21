@@ -1,10 +1,11 @@
 'use client';
-import React, { FC, useState } from 'react';
-import { Dropdown, TextInput } from 'flowbite-react';
-
-import { AVAILABLE_ICONS } from './constants';
-import { Icon } from '@/types/enums/icon';
+import { Dropdown, DropdownItem, DropdownTrigger } from '@heroui/dropdown';
+import { Input } from '@heroui/input';
 import { useTranslations } from 'next-intl';
+import React, { FC, useState } from 'react';
+
+import { Icon } from '@/types/enums/icon';
+import { AVAILABLE_ICONS } from './constants';
 
 export const IconPicker: React.FC<{ value: Icon; onChange: (icon: Icon) => void }> = ({ value, onChange }) => {
   const t = useTranslations('IconPicker');
@@ -16,21 +17,22 @@ export const IconPicker: React.FC<{ value: Icon; onChange: (icon: Icon) => void 
 
   return (
     <>
-      <Dropdown label={SelectedIcon ? <SelectedIcon /> : t('noIcon')} inline>
-        <Dropdown.Item onClick={() => handleSelect(Icon.NONE)}>
+      <Dropdown>
+        <DropdownTrigger>{SelectedIcon ? <SelectedIcon /> : t('noIcon')}</DropdownTrigger>
+        <DropdownItem key={Icon.NONE} onClick={() => handleSelect(Icon.NONE)}>
           <div className="flex items-center space-x-2">
             <span>{t('noIcon')}</span>
           </div>
-        </Dropdown.Item>
+        </DropdownItem>
         {AVAILABLE_ICONS.entries()
           .toArray()
           .map(([name, Icon]) => (
-            <Dropdown.Item key={name} onClick={() => handleSelect(name)}>
+            <DropdownItem key={name} onClick={() => handleSelect(name)}>
               <div className="flex items-center space-x-2">
                 <Icon className="size-5" />
                 <span>{name}</span>
               </div>
-            </Dropdown.Item>
+            </DropdownItem>
           ))}
       </Dropdown>
     </>
@@ -49,7 +51,7 @@ export const IconPickerFormField: FC<Props> = ({ id, name = 'iconName', initialV
   return (
     <div className="min-w-max">
       <IconPicker value={selectedIcon} onChange={setSelectedIcon} />
-      <TextInput type="hidden" id={id ?? name} name={name} value={selectedIcon} />
+      <Input type="hidden" id={id ?? name} name={name} value={selectedIcon} />
     </div>
   );
 };

@@ -1,8 +1,8 @@
+import { getTranslations } from 'next-intl/server';
+import React, { Suspense } from 'react';
 import { AccountActions } from '@/app/manage/components/Accounts/components/AccountActions';
 import { AccountsDetails } from '@/app/manage/components/Accounts/components/AccountsDetails';
 import { CardSkeleton } from '@/components';
-import { getTranslations } from 'next-intl/server';
-import React, { Suspense } from 'react';
 
 export const Accounts = async () => {
   const t = await getTranslations('Manage.accounts');

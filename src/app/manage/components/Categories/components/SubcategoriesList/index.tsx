@@ -1,3 +1,11 @@
+'use client';
+
+import { Card, CardBody, CardHeader } from '@heroui/card';
+import { Spinner } from '@heroui/spinner';
+import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
+import { Suspense } from 'react';
+import useSWR from 'swr';
 import {
   CreateSubcategoryButton,
   DeleteSubcategoryButton,
@@ -5,34 +13,45 @@ import {
 } from '@/app/manage/components/Categories/components/SubcategoryActions';
 import { SYSTEM_TRANSLATION_KEYS } from '@/constants';
 import { getSubcategoriesByParentCategoryId } from '@/lib/actions/subcategories';
-import { getTranslations } from 'next-intl/server';
-import { Suspense } from 'react';
 
 interface Props {
   parentCategoryId: number;
 }
 
-export const SubcategoriesList = async ({ parentCategoryId }: Props) => {
-  const t = await getTranslations();
-  const subcategories = await getSubcategoriesByParentCategoryId(parentCategoryId);
+const useSubcategories = (parentId: number) => {
+  return useSWR(`/api/category/${parentId}/subcategories`, getSubcategoriesByParentCategoryId);
+};
+
+export const SubcategoriesList = ({ parentCategoryId }: Props) => {
+  const t = useTranslations();
+  const { data, isLoading } = useSubcategories(parentCategoryId);
+
+  if (!data && isLoading) {
+    return <Spinner className="my-4 p-4" />;
+  }
 
   return (
-    <Suspense fallback={<div className="size-4 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700" />}>
-      <CreateSubcategoryButton parentCategoryId={parentCategoryId} />
-      {subcategories.map((subcategory, idx) => (
-        <div
-          key={subcategory.id}
-          className={`${idx < subcategories.length - 1 ? 'border-b dark:border-slate-600' : ''}`}
-        >
-          <div className="my-4 flex items-center justify-between">
-            {SYSTEM_TRANSLATION_KEYS.includes(subcategory.name) ? t(`System.${subcategory.name}`) : subcategory.name}
-            <div className="flex gap-2">
-              <EditSubcategoryButton subcategory={subcategory} />
-              <DeleteSubcategoryButton subcategoryId={subcategory.id} />
+    <Card className="my-4">
+      <CardHeader>
+        <h5 className="mr-4 font-medium">{t('Manage.categories.subcategoriesTitle')}</h5>
+        <CreateSubcategoryButton parentCategoryId={parentCategoryId} />
+      </CardHeader>
+      <CardBody>
+        {data &&
+          data.map((subcategory, idx) => (
+            <div key={subcategory.id} className={`${idx < data.length - 1 ? 'border-b dark:border-slate-600' : ''}`}>
+              <div className="my-4 flex items-center justify-between">
+                {SYSTEM_TRANSLATION_KEYS.includes(subcategory.name)
+                  ? t(`System.${subcategory.name}`)
+                  : subcategory.name}
+                <div className="flex gap-2">
+                  <EditSubcategoryButton subcategory={subcategory} />
+                  <DeleteSubcategoryButton subcategoryId={subcategory.id} />
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      ))}
-    </Suspense>
+          ))}
+      </CardBody>
+    </Card>
   );
 };

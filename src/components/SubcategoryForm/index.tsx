@@ -1,23 +1,24 @@
 'use client';
 
+import { Input } from '@heroui/input';
+import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@heroui/modal';
+import { Select, SelectItem } from '@heroui/select';
+import { addToast } from '@heroui/toast';
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
-import { Label, Modal, Select, TextInput } from 'flowbite-react';
 
-import { Button, ButtonVariant } from '@/components/Button';
-import { useToaster } from '@/components/Toast/ToastProvider';
-import { SubCategoryResponse } from '@/types/dto';
+import { Button } from '@/components/Button';
 import { useSubcategoryForm } from '@/components/SubcategoryForm/SubcategoryFormProvider';
+import { useTrySystemTranslations } from '@/hooks/useTrySystemTranslations';
 import { createSubcategory, editSubcategory } from '@/lib/actions/subcategories';
 import { useCategories } from '@/lib/providers/CategoriesProvider';
-import { useTranslations } from 'next-intl';
-import { ToastType } from '@/components/Toast';
-import { useTrySystemTranslations } from '@/hooks/useTrySystemTranslations';
+import { SubCategoryResponse } from '@/types/dto';
 
 export const SubcategoryForm = () => {
   const t = useTranslations();
   const trySystemTranslation = useTrySystemTranslations();
-  const { showToast } = useToaster();
-  const { subcategoryFormData, isOpen, closeSubcategoryForm } = useSubcategoryForm();
+  const { onOpenChange, isOpen } = useDisclosure();
+  const { subcategoryFormData, closeSubcategoryForm } = useSubcategoryForm();
 
   const { categories, addSubcategory } = useCategories();
   const [createdSubcategory, setCreatedSubcategory] = useState<SubCategoryResponse | null>(null);
@@ -27,18 +28,18 @@ export const SubcategoryForm = () => {
 
   useEffect(() => {
     if (createdSubcategory) {
-      showToast(t('SubcategoryForm.createdSuccess', { id: createdSubcategory.id }), ToastType.Success);
+      addToast({ title: t('SubcategoryForm.createdSuccess', { id: createdSubcategory.id }), color: 'success' });
       addSubcategory(createdSubcategory);
       setCreatedSubcategory(null);
       closeSubcategoryForm();
       setProcessing(false);
     } else if (editedSubcategory) {
-      showToast(t('SubcategoryForm.editedSuccess', { id: editedSubcategory.id }), ToastType.Success);
+      addToast({ title: t('SubcategoryForm.editedSuccess', { id: editedSubcategory.id }), color: 'success' });
       setEditedSubcategory(null);
       closeSubcategoryForm();
       setProcessing(false);
     }
-  }, [addSubcategory, closeSubcategoryForm, createdSubcategory, editedSubcategory, showToast, t]);
+  }, [addSubcategory, closeSubcategoryForm, createdSubcategory, editedSubcategory, addToast, t]);
 
   const submitHandler = async (formData: FormData) => {
     setProcessing(true);
@@ -54,59 +55,55 @@ export const SubcategoryForm = () => {
   if (!isOpen) return null;
 
   return (
-    <Modal show={isOpen} size="2xl" onClose={closeSubcategoryForm} popup>
-      <Modal.Header as={'div'} className="m-4">
-        {isEditMode ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.subcategory')}
-      </Modal.Header>
-      <Modal.Body>
-        <form className="flex flex-col gap-4" action={submitHandler}>
-          {isEditMode && (
-            <div className="hidden">
-              <div className="mb-2 block">
-                <Label htmlFor="id" value="ID" />
-              </div>
-              <TextInput id="id" name="id" type="text" value={subcategoryFormData?.id || undefined} readOnly shadow />
-            </div>
-          )}
-          <div>
-            <div className="mb-2 block">
-              <Label htmlFor="name" value={t('SubcategoryForm.name')} />
-            </div>
-            <TextInput
-              id="name"
-              name="name"
-              type="text"
-              defaultValue={trySystemTranslation(subcategoryFormData?.name ?? '')}
-              required
-              shadow
-            />
-          </div>
-          <div>
-            <div className="mb-2 block">
-              <Label htmlFor="parentCategoryId" value={t('SubcategoryForm.belongsTo')} />
-            </div>
-            <Select
-              id="parentCategoryId"
-              name="parentCategoryId"
-              defaultValue={subcategoryFormData?.parentCategoryId ?? undefined}
-              required
-            >
-              <option value={undefined}>{t('SubcategoryForm.selectCategory')}</option>
-              {categories
-                .filter((cat) => !cat.readOnly)
-                .map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-            </Select>
-          </div>
+    <Modal backdrop="blur" isOpen={isOpen} onOpenChange={onOpenChange}>
+      <ModalContent>
+        {(onClose) => (
+          <>
+            <ModalHeader as={'div'} className="m-4">
+              {isEditMode ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.subcategory')}
+            </ModalHeader>
+            <ModalBody>
+              <form className="flex flex-col gap-4" action={submitHandler}>
+                {isEditMode && (
+                  <div className="hidden">
+                    <Input id="id" name="id" type="text" value={`${subcategoryFormData?.id}`} readOnly />
+                  </div>
+                )}
+                <Input
+                  id="name"
+                  name="name"
+                  fullWidth
+                  isRequired
+                  labelPlacement="outside-top"
+                  label={t('CategoryForm.name')}
+                  defaultValue={trySystemTranslation(subcategoryFormData?.name ?? '')}
+                />
+                <Select
+                  label={t('SubcategoryForm.belongsTo')}
+                  id="parentCategoryId"
+                  name="parentCategoryId"
+                  defaultSelectedKeys={
+                    subcategoryFormData ? [subcategoryFormData.parentCategoryId.toString()] : undefined
+                  }
+                  isRequired
+                  labelPlacement="outside"
+                  placeholder={t('TransactionForm.selectCategory')}
+                >
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} hidden={category.readOnly}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </Select>
 
-          <Button type="submit" variant={ButtonVariant.Primary} isProcessing={processing}>
-            {isEditMode ? t('Generics.edit') : t('Generics.save')}
-          </Button>
-        </form>
-      </Modal.Body>
+                <Button onPress={onClose} type="submit" color="primary" isLoading={processing}>
+                  {isEditMode ? t('Generics.edit') : t('Generics.save')}
+                </Button>
+              </form>
+            </ModalBody>
+          </>
+        )}
+      </ModalContent>
     </Modal>
   );
 };

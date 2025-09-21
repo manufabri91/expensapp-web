@@ -1,7 +1,8 @@
 'use client';
 
-import { TransactionFilters } from '@/types/viewModel/transactionFilters';
+import { endOfMonth, startOfMonth } from 'date-fns';
 import React, { createContext, ReactNode, useContext, useMemo, useState } from 'react';
+import { TransactionFilters } from '@/types/viewModel/transactionFilters';
 
 interface TransactionsFiltersContextProps {
   filters: TransactionFilters;
@@ -11,11 +12,13 @@ interface TransactionsFiltersContextProps {
 
 const date = new Date();
 const defaultFilters: TransactionFilters = {
-  year: date.getFullYear(),
-  month: date.getMonth() + 1,
+  fromDate: startOfMonth(Date.UTC(date.getFullYear(), date.getMonth())),
+  toDate: endOfMonth(Date.UTC(date.getFullYear(), date.getMonth())),
   currentPage: 1,
   totalPages: 1,
-  pageSize: 100,
+  size: 10,
+  sortBy: 'eventDate',
+  ascending: false,
 };
 const TransactionsFiltersContext = createContext<TransactionsFiltersContextProps>({
   filters: defaultFilters,
@@ -33,8 +36,9 @@ const useTransactionsFilters = (): TransactionsFiltersContextProps => {
 
 const TransactionsFiltersProvider: React.FC<{
   children: ReactNode;
-}> = ({ children }) => {
-  const [filters, setFilters] = useState<TransactionFilters>(defaultFilters);
+  initialFilters?: Partial<TransactionFilters>;
+}> = ({ children, initialFilters }) => {
+  const [filters, setFilters] = useState<TransactionFilters>({ ...initialFilters, ...defaultFilters });
 
   const patchFilters = useMemo(
     () => (filters: Partial<TransactionFilters>) => {

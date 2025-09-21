@@ -1,22 +1,10 @@
 'use client';
 
-import { ButtonProps, Button as FlowbiteButton } from 'flowbite-react';
+import { ButtonProps, Button as FlowbiteButton } from '@heroui/button';
 
-export enum ButtonVariant {
-  Primary = 'primary',
-  Secondary = 'secondary',
-  Critical = 'critical',
-}
-
-const buttonConfigMap = new Map<ButtonVariant, Record<string, string | boolean>>([
-  [ButtonVariant.Primary, { gradientDuoTone: 'greenToBlue' }],
-  [ButtonVariant.Secondary, { gradientDuoTone: 'greenToBlue', outline: true }],
-  [ButtonVariant.Critical, { gradientMonochrome: 'failure' }],
-]);
-
-export const Button = (props: ButtonProps & { variant: ButtonVariant }) => {
+export const Button = (props: ButtonProps) => {
   return (
-    <FlowbiteButton pill {...buttonConfigMap.get(props.variant)!} {...props}>
+    <FlowbiteButton radius="full" {...props}>
       {props.children}
     </FlowbiteButton>
   );

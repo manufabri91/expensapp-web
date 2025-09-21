@@ -1,14 +1,14 @@
 'use client';
 
-import { HiPencil, HiPlus, HiTrash } from 'react-icons/hi2';
-import { Button, ButtonVariant, ToastType } from '@/components';
-import { SubCategoryResponse } from '@/types/dto';
-import { useSubcategoryForm } from '@/components/SubcategoryForm/SubcategoryFormProvider';
-import { useState } from 'react';
-import { deleteSubcategoryById } from '@/lib/actions/subcategories';
-import { Spinner } from 'flowbite-react';
+import { Spinner } from '@heroui/spinner';
+import { addToast } from '@heroui/toast';
 import { useTranslations } from 'next-intl';
-import { useToaster } from '@/components/Toast/ToastProvider';
+import { useState } from 'react';
+import { HiPencil, HiPlus, HiTrash } from 'react-icons/hi2';
+import { Button } from '@/components';
+import { useSubcategoryForm } from '@/components/SubcategoryForm/SubcategoryFormProvider';
+import { deleteSubcategoryById } from '@/lib/actions/subcategories';
+import { SubCategoryResponse } from '@/types/dto';
 
 interface CreateSubcategoryButtonProps {
   parentCategoryId: number;
@@ -20,8 +20,8 @@ export const CreateSubcategoryButton = ({ parentCategoryId, className }: CreateS
   const { showSubcategoryCreateForm } = useSubcategoryForm();
   return (
     <Button
-      variant={ButtonVariant.Primary}
-      onClick={() => {
+      color="primary"
+      onPress={() => {
         showSubcategoryCreateForm(parentCategoryId);
       }}
       className={className}
@@ -37,13 +37,14 @@ export const EditSubcategoryButton = ({ subcategory }: { subcategory: SubCategor
   const { showSubcategoryEditForm, isOpen } = useSubcategoryForm();
   return (
     <Button
-      variant={ButtonVariant.Secondary}
-      onClick={() => {
+      color="secondary"
+      isLoading={isOpen}
+      isDisabled={isOpen}
+      onPress={() => {
         showSubcategoryEditForm(subcategory);
       }}
     >
       {!isOpen && <HiPencil className="mr-1 size-5" />}
-      {isOpen && <Spinner className="mr-1 size-5" />}
       <span className="hidden md:block">{isOpen ? `${t('editing')}...` : t('edit')}</span>
     </Button>
   );
@@ -51,19 +52,18 @@ export const EditSubcategoryButton = ({ subcategory }: { subcategory: SubCategor
 
 export const DeleteSubcategoryButton = ({ subcategoryId }: { subcategoryId: number }) => {
   const t = useTranslations();
-  const { showToast } = useToaster();
   const [isDeleting, setIsDeleting] = useState(false);
 
   const deleteHandler = async () => {
     setIsDeleting(true);
     try {
       await deleteSubcategoryById(subcategoryId);
-      showToast(t('SubcategoryForm.deletedSuccess', { id: subcategoryId }), ToastType.Success);
+      addToast({ title: t('SubcategoryForm.deletedSuccess', { id: subcategoryId }), color: 'primary' });
     } catch (error) {
       if (error instanceof Error) {
-        showToast(error.message, ToastType.Error);
+        addToast({ title: error.message, color: 'danger' });
       } else {
-        showToast(t('SubcategoryForm.unexpectedError'), ToastType.Error);
+        addToast({ title: t('SubcategoryForm.unexpectedError'), color: 'danger' });
       }
     } finally {
       setIsDeleting(false);
@@ -72,14 +72,14 @@ export const DeleteSubcategoryButton = ({ subcategoryId }: { subcategoryId: numb
 
   return (
     <Button
-      variant={ButtonVariant.Critical}
-      onClick={() => {
+      color="danger"
+      onPress={() => {
         deleteHandler();
       }}
-      disabled={isDeleting}
+      isDisabled={isDeleting}
+      isLoading={isDeleting}
     >
       {!isDeleting && <HiTrash className="mr-1 size-5" />}
-      {isDeleting && <Spinner className="mr-1 size-5" />}
       <span className="hidden md:block">{isDeleting ? `${t('Generics.deleting')}...` : t('Generics.delete')}</span>
     </Button>
   );

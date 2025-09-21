@@ -1,45 +1,71 @@
 'use client';
 
-import { HiTrash, HiPencil, HiPlus } from 'react-icons/hi2';
-import { Button, ButtonVariant } from '@/components/Button';
-import { Money } from '@/components/Money';
-import { ToastType } from '@/components/Toast';
-import { useToaster } from '@/components/Toast/ToastProvider';
-import { deleteTransactionById } from '@/lib/actions/transactions';
-import { TransactionResponse } from '@/types/dto';
-import { parseISO } from 'date-fns';
-import { Dropdown, Pagination, Table } from 'flowbite-react';
-import React, { useEffect, useState } from 'react';
-import { ActionResult } from '@/types/viewModel/actionResult';
-import { useTransactionForm } from '@/components/TransactionForm/TransactionFormProvider';
-import { useTransactionsFilters } from '@/lib/providers/TransactionFiltersProvider';
-import { AVAILABLE_ICONS } from '@/components/IconPicker/constants';
-import { useTrySystemTranslations } from '@/hooks/useTrySystemTranslations';
+import { Pagination } from '@heroui/pagination';
+import { Spinner } from '@heroui/spinner';
+import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@heroui/table';
+import { addToast } from '@heroui/toast';
+import { Tooltip } from '@heroui/tooltip';
+import { formatISO, parseISO } from 'date-fns';
 import { useFormatter, useLocale, useTranslations } from 'next-intl';
+import React, { useEffect, useState } from 'react';
+import { HiPencil, HiPlus, HiTrash } from 'react-icons/hi2';
+import useSWR from 'swr';
+import { Button } from '@/components/Button';
+import { AVAILABLE_ICONS } from '@/components/IconPicker/constants';
+import { Money } from '@/components/Money';
+import { useTransactionForm } from '@/components/TransactionForm/TransactionFormProvider';
+import { useTrySystemTranslations } from '@/hooks/useTrySystemTranslations';
+import { deleteTransactionById, getTransactions } from '@/lib/actions/transactions';
+import { useTransactionsFilters } from '@/lib/providers/TransactionFiltersProvider';
+import { TransactionResponse } from '@/types/dto';
+import { ActionResult } from '@/types/viewModel/actionResult';
+import { TransactionFilters } from '@/types/viewModel/transactionFilters';
+
+const useTransactions = (filters: TransactionFilters) => {
+  const queryParams = `?${new URLSearchParams({
+    page: String(filters.currentPage - 1),
+    size: String(filters.size ?? 10),
+    sort: `${filters.sortBy},${filters.ascending ? 'asc' : 'desc'}`,
+    fromDate: formatISO(filters.fromDate),
+    toDate: formatISO(filters.toDate),
+  }).toString()}`;
+
+  return useSWR(`/api/transaction${queryParams}&sort=id,desc`, getTransactions);
+};
 
 interface Props {
-  transactions: TransactionResponse[];
   showPagination?: boolean;
+  pageData?: { size: number; currentPage: number; totalPages: number };
   noTransactionsMessage?: string;
 }
 
-export const TransactionsTable = ({ transactions, showPagination = false, noTransactionsMessage }: Props) => {
+export const TransactionsTable = ({ showPagination = false, noTransactionsMessage }: Props) => {
+  const { filters, patchFilters } = useTransactionsFilters();
+  const { data, isLoading } = useTransactions(filters);
   const t = useTranslations();
   const format = useFormatter();
   const locale = useLocale();
   const trySystemTranslations = useTrySystemTranslations();
-  const { showToast, clearToast } = useToaster();
   const { showTransactionForm, isOpen: openedTransactionForm } = useTransactionForm();
-  const { filters, patchFilters } = useTransactionsFilters();
   const [changedTransaction, setChangedTransaction] = useState<ActionResult | null>(null);
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
   const [isEditing, setIsEditing] = useState<number | null>(null);
 
   useEffect(() => {
-    if (changedTransaction && !changedTransaction.success) {
-      showToast(t('TransactionForm.unexpectedError'));
+    if (data) {
+      patchFilters({
+        currentPage: data.pageable.pageNumber + 1,
+        size: data.pageable.size,
+        totalPages: data.totalPages,
+      });
     }
-  }, [changedTransaction, showToast, clearToast, t]);
+  }, [data]);
+
+  useEffect(() => {
+    if (changedTransaction && !changedTransaction.success) {
+      addToast({ title: t('TransactionForm.unexpectedError'), color: 'danger' });
+    }
+  }, [changedTransaction, addToast, t]);
 
   useEffect(() => {
     if (!openedTransactionForm) {
@@ -52,12 +78,12 @@ export const TransactionsTable = ({ transactions, showPagination = false, noTran
     try {
       const result = await deleteTransactionById(tx.id);
       setChangedTransaction(result);
-      showToast(t('TransactionForm.deletedSuccess', { id: tx.id }), ToastType.Success);
+      addToast({ title: t('TransactionForm.deletedSuccess', { id: tx.id }), color: 'success' });
     } catch (error) {
       if (error instanceof Error) {
-        showToast(error.message, ToastType.Error);
+        addToast({ title: error.message, color: 'danger' });
       } else {
-        showToast(t('TransactionForm.unexpectedError'), ToastType.Error);
+        addToast({ title: t('TransactionForm.unexpectedError'), color: 'danger' });
       }
     } finally {
       setIsDeleting(null);
@@ -66,158 +92,129 @@ export const TransactionsTable = ({ transactions, showPagination = false, noTran
 
   const editHandler = async (tx: TransactionResponse) => {
     setIsEditing(tx.id);
-    showTransactionForm(tx);
+    showTransactionForm({ ...tx });
   };
 
-  if (transactions.length === 0) {
-    return (
-      <div>
+  const loadingState = isLoading ? 'loading' : 'idle';
+
+  // data?.content.length === 0
+
+  return (
+    <Table
+      aria-label={t('Generics.transaction.plural')}
+      topContent={
         <Button
           size="sm"
-          variant={ButtonVariant.Primary}
-          className="w-min justify-self-end md:min-w-28"
-          title={t('Generics.new.female')}
-          onClick={() => {
+          color="primary"
+          className="w-min"
+          onPress={() => {
             showTransactionForm();
           }}
         >
           <HiPlus className="mr-1 size-5" />
           <div className="hidden md:block">{t('Generics.new.female')}</div>
         </Button>
-        <p className="text-center text-slate-800 dark:text-white">
-          {noTransactionsMessage ?? t('TransactionsTable.noTransactions')}
-        </p>
-      </div>
-    );
-  }
+      }
+      bottomContent={
+        showPagination && filters && filters.totalPages > 0 ? (
+          <div className="flex w-full justify-center">
+            <Pagination
+              isCompact
+              showControls
+              showShadow
+              color="primary"
+              page={filters.currentPage}
+              total={filters.totalPages}
+              onChange={(page) => patchFilters({ currentPage: page })}
+            />
+          </div>
+        ) : null
+      }
+    >
+      <TableHeader>
+        <TableColumn>{t('Generics.description')}</TableColumn>
+        <TableColumn>{t('Generics.account')}</TableColumn>
+        <TableColumn>{t('Generics.category')}</TableColumn>
+        <TableColumn>{t('Generics.subcategory')}</TableColumn>
+        <TableColumn>{t('Generics.date')}</TableColumn>
+        <TableColumn className="text-end">{t('Generics.amount')}</TableColumn>
+        <TableColumn className="pr-7 text-end">{t('Generics.actions')}</TableColumn>
+      </TableHeader>
+      <TableBody
+        className="divide-y text-base"
+        items={data?.content ?? []}
+        loadingContent={<Spinner />}
+        loadingState={loadingState}
+        emptyContent={noTransactionsMessage ?? t('TransactionsTable.noTransactions')}
+      >
+        {(transaction) => (
+          <TableRow key={transaction.id}>
+            <TableCell>
+              <span className="flex items-center gap-2">
+                {AVAILABLE_ICONS.has(transaction.category.iconName) &&
+                  React.createElement(AVAILABLE_ICONS.get(transaction.category.iconName)!, {
+                    color: transaction.category.color ?? undefined,
+                    className: 'size-6 mr-1',
+                  })}
+                {trySystemTranslations(transaction.description)}
+              </span>
+            </TableCell>
 
-  return (
-    <>
-      <Table hoverable>
-        <Table.Head>
-          <Table.HeadCell>{t('Generics.description')}</Table.HeadCell>
-          <Table.HeadCell>{t('Generics.account')}</Table.HeadCell>
-          <Table.HeadCell className="hidden md:table-cell">{t('Generics.category')}</Table.HeadCell>
-          <Table.HeadCell className="hidden lg:table-cell">{t('Generics.subcategory')}</Table.HeadCell>
-          <Table.HeadCell>{t('Generics.date')}</Table.HeadCell>
-          <Table.HeadCell>{t('Generics.amount')}</Table.HeadCell>
-          <Table.HeadCell className="flex justify-end">
-            <Button
-              size="sm"
-              variant={ButtonVariant.Primary}
-              className="w-min md:min-w-28"
-              title={t('Generics.new.female')}
-              onClick={() => {
-                showTransactionForm();
-              }}
-            >
-              <HiPlus className="mr-1 size-5" />
-              <div className="hidden md:block">{t('Generics.new.female')}</div>
-            </Button>
-            <span className="sr-only">{t('Generics.actions')}</span>
-          </Table.HeadCell>
-        </Table.Head>
-        <Table.Body className="divide-y text-base">
-          {transactions.map((transaction) => (
-            <Table.Row key={transaction.id} className="bg-white dark:border-gray-700 dark:bg-gray-800">
-              <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                <span className="flex items-center gap-2">
-                  {AVAILABLE_ICONS.has(transaction.category.iconName) &&
-                    React.createElement(AVAILABLE_ICONS.get(transaction.category.iconName)!, {
-                      color: transaction.category.color ?? undefined,
-                      className: 'size-6 mr-1',
-                    })}
-                  {trySystemTranslations(transaction.description)}
-                </span>
-              </Table.Cell>
-              <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                {transaction.accountName}
-              </Table.Cell>
-              <Table.Cell className="hidden md:table-cell">
-                {trySystemTranslations(transaction.category.name)}
-              </Table.Cell>
-              <Table.Cell className="hidden lg:table-cell">
-                {trySystemTranslations(transaction.subcategory.name)}
-              </Table.Cell>
-              <Table.Cell>
-                {format.dateTime(parseISO(transaction.eventDate), {
-                  year: '2-digit',
-                  month: '2-digit',
-                  day: '2-digit',
-                })}
-              </Table.Cell>
+            <TableCell>{transaction.accountName}</TableCell>
 
-              <Table.Cell className="text-right font-medium">
-                <Money
-                  amount={transaction.amount}
-                  currency={transaction.currencyCode}
-                  locale={locale}
-                  className="font-semibold"
-                />
-              </Table.Cell>
-              <Table.Cell className="table-cell md:hidden">
-                <div className="mr-5 flex justify-end md:hidden">
-                  <Dropdown inline>
-                    <Dropdown.Item disabled={isEditing === transaction.id} onClick={() => editHandler(transaction)}>
-                      {t('Generics.edit')}
-                    </Dropdown.Item>
-                    <Dropdown.Item disabled={isDeleting === transaction.id} onClick={() => deleteHandler(transaction)}>
-                      {t('Generics.delete')}
-                    </Dropdown.Item>
-                  </Dropdown>
-                </div>
-              </Table.Cell>
-              <Table.Cell className="hidden w-min md:table-cell">
-                <div className="flex flex-col items-end justify-end gap-1 lg:flex-row lg:gap-2">
-                  {isEditing !== transaction.id && (
-                    <Button
-                      className="mb-2 min-w-28 lg:mb-0"
-                      size="sm"
-                      title={t('Generics.edit')}
-                      variant={ButtonVariant.Secondary}
-                      onClick={() => editHandler(transaction)}
-                    >
-                      <HiPencil className="mr-1 size-5" />
-                      {t('Generics.edit')}
-                    </Button>
-                  )}
-                  {isEditing === transaction.id && (
-                    <Button className="mb-2 lg:mb-0" size="sm" variant={ButtonVariant.Secondary} isProcessing>
-                      {t('Generics.editing')}
-                    </Button>
-                  )}
-                  {isDeleting !== transaction.id && (
-                    <Button
-                      size="sm"
-                      title={t('Generics.delete')}
-                      className="min-w-28"
-                      variant={ButtonVariant.Critical}
-                      onClick={() => deleteHandler(transaction)}
-                    >
-                      <HiTrash className="mr-1 size-5" />
-                      {t('Generics.delete')}
-                    </Button>
-                  )}
-                  {isDeleting === transaction.id && (
-                    <Button size="sm" variant={ButtonVariant.Critical} isProcessing>
-                      {t('Generics.deleting')}
-                    </Button>
-                  )}
-                </div>
-              </Table.Cell>
-            </Table.Row>
-          ))}
-        </Table.Body>
-      </Table>
-      {showPagination && (
-        <div className="flex overflow-x-auto sm:justify-center">
-          <Pagination
-            currentPage={filters.currentPage}
-            totalPages={filters.totalPages}
-            onPageChange={(page) => patchFilters({ currentPage: page })}
-          />
-        </div>
-      )}
-    </>
+            <TableCell>{trySystemTranslations(transaction.category.name)}</TableCell>
+
+            <TableCell>{trySystemTranslations(transaction.subcategory.name)}</TableCell>
+
+            <TableCell>
+              {format.dateTime(parseISO(transaction.eventDate), {
+                year: '2-digit',
+                month: '2-digit',
+                day: '2-digit',
+              })}
+            </TableCell>
+
+            <TableCell className="text-right font-semibold">
+              <Money amount={transaction.amount} currency={transaction.currencyCode} locale={locale} />
+            </TableCell>
+
+            <TableCell className="flex justify-end gap-1 md:gap-2">
+              <Tooltip
+                content={isEditing === transaction.id ? t('Generics.editing') : t('Generics.edit')}
+                color="secondary"
+              >
+                <Button
+                  isDisabled={isEditing === transaction.id}
+                  isLoading={isEditing === transaction.id}
+                  isIconOnly
+                  aria-label={isEditing === transaction.id ? t('Generics.editing') : t('Generics.edit')}
+                  onPress={() => editHandler(transaction)}
+                  color="secondary"
+                  variant="light"
+                >
+                  <HiPencil />
+                </Button>
+              </Tooltip>
+              <Tooltip
+                color="danger"
+                content={isDeleting === transaction.id ? t('Generics.deleting') : t('Generics.delete')}
+              >
+                <Button
+                  isIconOnly
+                  isDisabled={isDeleting === transaction.id}
+                  isLoading={isDeleting === transaction.id}
+                  aria-label={isDeleting === transaction.id ? t('Generics.deleting') : t('Generics.delete')}
+                  onPress={() => deleteHandler(transaction)}
+                  color="danger"
+                  variant="light"
+                >
+                  <HiTrash />
+                </Button>
+              </Tooltip>
+            </TableCell>
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
   );
 };

@@ -133,7 +133,7 @@
     "editedSuccess": "Edited transaction {id}",
     "deletedSuccess": "Deleted transaction {id}",
     "unexpectedError": "Something went wrong! Couldn't save transaction",
-    "excludeFromTotals": "Exclude from balances",
+    "excludeFromTotals": "Exclude from totals",
     "selectCategory": "Select category",
     "selectSubcategory": "Select subcategory",
     "eventDate": "Event Date",

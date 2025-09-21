@@ -1,8 +1,8 @@
 'use client';
 
-import { Button, ButtonVariant } from '@/components/Button';
 import { useTranslations } from 'next-intl';
 import { useFormStatus } from 'react-dom';
+import { Button } from '@/components/Button';
 
 interface Props {
   isLoginMode: boolean;
@@ -15,12 +15,12 @@ export const CTAButton = ({ isLoginMode, handleLoginClicked }: Props) => {
   return (
     <>
       {!pending && (
-        <Button variant={ButtonVariant.Primary} className="w-full" type="submit" onClick={handleLoginClicked}>
+        <Button color="primary" fullWidth type="submit" onPress={handleLoginClicked}>
           {isLoginMode ? t('login.cta') : t('register.cta')}
         </Button>
       )}
       {pending && (
-        <Button variant={ButtonVariant.Primary} disabled className="w-full" onClick={handleLoginClicked}>
+        <Button isLoading disabled fullWidth onPress={handleLoginClicked}>
           {t('form.loading')}
         </Button>
       )}

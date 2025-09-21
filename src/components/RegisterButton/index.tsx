@@ -1,25 +1,23 @@
 'use client';
 
-import { useState } from 'react';
-import { Modal } from 'flowbite-react';
-
-import { Button, ButtonVariant } from '@/components/Button';
-import { LoginForm } from '@/components/LoginForm';
-import { useToaster } from '@/components/Toast/ToastProvider';
-import { ToastType } from '@/components/Toast';
+import { Modal, ModalContent, useDisclosure } from '@heroui/modal';
+import { addToast } from '@heroui/toast';
 import { useTranslations } from 'next-intl';
+
+import { HiXMark } from 'react-icons/hi2';
+import { Button } from '@/components/Button';
+import { LoginForm } from '@/components/LoginForm';
 
 export const RegisterButton = ({ className }: { className?: string }) => {
   const t = useTranslations('Auth.register');
-  const [openModal, setOpenModal] = useState(false);
-  const { showToast } = useToaster();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const handleRegistrationSuccess = () => {
-    showToast(t('success'), ToastType.Success);
+    addToast({ title: t('success'), color: 'success' });
   };
 
-  const onCloseModal = (succeededRegistration = false) => {
-    setOpenModal(false);
+  const onCloseModal = (succeededRegistration = false, closeCallback: () => void) => {
+    closeCallback();
     if (succeededRegistration) {
       handleRegistrationSuccess();
     }
@@ -27,14 +25,20 @@ export const RegisterButton = ({ className }: { className?: string }) => {
 
   return (
     <div className={className}>
-      <Button variant={ButtonVariant.Secondary} onClick={() => setOpenModal(true)}>
+      <Button color="primary" variant="bordered" className="bg-white/90 dark:bg-slate-900/90" onPress={() => onOpen()}>
         {t('button')}
       </Button>
-      <Modal show={openModal} size="lg" onClose={() => onCloseModal(false)} popup>
-        <Modal.Header />
-        <Modal.Body>
-          <LoginForm callback={() => onCloseModal(true)} mode="register" />
-        </Modal.Body>
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} closeButton={<HiXMark size={42} />}>
+        <ModalContent>
+          {(onClose) => (
+            <LoginForm
+              callback={() => {
+                onCloseModal(true, onClose);
+              }}
+              mode="register"
+            />
+          )}
+        </ModalContent>
       </Modal>
     </div>
   );

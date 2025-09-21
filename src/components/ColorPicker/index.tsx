@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useCallback, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import React, { useCallback, useRef, useState } from 'react';
 import { HexColorPicker } from 'react-colorful';
 
+import { Button } from '@/components/Button';
 import useClickOutside from '@/hooks/useClickOutside';
-import { Button, ButtonVariant } from '@/components/Button';
 
 interface ColorPickerProps {
   color: string;
@@ -80,10 +80,10 @@ export const ColorPicker = ({ color, onChange }: ColorPickerProps) => {
             </div>
             <div className="m-2">
               <Button
-                variant={ButtonVariant.Primary}
-                fullSized
+                color="primary"
+                fullWidth
                 type="button"
-                onClick={() => {
+                onPress={() => {
                   onChange('');
                   toggle(false);
                 }}

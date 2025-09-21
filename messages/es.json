@@ -1,7 +1,7 @@
 {
   "Generics": {
     "actions": "Acciones",
-    "delete": "Elminar",
+    "delete": "Eliminar",
     "clear": "Limpiar",
     "deleting": "Elminando",
     "edit": "Editar",
@@ -56,7 +56,6 @@
       "description": "e-Xpens es una aplicación sencilla e intuitiva que te ayudará a controlar tus gastos y finanzas"
     },
     "features": {
-      "title": "Características principales",
       "1": {
         "title": "Multi-cuenta y categorización",
         "description": "Gestiona varias cuentas y categorías fácilmente.",
@@ -66,7 +65,8 @@
         "title": "Alcanza tus metas de ahorro",
         "description": "Configura y sigue tus metas de ahorro. Te ayudamos a alcanzar tu libertad financiera.",
         "imageTitle": "Alcanza tus objetivos"
-      }
+      },
+      "title": "Características principales"
     },
     "engage": {
       "title": "Empieza a ahorrar ahora",
@@ -166,7 +166,7 @@
     "editedSuccess": "Transacción {id} editada exitosamente",
     "deletedSuccess": "Transacción {id} eliminada exitosamente",
     "unexpectedError": "Algo fue mal! No se ha podido guardar la transacción",
-    "excludeFromTotals": "Excluir de los balances",
+    "excludeFromTotals": "Excluir de los totales",
     "eventDate": "Fecha del evento",
     "selectCategory": "Seleccionar categoría",
     "selectSubcategory": "Seleccionar subcategoría",
@@ -231,7 +231,7 @@
       "UNHANDLED_EXCEPTION": "Algo salió mal. Por favor, vuelve a intentarlo",
       "USER_CREATION_FAIL": "No se pudo crear el usuario. Por favor, vuelve a intentarlo",
       "SERVICE_UNAVAILABLE": "Servicio no disponible. Por favor, vuelve a intentarlo",
-      "WRONG_CREDENTIALS": "El usuario o la contraseña no son correctos",
+      "WRONG_CREDENTIALS": "Usuario o contraseña incorrecto",
       "LOGIN_FAILED": "No se pudo iniciar sesión. Por favor, vuelve a intentarlo"
     }
   }

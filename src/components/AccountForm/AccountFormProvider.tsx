@@ -1,13 +1,14 @@
 'use client';
 
+import { useDisclosure } from '@heroui/modal';
+import React, { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 import { AccountForm } from '@/components/AccountForm';
 import { AccountResponse } from '@/types/dto';
-import React, { createContext, useContext, useState, ReactNode, useMemo } from 'react';
 
 interface AccountFormContextProps {
   isOpen: boolean;
   showAccountForm: (Account?: AccountResponse) => void;
-  closeAccountForm: () => void;
+  onFormClose: () => void;
   accountFormData: AccountResponse | undefined;
 }
 
@@ -15,26 +16,25 @@ const AccountFormContext = createContext<AccountFormContextProps | undefined>(un
 
 export const AccountFormProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [accountFormData, setaccountFormData] = useState<AccountResponse | undefined>();
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const { onOpen, isOpen } = useDisclosure();
 
   const showAccountForm = useMemo(
     () => (account?: AccountResponse) => {
       setaccountFormData(account);
-      setIsOpen(true);
+      onOpen();
     },
     [setaccountFormData]
   );
 
-  const closeAccountForm = useMemo(
+  const onFormClose = useMemo(
     () => () => {
       setaccountFormData(undefined);
-      setIsOpen(false);
     },
     [setaccountFormData]
   );
 
   return (
-    <AccountFormContext.Provider value={{ showAccountForm, closeAccountForm, accountFormData, isOpen }}>
+    <AccountFormContext.Provider value={{ showAccountForm, onFormClose, accountFormData, isOpen }}>
       {children}
       <AccountForm />
     </AccountFormContext.Provider>

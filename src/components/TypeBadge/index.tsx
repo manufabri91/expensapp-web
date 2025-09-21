@@ -1,35 +1,36 @@
-import { TransactionType } from '@/types/enums/transactionType';
-import { Badge } from 'flowbite-react';
-import { getTranslations } from 'next-intl/server';
+'use client';
+import { Chip } from '@heroui/chip';
 import React, { FC } from 'react';
 import { HiArrowTrendingDown, HiArrowTrendingUp } from 'react-icons/hi2';
 import { LiaExchangeAltSolid } from 'react-icons/lia';
+import { useTranslations } from 'use-intl';
+import { TransactionType } from '@/types/enums/transactionType';
 
 interface Props {
   type: TransactionType;
-  size: 'xs' | 'sm';
+  size: 'sm' | 'md';
 }
 
 interface BadgeConfig {
-  color?: string;
+  color?: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | undefined;
   icon: FC<React.SVGProps<SVGSVGElement>>;
 }
 
 const typeConfigMap = new Map<TransactionType, BadgeConfig>([
-  [TransactionType.EXPENSE, { color: 'red', icon: HiArrowTrendingDown }],
-  [TransactionType.INCOME, { color: 'green', icon: HiArrowTrendingUp }],
+  [TransactionType.EXPENSE, { color: 'danger', icon: HiArrowTrendingDown }],
+  [TransactionType.INCOME, { color: 'success', icon: HiArrowTrendingUp }],
 ]);
 
 const getConfig = (type: TransactionType): BadgeConfig => {
   return typeConfigMap.get(type) ?? { color: undefined, icon: LiaExchangeAltSolid };
 };
 
-export const TypeBadge = async ({ type, size }: Props) => {
-  const t = await getTranslations('Generics');
-  const config = getConfig(type);
+export const TypeBadge = ({ type, size }: Props) => {
+  const t = useTranslations('Generics');
+  const { color, icon: Icon } = getConfig(type);
   return (
-    <Badge size={size} icon={config.icon} color={config.color}>
+    <Chip size={size} color={color} startContent={<Icon className="h-4 w-4" />}>
       {t(`${type.toLowerCase()}.plural`)}
-    </Badge>
+    </Chip>
   );
 };

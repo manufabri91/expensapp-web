@@ -1,5 +1,6 @@
-import { LinkStyle, LinkType, StyledLink } from '@/components';
 import Image from 'next/image';
+import Link from 'next/link';
+import { Button } from '@/components/Button';
 
 export default function NotFound() {
   return (
@@ -8,12 +9,12 @@ export default function NotFound() {
         <Image className="object-contain" src="/images/oh-no.svg" alt="" fill />
       </div>
       <div className="p-12">
-        <h1 className="text-xl uppercase tracking-widest">404 | Not Found</h1>
+        <h1 className="text-xl tracking-widest uppercase">404 | Not Found</h1>
       </div>
 
-      <StyledLink style={LinkStyle.Button} type={LinkType.Primary} href="/">
+      <Button color="primary" as={Link} href="/">
         Go Home
-      </StyledLink>
+      </Button>
     </main>
   );
 }

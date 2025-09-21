@@ -56,7 +56,6 @@
       "description": "e-Xpens es una app simple e intuitiva que te va a ayudar a controlar tus gastos y finanzas"
     },
     "features": {
-      "title": "Características principales",
       "1": {
         "title": "Multi-cuenta y categorización",
         "description": "Gestioná varias cuentas y categorías fácilmente.",
@@ -66,7 +65,8 @@
         "title": "Alcanzá tus metas de ahorro",
         "description": "Configurá y seguí tus metas de ahorro. Te ayudamos a alcanzar tu libertad financiera.",
         "imageTitle": "Alcanzá tus objetivos"
-      }
+      },
+      "title": "Características principales"
     },
     "engage": {
       "title": "Empezá a ahorrar ahora",
@@ -231,7 +231,7 @@
       "UNHANDLED_EXCEPTION": "Algo salió mal. Por favor, intentá de nuevo",
       "USER_CREATION_FAIL": "No se pudo crear el usuario. Por favor, intentá de nuevo",
       "SERVICE_UNAVAILABLE": "Servicio no disponible. Por favor, intentá de nuevo",
-      "WRONG_CREDENTIALS": "El usuario o la contraseña no son correctos",
+      "WRONG_CREDENTIALS": "Usuario o contraseña incorrecto",
       "LOGIN_FAILED": "No se pudo iniciar sesión. Por favor, intentá de nuevo"
     }
   }

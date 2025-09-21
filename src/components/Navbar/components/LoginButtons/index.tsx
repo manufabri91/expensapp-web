@@ -1,6 +1,6 @@
+import { Session } from 'next-auth';
 import { LoginButton } from '@/components/LoginButton';
 import { RegisterButton } from '@/components/RegisterButton';
-import { Session } from 'next-auth';
 
 interface Props {
   session: Session | null;

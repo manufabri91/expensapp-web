@@ -1,7 +1,7 @@
-import { authConfig } from '@/lib/auth/config';
-import { DEFAULT_REDIRECT, PUBLIC_ROUTES, HOME } from '@/lib/routes';
-import NextAuth from 'next-auth';
 import { NextResponse } from 'next/server';
+import NextAuth from 'next-auth';
+import { authConfig } from '@/lib/auth/config';
+import { DEFAULT_REDIRECT, HOME, PUBLIC_ROUTES } from '@/lib/routes';
 
 const { auth } = NextAuth(authConfig);
 

@@ -1,24 +1,25 @@
 'use client';
 
-import { Button, ButtonVariant } from '@/components/Button';
-import { useToaster } from '@/components/Toast/ToastProvider';
+import { Input } from '@heroui/input';
+import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@heroui/modal';
+import { Select, SelectItem } from '@heroui/select';
+import { addToast } from '@heroui/toast';
+import { useLocale, useTranslations } from 'next-intl';
+import { useEffect, useState } from 'react';
 import { useAccountForm } from '@/components/AccountForm/AccountFormProvider';
+import { Button } from '@/components/Button';
+import { ALLOWED_CURRENCIES } from '@/constants';
 import { createAccount, editAccount } from '@/lib/actions/accounts';
 import { useAccounts } from '@/lib/providers/AccountsProvider';
 import { AccountResponse } from '@/types/dto';
 
-import { Label, Modal, Select, TextInput } from 'flowbite-react';
-import { useEffect, useState } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
-import { ToastType } from '@/components/Toast';
-import { ALLOWED_CURRENCIES } from '@/constants';
 import { getCurrencySymbol } from '@/utils/currency';
 
 export const AccountForm = () => {
   const t = useTranslations();
   const locale = useLocale();
-  const { showToast } = useToaster();
-  const { accountFormData, isOpen, closeAccountForm } = useAccountForm();
+  const { onOpenChange, isOpen } = useDisclosure();
+  const { accountFormData, onFormClose } = useAccountForm();
   const { addAccount } = useAccounts();
   const [createdAccount, setCreatedAccount] = useState<AccountResponse | null>(null);
   const [editedAccount, setEditedAccount] = useState<AccountResponse | null>(null);
@@ -27,17 +28,17 @@ export const AccountForm = () => {
   useEffect(() => {
     console.log(createdAccount);
     if (createdAccount) {
-      showToast(t('AccountForm.createdSuccess', { id: createdAccount.id }), ToastType.Success);
+      addToast({ title: t('AccountForm.createdSuccess', { id: createdAccount.id }), color: 'success' });
       setCreatedAccount(null);
-      closeAccountForm();
       setProcessing(false);
+      onFormClose();
     } else if (editedAccount) {
-      showToast(t('AccountForm.editedSuccess', { id: editedAccount.id }), ToastType.Success);
+      addToast({ title: t('AccountForm.editedSuccess', { id: editedAccount.id }), color: 'success' });
       setEditedAccount(null);
-      closeAccountForm();
       setProcessing(false);
+      onFormClose();
     }
-  }, [closeAccountForm, createdAccount, editedAccount, showToast, t]);
+  }, [onFormClose, createdAccount, editedAccount, addToast, t]);
 
   const submitHandler = async (formData: FormData) => {
     setProcessing(true);
@@ -52,74 +53,69 @@ export const AccountForm = () => {
       }
     } catch (error) {
       if (error instanceof Error) {
-        showToast(error.message, ToastType.Error);
+        addToast({ title: error.message, color: 'danger' });
       } else {
-        showToast(t('AccountForm.unexpectedError'), ToastType.Error);
+        addToast({ title: t('AccountForm.unexpectedError'), color: 'danger' });
       }
       setCreatedAccount(null);
       setEditedAccount(null);
       setProcessing(false);
-      closeAccountForm();
+      onFormClose();
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <Modal show={isOpen} size="md" onClose={closeAccountForm} popup>
-      <Modal.Header as={'div'} className="m-4">
-        {accountFormData ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.account')}
-      </Modal.Header>
-      <Modal.Body>
-        <form className="flex max-w-md flex-col gap-4" action={submitHandler}>
-          {!!accountFormData && (
-            <div className="hidden">
-              <div className="mb-2 block">
-                <Label htmlFor="id" value="ID" />
-              </div>
-              <TextInput id="id" name="id" type="text" value={accountFormData?.id} readOnly shadow />
-            </div>
-          )}
-          <div>
-            <div className="mb-2 block">
-              <Label htmlFor="name" value={t('AccountForm.name')} />
-            </div>
-            <TextInput id="name" name="name" type="text" defaultValue={accountFormData?.name} required shadow />
-          </div>
-          <div>
-            <div className="mb-2 block">
-              <Label htmlFor="initialBalance" value={t('AccountForm.initialBalance')} />
-            </div>
-            <TextInput
-              id="initialBalance"
-              name="initialBalance"
-              type="number"
-              defaultValue={accountFormData?.initialBalance ?? 0}
-              min="0"
-              step=".01"
-              required
-              shadow
-            />
-          </div>
-          <div className="max-w-md">
-            <div className="mb-2 block">
-              <Label htmlFor="currency" value="Currency" />
-            </div>
-            <Select id="currency" name="currency" defaultValue={accountFormData?.currency} required>
-              <option value={undefined}>{t('AccountForm.selectCurrency')}</option>
-              {ALLOWED_CURRENCIES.map((currency) => (
-                <option key={currency} value={currency}>
-                  {t(`Generics.currencies.${currency}.singular`)} ({getCurrencySymbol(locale, currency ?? '')})
-                </option>
-              ))}
-            </Select>
-          </div>
+    <Modal backdrop="blur" isOpen={isOpen} onOpenChange={onOpenChange}>
+      <ModalContent>
+        {(onClose) => (
+          <>
+            <ModalHeader>
+              {accountFormData ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.account')}
+            </ModalHeader>
+            <ModalBody>
+              <form className="flex max-w-md flex-col gap-4" action={submitHandler}>
+                {!!accountFormData && (
+                  <div className="hidden">
+                    <Input id="id" name="id" type="text" value={`${accountFormData?.id}`} readOnly />
+                  </div>
+                )}
+                <Input
+                  id="name"
+                  fullWidth
+                  isRequired
+                  label={t('AccountForm.name')}
+                  name="name"
+                  defaultValue={accountFormData?.name}
+                  type="text"
+                />
+                <Input
+                  id="initialBalance"
+                  fullWidth
+                  isRequired
+                  label={t('AccountForm.initialBalance')}
+                  name="initialBalance"
+                  type="number"
+                  min="0"
+                  step=".01"
+                />
+                <Select label="Currency">
+                  {ALLOWED_CURRENCIES.map((currency) => (
+                    <SelectItem key={currency}>
+                      {t(`Generics.currencies.${currency}.singular`)} ({getCurrencySymbol(locale, currency ?? '')})
+                    </SelectItem>
+                  ))}
+                </Select>
 
-          <Button type="submit" variant={ButtonVariant.Primary} isProcessing={processing}>
-            {accountFormData ? t('Generics.edit') : t('Generics.save')}
-          </Button>
-        </form>
-      </Modal.Body>
+                <Button onPress={onClose} type="submit" color="primary" isLoading={processing}>
+                  {accountFormData ? t('Generics.edit') : t('Generics.save')}
+                </Button>
+              </form>
+            </ModalBody>
+          </>
+        )}
+      </ModalContent>
     </Modal>
   );
 };

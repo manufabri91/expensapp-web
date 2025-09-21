@@ -1,6 +1,6 @@
+import React from 'react';
 import { getAccounts } from '@/lib/actions/accounts';
 import { AccountsDetailsContent } from './AccountsContent';
-import React from 'react';
 
 export const AccountsDetails = async () => {
   const accounts = await getAccounts();

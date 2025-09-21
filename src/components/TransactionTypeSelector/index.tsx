@@ -1,7 +1,7 @@
 'use client';
+import { useTranslations } from 'next-intl';
 import { ButtonSelector } from '@/components/ButtonSelector';
 import { TransactionType } from '@/types/enums/transactionType';
-import { useTranslations } from 'next-intl';
 
 interface Props {
   initialValue?: TransactionType;
