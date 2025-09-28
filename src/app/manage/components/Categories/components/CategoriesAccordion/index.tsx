@@ -1,7 +1,7 @@
 'use client';
 
 import { Accordion, AccordionItem } from '@heroui/accordion';
-import { FC, Fragment, Suspense } from 'react';
+import { FC, Fragment } from 'react';
 import {
   DeleteCategoryButton,
   EditCategoryButton,
@@ -40,7 +40,7 @@ export const CategoriesAccordion: FC<CategoriesAccordionProps> = ({ categories }
                 <EditCategoryButton category={category} />
                 <DeleteCategoryButton categoryId={category.id} />
               </div>
-              <div className="flex w-full flex-col">
+              <div className="mt-6 flex w-full flex-col">
                 <SubcategoriesList parentCategoryId={category.id} />
               </div>
             </AccordionItem>

@@ -1,7 +1,7 @@
 'use client';
 
 import { Input } from '@heroui/input';
-import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@heroui/modal';
+import { Modal, ModalBody, ModalContent, ModalHeader } from '@heroui/modal';
 import { Select, SelectItem } from '@heroui/select';
 import { addToast } from '@heroui/toast';
 import { useTranslations } from 'next-intl';
@@ -17,8 +17,7 @@ import { SubCategoryResponse } from '@/types/dto';
 export const SubcategoryForm = () => {
   const t = useTranslations();
   const trySystemTranslation = useTrySystemTranslations();
-  const { onOpenChange, isOpen } = useDisclosure();
-  const { subcategoryFormData, closeSubcategoryForm } = useSubcategoryForm();
+  const { subcategoryFormData, clearForm, isOpen, onOpenChange } = useSubcategoryForm();
 
   const { categories, addSubcategory } = useCategories();
   const [createdSubcategory, setCreatedSubcategory] = useState<SubCategoryResponse | null>(null);
@@ -31,15 +30,15 @@ export const SubcategoryForm = () => {
       addToast({ title: t('SubcategoryForm.createdSuccess', { id: createdSubcategory.id }), color: 'success' });
       addSubcategory(createdSubcategory);
       setCreatedSubcategory(null);
-      closeSubcategoryForm();
+      clearForm();
       setProcessing(false);
     } else if (editedSubcategory) {
       addToast({ title: t('SubcategoryForm.editedSuccess', { id: editedSubcategory.id }), color: 'success' });
       setEditedSubcategory(null);
-      closeSubcategoryForm();
+      clearForm();
       setProcessing(false);
     }
-  }, [addSubcategory, closeSubcategoryForm, createdSubcategory, editedSubcategory, addToast, t]);
+  }, [addSubcategory, clearForm, createdSubcategory, editedSubcategory, addToast, t]);
 
   const submitHandler = async (formData: FormData) => {
     setProcessing(true);
@@ -59,7 +58,7 @@ export const SubcategoryForm = () => {
       <ModalContent>
         {(onClose) => (
           <>
-            <ModalHeader as={'div'} className="m-4">
+            <ModalHeader>
               {isEditMode ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.subcategory')}
             </ModalHeader>
             <ModalBody>

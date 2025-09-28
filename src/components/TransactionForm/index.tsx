@@ -3,12 +3,13 @@
 import { DatePicker } from '@heroui/date-picker';
 import { Input } from '@heroui/input';
 import { Modal, ModalBody, ModalContent, ModalHeader } from '@heroui/modal';
+import { NumberInput } from '@heroui/number-input';
 import { Select, SelectItem } from '@heroui/select';
 import { Switch } from '@heroui/switch';
 import { addToast } from '@heroui/toast';
 import { fromDate, getLocalTimeZone } from '@internationalized/date';
 import { formatISO, parseISO } from 'date-fns';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components';
 import { useTransactionForm } from '@/components/TransactionForm/TransactionFormProvider';
@@ -22,7 +23,6 @@ import { TransactionType } from '@/types/enums/transactionType';
 
 export const TransactionForm = () => {
   const t = useTranslations();
-  const locale = useLocale();
   const trySystemTranslations = useTrySystemTranslations();
   const { onOpenChange, isOpen } = useTransactionForm();
   const { transactionFormData, clearForm } = useTransactionForm();
@@ -90,7 +90,7 @@ export const TransactionForm = () => {
       (subcategory) => subcategory.parentCategoryId === Number(event.target.value)
     );
     setFilteredSubcategories(validSubcategories);
-    setSelectedSubcategory(validSubcategories[0]?.id || undefined);
+    setSelectedSubcategory(validSubcategories[0]?.id);
   };
 
   const onSelectedSubcategory = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -162,19 +162,26 @@ export const TransactionForm = () => {
                 <div>
                   <TransactionTypeSelector initialValue={selectedType} onSelect={onTypeChange} />
                 </div>
-                <Input
+                <NumberInput
+                  defaultValue={
+                    transactionFormData?.amount ? Number(Math.abs(transactionFormData?.amount).toFixed(2)) : 0
+                  }
+                  formatOptions={
+                    accounts.find((acc) => acc.id === selectedAccount) && {
+                      style: 'currency',
+                      currency: accounts.find((acc) => acc.id === selectedAccount)?.currency || '',
+                    }
+                  }
+                  inputMode="decimal"
+                  hideStepper
                   label={t('Generics.amount')}
                   id="amount"
                   name="amount"
-                  type="number"
-                  min="0"
-                  step=".01"
+                  labelPlacement="outside"
                   fullWidth
                   isRequired
-                  labelPlacement="outside-top"
-                  defaultValue={
-                    transactionFormData?.amount ? Math.abs(transactionFormData?.amount).toFixed(2) : undefined
-                  }
+                  min="0"
+                  step={0.01}
                 />
                 {selectedType !== TransactionType.TRANSFER && (
                   <Switch
@@ -198,12 +205,9 @@ export const TransactionForm = () => {
                       labelPlacement="outside"
                       onChange={onAccountChange}
                     >
-                      <>
-                        <SelectItem key={undefined}>{t('TransactionForm.selectAccount')}</SelectItem>
-                        {accounts.map((account) => (
-                          <SelectItem key={account.id}>{account.name}</SelectItem>
-                        ))}
-                      </>
+                      {accounts.map((account) => (
+                        <SelectItem key={account.id}>{account.name}</SelectItem>
+                      ))}
                     </Select>
                     <Input
                       id="description"
@@ -306,12 +310,11 @@ export const TransactionForm = () => {
                       disabled={!selectedCategory}
                       onChange={onSelectedSubcategory}
                       value={selectedSubcategory}
+                      items={filteredSubcategories}
                       placeholder={t('TransactionForm.selectSubcategory')}
                     >
-                      {subcategories.map((subcategory) => (
-                        <SelectItem key={subcategory.id} hidden={!filteredSubcategories.includes(subcategory)}>
-                          {trySystemTranslations(subcategory.name)}
-                        </SelectItem>
+                      {filteredSubcategories.map((subcategory) => (
+                        <SelectItem key={subcategory.id}>{trySystemTranslations(subcategory.name)}</SelectItem>
                       ))}
                     </Select>
                   </>

@@ -1,7 +1,8 @@
 'use client';
 
 import { Input } from '@heroui/input';
-import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@heroui/modal';
+import { Modal, ModalBody, ModalContent, ModalHeader } from '@heroui/modal';
+import { NumberInput } from '@heroui/number-input';
 import { Select, SelectItem } from '@heroui/select';
 import { addToast } from '@heroui/toast';
 import { useLocale, useTranslations } from 'next-intl';
@@ -18,12 +19,16 @@ import { getCurrencySymbol } from '@/utils/currency';
 export const AccountForm = () => {
   const t = useTranslations();
   const locale = useLocale();
-  const { onOpenChange, isOpen } = useDisclosure();
-  const { accountFormData, onFormClose } = useAccountForm();
+  const { accountFormData, clearForm, isOpen, onOpenChange } = useAccountForm();
   const { addAccount } = useAccounts();
   const [createdAccount, setCreatedAccount] = useState<AccountResponse | null>(null);
   const [editedAccount, setEditedAccount] = useState<AccountResponse | null>(null);
   const [processing, setProcessing] = useState<boolean>(false);
+
+  const currencyItems = ALLOWED_CURRENCIES.map((currency) => ({
+    key: currency,
+    label: `${t(`Generics.currencies.${currency}.singular`)} (${getCurrencySymbol(locale, currency)})`,
+  }));
 
   useEffect(() => {
     console.log(createdAccount);
@@ -31,14 +36,14 @@ export const AccountForm = () => {
       addToast({ title: t('AccountForm.createdSuccess', { id: createdAccount.id }), color: 'success' });
       setCreatedAccount(null);
       setProcessing(false);
-      onFormClose();
+      clearForm();
     } else if (editedAccount) {
       addToast({ title: t('AccountForm.editedSuccess', { id: editedAccount.id }), color: 'success' });
       setEditedAccount(null);
       setProcessing(false);
-      onFormClose();
+      clearForm();
     }
-  }, [onFormClose, createdAccount, editedAccount, addToast, t]);
+  }, [clearForm, createdAccount, editedAccount, addToast, t]);
 
   const submitHandler = async (formData: FormData) => {
     setProcessing(true);
@@ -60,14 +65,14 @@ export const AccountForm = () => {
       setCreatedAccount(null);
       setEditedAccount(null);
       setProcessing(false);
-      onFormClose();
+      clearForm();
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <Modal backdrop="blur" isOpen={isOpen} onOpenChange={onOpenChange}>
+    <Modal backdrop="blur" isOpen={isOpen} onOpenChange={onOpenChange} className="overflow-y-auto">
       <ModalContent>
         {(onClose) => (
           <>
@@ -82,31 +87,41 @@ export const AccountForm = () => {
                   </div>
                 )}
                 <Input
-                  id="name"
-                  fullWidth
-                  isRequired
-                  label={t('AccountForm.name')}
-                  name="name"
-                  defaultValue={accountFormData?.name}
                   type="text"
-                />
-                <Input
-                  id="initialBalance"
-                  fullWidth
+                  id="name"
+                  name="name"
+                  label={t('AccountForm.name')}
+                  labelPlacement="outside-top"
+                  defaultValue={accountFormData?.name}
                   isRequired
-                  label={t('AccountForm.initialBalance')}
-                  name="initialBalance"
-                  type="number"
-                  min="0"
-                  step=".01"
+                  fullWidth
                 />
-                <Select label="Currency">
-                  {ALLOWED_CURRENCIES.map((currency) => (
-                    <SelectItem key={currency}>
-                      {t(`Generics.currencies.${currency}.singular`)} ({getCurrencySymbol(locale, currency ?? '')})
-                    </SelectItem>
+                <Select
+                  labelPlacement="outside"
+                  label={t('AccountForm.currency')}
+                  id="currency"
+                  name="currency"
+                  defaultSelectedKeys={[accountFormData?.currency || 'EUR']}
+                  value={accountFormData?.currency || 'EUR'}
+                  isRequired
+                  fullWidth
+                >
+                  {currencyItems.map(({ key, label }) => (
+                    <SelectItem key={key}>{label}</SelectItem>
                   ))}
                 </Select>
+                <NumberInput
+                  id="initialBalance"
+                  name="initialBalance"
+                  label={t('AccountForm.initialBalance')}
+                  labelPlacement="outside"
+                  defaultValue={accountFormData?.initialBalance ?? 0}
+                  min="0"
+                  inputMode="decimal"
+                  hideStepper
+                  fullWidth
+                  isRequired
+                />
 
                 <Button onPress={onClose} type="submit" color="primary" isLoading={processing}>
                   {accountFormData ? t('Generics.edit') : t('Generics.save')}

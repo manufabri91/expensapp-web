@@ -1,10 +1,10 @@
 'use client';
 
+import React, { Suspense, useState } from 'react';
+import { SubcategoriesList } from '@/app/manage/components/Categories/components/SubcategoriesList';
 import { AVAILABLE_ICONS } from '@/components/IconPicker/constants';
 import { CategoryResponse } from '@/types/dto';
 import { DeleteCategoryButton, EditCategoryButton } from '../CategoryActions';
-import React, { Suspense, useState } from 'react';
-import { SubcategoriesList } from '@/app/manage/components/Categories/components/SubcategoriesList';
 
 interface CategoryItemProps {
   category: CategoryResponse;

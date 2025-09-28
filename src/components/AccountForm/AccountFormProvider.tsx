@@ -8,7 +8,8 @@ import { AccountResponse } from '@/types/dto';
 interface AccountFormContextProps {
   isOpen: boolean;
   showAccountForm: (Account?: AccountResponse) => void;
-  onFormClose: () => void;
+  clearForm: () => void;
+  onOpenChange: () => void;
   accountFormData: AccountResponse | undefined;
 }
 
@@ -16,7 +17,7 @@ const AccountFormContext = createContext<AccountFormContextProps | undefined>(un
 
 export const AccountFormProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [accountFormData, setaccountFormData] = useState<AccountResponse | undefined>();
-  const { onOpen, isOpen } = useDisclosure();
+  const { onOpen, isOpen, onOpenChange } = useDisclosure();
 
   const showAccountForm = useMemo(
     () => (account?: AccountResponse) => {
@@ -26,7 +27,7 @@ export const AccountFormProvider: React.FC<{ children: ReactNode }> = ({ childre
     [setaccountFormData]
   );
 
-  const onFormClose = useMemo(
+  const clearForm = useMemo(
     () => () => {
       setaccountFormData(undefined);
     },
@@ -34,7 +35,7 @@ export const AccountFormProvider: React.FC<{ children: ReactNode }> = ({ childre
   );
 
   return (
-    <AccountFormContext.Provider value={{ showAccountForm, onFormClose, accountFormData, isOpen }}>
+    <AccountFormContext.Provider value={{ showAccountForm, clearForm, accountFormData, isOpen, onOpenChange }}>
       {children}
       <AccountForm />
     </AccountFormContext.Provider>

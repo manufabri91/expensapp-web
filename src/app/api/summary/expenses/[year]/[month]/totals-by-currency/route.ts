@@ -1,6 +1,6 @@
+import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { UnauthorizedError } from '@/types/exceptions/unauthorized';
-import { NextRequest, NextResponse } from 'next/server';
 
 type tParams = Promise<{ year: string; month: string }>;
 

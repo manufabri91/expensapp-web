@@ -3,6 +3,7 @@
 import { Avatar } from '@heroui/avatar';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger } from '@heroui/dropdown';
 import { Link } from '@heroui/link';
+import { useDisclosure } from '@heroui/modal';
 import {
   Navbar as HeroUINavbar,
   NavbarContent as HeroUINavbarContent,
@@ -23,6 +24,7 @@ import { Key } from 'react';
 import { HiCog, HiOutlineArrowRightStartOnRectangle, HiOutlineUser } from 'react-icons/hi2';
 import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 import { LoginButtons } from '@/components/Navbar/components/LoginButtons';
+import { SettingsDrawer } from '@/components/Navbar/components/SettingsDrawer';
 import { handleLogoutAction } from '@/lib/actions/auth';
 
 interface Props {
@@ -37,6 +39,7 @@ const AUTHORIZED_LINKS = [
 
 export const NavbarContent = ({ session }: Props) => {
   const t = useTranslations('Navbar');
+  const { onOpen, isOpen, onOpenChange } = useDisclosure();
 
   const menuActionHandler = (key: Key) => {
     const actionMappings = {
@@ -110,7 +113,7 @@ export const NavbarContent = ({ session }: Props) => {
                   <p className="font-semibold">{session.user.email}</p>
                 </DropdownItem>
               </DropdownSection>
-              <DropdownItem key="settings" startContent={<HiCog size={24} />}>
+              <DropdownItem key="settings" startContent={<HiCog size={24} />} onPress={onOpen}>
                 {t('settings')}
               </DropdownItem>
               <DropdownItem key="configurations" startContent={<HiOutlineUser size={24} />}>
@@ -126,6 +129,7 @@ export const NavbarContent = ({ session }: Props) => {
             </DropdownMenu>
           </Dropdown>
         )}
+        <SettingsDrawer open={isOpen} onClose={onOpenChange} />
       </HeroUINavbarContent>
 
       <HeroUINavbarContent className="basis-1 pl-4 sm:hidden" justify="end">

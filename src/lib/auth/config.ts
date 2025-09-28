@@ -1,19 +1,19 @@
-import CredentialsProvider from 'next-auth/providers/credentials';
+import { jwtDecode } from 'jwt-decode';
 import {
+  type Account,
+  type AuthValidity,
+  type BackendJWT,
+  type DecodedJWT,
+  type NextAuthConfig,
   type User,
   type UserObject,
-  type AuthValidity,
-  type DecodedJWT,
-  type BackendJWT,
-  type NextAuthConfig,
-  type Account,
 } from 'next-auth';
+import { AdapterUser } from 'next-auth/adapters';
 import type { JWT } from 'next-auth/jwt';
-import { jwtDecode } from 'jwt-decode';
+import CredentialsProvider from 'next-auth/providers/credentials';
 
 import { login, refresh } from '@/lib/auth/handlers';
 import { InvalidLoginError } from '@/types/exceptions/invalidLogin';
-import { AdapterUser } from 'next-auth/adapters';
 import { UnreachableLoginError } from '@/types/exceptions/unreachableLogin';
 
 export const authConfig: NextAuthConfig = {
@@ -91,7 +91,7 @@ export const authConfig: NextAuthConfig = {
 
       return baseUrl;
     },
-    async jwt({ token, user, account }: { token: JWT; user: User | AdapterUser; account: Account | null }) {
+    async jwt({ token, user, account }: { token: JWT; user?: User | AdapterUser; account?: Account | null }) {
       // Initial signin contains a 'User' object from authorize method
       if (user && account) {
         console.debug('Initial signin');
@@ -99,13 +99,13 @@ export const authConfig: NextAuthConfig = {
       }
 
       // The current access token is still valid
-      if (Date.now() < token.data.validity.valid_until * 1000) {
+      if (token.data && Date.now() < token.data.validity.valid_until * 1000) {
         console.debug('Access token is still valid');
         return token;
       }
 
       // The refresh token is still valid
-      if (Date.now() < token.data.validity.valid_until * 1000) {
+      if (token.data && user && user.tokens && Date.now() < token.data.validity.valid_until * 1000) {
         console.debug('Access token is being refreshed');
         return (await refresh(user.tokens.refreshToken)).json();
       }

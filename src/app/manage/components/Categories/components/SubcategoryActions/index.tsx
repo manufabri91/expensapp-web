@@ -1,6 +1,5 @@
 'use client';
 
-import { Spinner } from '@heroui/spinner';
 import { addToast } from '@heroui/toast';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -21,6 +20,7 @@ export const CreateSubcategoryButton = ({ parentCategoryId, className }: CreateS
   return (
     <Button
       color="primary"
+      size="sm"
       onPress={() => {
         showSubcategoryCreateForm(parentCategoryId);
       }}
@@ -38,6 +38,7 @@ export const EditSubcategoryButton = ({ subcategory }: { subcategory: SubCategor
   return (
     <Button
       color="secondary"
+      size="sm"
       isLoading={isOpen}
       isDisabled={isOpen}
       onPress={() => {

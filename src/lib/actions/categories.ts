@@ -1,9 +1,9 @@
 'use server';
 
+import { revalidatePath, unstable_noStore } from 'next/cache';
 import { headers as nextHeaders } from 'next/headers';
 import { getBaseUrl } from '@/lib/utils/url';
 import { CategoryRequest, CategoryResponse } from '@/types/dto';
-import { unstable_noStore, revalidatePath } from 'next/cache';
 import { ActionResult } from '@/types/viewModel/actionResult';
 
 export const getCategories = async (): Promise<CategoryResponse[]> => {

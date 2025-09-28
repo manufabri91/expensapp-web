@@ -3,8 +3,6 @@
 import { Card, CardBody, CardHeader } from '@heroui/card';
 import { Spinner } from '@heroui/spinner';
 import { useTranslations } from 'next-intl';
-import { getTranslations } from 'next-intl/server';
-import { Suspense } from 'react';
 import useSWR from 'swr';
 import {
   CreateSubcategoryButton,

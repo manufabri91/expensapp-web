@@ -1,10 +1,10 @@
 'use client';
 
-import { CategoryResponse, SubCategoryResponse } from '@/types/dto';
-import React, { createContext, useState, ReactNode, useContext } from 'react';
+import React, { createContext, ReactNode, useContext, useState } from 'react';
 
 import { getCategories } from '@/lib/actions/categories';
 import { getSubcategories } from '@/lib/actions/subcategories';
+import { CategoryResponse, SubCategoryResponse } from '@/types/dto';
 
 interface CategoriesContextProps {
   categories: CategoryResponse[];

@@ -33,7 +33,7 @@ export const EditCategoryButton = ({ category }: { category: CategoryResponse })
     showCategoryForm(category);
   };
   return (
-    <Button color="secondary" onPress={handleClick}>
+    <Button size="sm" color="secondary" onPress={handleClick}>
       <HiPencil className="mr-1 size-5" />
 
       <span className="hidden md:block">{t('edit')}</span>
@@ -63,7 +63,7 @@ export const DeleteCategoryButton = ({ categoryId }: { categoryId: number }) => 
   };
 
   return (
-    <Button color="danger" onPress={deleteHandler} disabled={isDeleting}>
+    <Button size="sm" color="danger" onPress={deleteHandler} disabled={isDeleting}>
       {!isDeleting && <HiTrash className="mr-1 size-5" />}
       {isDeleting && <Spinner className="mr-1 size-5" />}
       <span className="hidden md:block">{isDeleting ? `${t('Generics.deleting')}...` : t('Generics.delete')}</span>

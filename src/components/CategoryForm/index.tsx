@@ -1,7 +1,7 @@
 'use client';
 
 import { Input } from '@heroui/input';
-import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@heroui/modal';
+import { Modal, ModalBody, ModalContent, ModalHeader } from '@heroui/modal';
 import { addToast } from '@heroui/toast';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
@@ -18,8 +18,7 @@ import { TransactionType } from '@/types/enums/transactionType';
 
 export const CategoryForm = () => {
   const t = useTranslations();
-  const { onOpenChange, isOpen } = useDisclosure();
-  const { categoryFormData, closeCategoryForm } = useCategoryForm();
+  const { categoryFormData, clearForm, isOpen, onOpenChange } = useCategoryForm();
   const { refetchAll } = useCategories();
   const [createdCategory, setCreatedCategory] = useState<CategoryResponse | null>(null);
   const [editedCategory, setEditedCategory] = useState<CategoryResponse | null>(null);
@@ -31,18 +30,18 @@ export const CategoryForm = () => {
     if (createdCategory) {
       addToast({ title: t('CategoryForm.createdSuccess', { id: createdCategory.id }), color: 'success' });
       setCreatedCategory(null);
-      closeCategoryForm();
+      clearForm();
       setProcessing(false);
       setColor('');
     } else if (editedCategory) {
       addToast({ title: t('CategoryForm.editedSuccess', { id: editedCategory.id }), color: 'success' });
       setEditedCategory(null);
-      closeCategoryForm();
+      clearForm();
       setProcessing(false);
       setColor('');
       refetchAll();
     }
-  }, [closeCategoryForm, createdCategory, editedCategory, addToast, refetchAll, t]);
+  }, [clearForm, createdCategory, editedCategory, addToast, refetchAll, t]);
 
   useEffect(() => {
     if (categoryFormData) {
@@ -82,14 +81,14 @@ export const CategoryForm = () => {
       setCreatedCategory(null);
       setEditedCategory(null);
       setProcessing(false);
-      closeCategoryForm();
+      clearForm();
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <Modal backdrop="blur" isOpen={isOpen} onOpenChange={onOpenChange}>
+    <Modal backdrop="blur" isOpen={isOpen} onOpenChange={onOpenChange} size="lg">
       <ModalContent>
         {(onClose) => (
           <>
@@ -108,35 +107,28 @@ export const CategoryForm = () => {
                 <div>
                   <TransactionTypeSelector initialValue={type} onSelect={setType} hideTransfers />
                 </div>
-                <Input
-                  id="name"
-                  name="name"
-                  fullWidth
-                  isRequired
-                  labelPlacement="outside-top"
-                  startContent={
+                <div className="flex w-full items-center justify-center gap-3">
+                  <div className="w-1/3">
                     <IconPickerFormField id="iconName" name="iconName" initialValue={categoryFormData?.iconName} />
-                  }
-                  label={t('CategoryForm.name')}
-                  defaultValue={categoryFormData?.name}
-                />
-                <div className="flex gap-2">
-                  <ColorPicker color={color} onChange={setColor} />
-                  <div className="hidden">
+                  </div>
+                  <div className="w-3/6">
                     <Input
-                      id="color"
-                      name="color"
+                      id="name"
+                      name="name"
                       fullWidth
                       isRequired
                       labelPlacement="outside-top"
-                      label={t('Generics.description')}
-                      value={color}
-                      onChange={(e) => setColor(e.target.value)}
+                      label={t('CategoryForm.name')}
+                      defaultValue={categoryFormData?.name}
                     />
+                  </div>
+                  <ColorPicker color={color} onChange={setColor} />
+                  <div className="hidden">
+                    <Input id="color" name="color" fullWidth value={color} onChange={(e) => setColor(e.target.value)} />
                   </div>
                 </div>
 
-                <Button onPress={onClose} type="submit" color="primary" isLoading={processing}>
+                <Button onPress={onClose} type="submit" color="primary" isLoading={processing} className="my-6">
                   {categoryFormData ? t('Generics.edit') : t('Generics.save')}
                 </Button>
               </form>
