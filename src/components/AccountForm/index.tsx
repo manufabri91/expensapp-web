@@ -87,6 +87,7 @@ export const AccountForm = () => {
                   </div>
                 )}
                 <Input
+                  size="lg"
                   type="text"
                   id="name"
                   name="name"
@@ -97,6 +98,7 @@ export const AccountForm = () => {
                   fullWidth
                 />
                 <Select
+                  size="lg"
                   labelPlacement="outside"
                   label={t('AccountForm.currency')}
                   id="currency"
@@ -111,6 +113,7 @@ export const AccountForm = () => {
                   ))}
                 </Select>
                 <NumberInput
+                  size="lg"
                   id="initialBalance"
                   name="initialBalance"
                   label={t('AccountForm.initialBalance')}

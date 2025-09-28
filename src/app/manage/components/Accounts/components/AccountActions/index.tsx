@@ -12,6 +12,7 @@ export const AccountActions = () => {
     <div>
       <Button
         color="primary"
+        size="sm"
         onPress={() => {
           showAccountForm();
         }}

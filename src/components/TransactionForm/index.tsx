@@ -173,6 +173,7 @@ export const TransactionForm = () => {
                     }
                   }
                   inputMode="decimal"
+                  size="lg"
                   hideStepper
                   label={t('Generics.amount')}
                   id="amount"
@@ -196,6 +197,7 @@ export const TransactionForm = () => {
                 {selectedType !== TransactionType.TRANSFER && (
                   <>
                     <Select
+                      size="lg"
                       label={t('Generics.account')}
                       id="account"
                       name="account"
@@ -210,6 +212,7 @@ export const TransactionForm = () => {
                       ))}
                     </Select>
                     <Input
+                      size="lg"
                       id="description"
                       name="description"
                       fullWidth
@@ -223,6 +226,7 @@ export const TransactionForm = () => {
                 {selectedType === TransactionType.TRANSFER && (
                   <>
                     <Select
+                      size="lg"
                       label={t('Generics.account')}
                       id="account"
                       name="account"
@@ -242,6 +246,7 @@ export const TransactionForm = () => {
                       ))}
                     </Select>
                     <Select
+                      size="lg"
                       label={t('TransactionForm.destinationAccount')}
                       id="destinationAccount"
                       name="destinationAccount"
@@ -262,6 +267,7 @@ export const TransactionForm = () => {
                 )}
 
                 <DatePicker
+                  size="lg"
                   id="eventDate"
                   name="eventDate"
                   granularity="day"
@@ -278,6 +284,7 @@ export const TransactionForm = () => {
                 {selectedType !== TransactionType.TRANSFER && (
                   <>
                     <Select
+                      size="lg"
                       label={t('Generics.category')}
                       id="category"
                       name="category"
@@ -297,6 +304,7 @@ export const TransactionForm = () => {
                     </Select>
 
                     <Select
+                      size="lg"
                       label={t('Generics.subcategory')}
                       id="subcategory"
                       name="subcategory"

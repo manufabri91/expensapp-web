@@ -52,11 +52,35 @@ export const AccountsDetailsContent = ({ accounts }: Props) => {
   };
 
   return (
-    <div className="mt-4 flex gap-6">
+    <div className="mt-4 flex flex-col gap-6 sm:flex-row">
       {accounts.map((account) => (
         <Card key={account.id}>
-          <CardHeader>
+          <CardHeader className="flex justify-between">
             <h3 className="text-lg font-semibold">{account.name}</h3>
+            <div className="flex flex-row justify-evenly gap-4 sm:hidden">
+              {!(isEditing === account.id) && (
+                <Button color="secondary" onPress={() => editHandler(account)} size="sm" title={t('Generics.edit')}>
+                  <HiPencil className="mr-1 size-5" aria-label="" />
+                  <span className="hidden md:block">{t('Generics.edit')}</span>
+                </Button>
+              )}
+              {isEditing === account.id && (
+                <Button isLoading color="secondary" size="sm" title={t('Generics.editing')}>
+                  <span className="hidden md:block">{t('Generics.editing')}</span>
+                </Button>
+              )}
+              {!(isDeleting === account.id) && (
+                <Button color="danger" onPress={() => deleteHandler(account)} size="sm" title={t('Generics.delete')}>
+                  <HiTrash className="mr-1 size-5" aria-label="" />
+                  <span className="hidden md:block">{t('Generics.delete')}</span>
+                </Button>
+              )}
+              {isDeleting === account.id && (
+                <Button isLoading color="danger" size="sm" title={t('Generics.deleting')}>
+                  <span className="hidden md:block">{t('Generics.deleting')}</span>
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardBody>
             <div className="flex justify-center text-center">
@@ -64,39 +88,39 @@ export const AccountsDetailsContent = ({ accounts }: Props) => {
             </div>
           </CardBody>
           <CardFooter>
-            <div className="flex flex-row justify-evenly gap-4">
+            <div className="hidden w-full flex-row justify-evenly gap-4 sm:flex">
               {!(isEditing === account.id) && (
                 <Button
-                  className="min-w-28"
+                  className="md:min-w-28"
                   color="secondary"
                   onPress={() => editHandler(account)}
                   size="sm"
                   title={t('Generics.edit')}
                 >
                   <HiPencil className="mr-1 size-5" aria-label="" />
-                  <span>{t('Generics.edit')}</span>
+                  <span className="hidden md:block">{t('Generics.edit')}</span>
                 </Button>
               )}
               {isEditing === account.id && (
                 <Button isLoading color="secondary" size="sm" title={t('Generics.editing')}>
-                  <span>{t('Generics.editing')}</span>
+                  <span className="hidden md:block">{t('Generics.editing')}</span>
                 </Button>
               )}
               {!(isDeleting === account.id) && (
                 <Button
-                  className="min-w-28"
+                  className="md:min-w-28"
                   color="danger"
                   onPress={() => deleteHandler(account)}
                   size="sm"
                   title={t('Generics.delete')}
                 >
                   <HiTrash className="mr-1 size-5" aria-label="" />
-                  <span>{t('Generics.delete')}</span>
+                  <span className="hidden md:block">{t('Generics.delete')}</span>
                 </Button>
               )}
               {isDeleting === account.id && (
                 <Button isLoading color="danger" size="sm" title={t('Generics.deleting')}>
-                  <span>{t('Generics.deleting')}</span>
+                  <span className="hidden md:block">{t('Generics.deleting')}</span>
                 </Button>
               )}
             </div>

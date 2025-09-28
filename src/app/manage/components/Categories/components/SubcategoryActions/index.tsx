@@ -74,6 +74,7 @@ export const DeleteSubcategoryButton = ({ subcategoryId }: { subcategoryId: numb
   return (
     <Button
       color="danger"
+      size="sm"
       onPress={() => {
         deleteHandler();
       }}

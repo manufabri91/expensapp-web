@@ -5,7 +5,7 @@ import { getTranslations } from 'next-intl/server';
 export const Features = async () => {
   const t = await getTranslations('HomePage.features');
   return (
-    <section className="bg-stone-100 py-8 dark:bg-slate-950">
+    <section className="bg-stone-100 px-2 py-8 dark:bg-slate-950">
       <div className="container m-8 mx-auto max-w-5xl">
         <h2 className="my-2 w-full text-center text-5xl leading-tight font-bold text-gray-800 dark:text-stone-100">
           {t('title')}
@@ -23,7 +23,7 @@ export const Features = async () => {
           </div>
         </div>
 
-        <Divider className="mx-8 my-0 sm:hidden" />
+        <Divider className="my-0 px-8 sm:hidden" />
         <div className="flex w-full flex-col-reverse flex-wrap sm:flex-row">
           <div className="relative mt-6 hidden w-full flex-1 p-6 sm:block sm:h-96 sm:w-1/3">
             <Image title={t('2.imageTitle')} src="/images/goals.svg" className="object-contain" fill alt="" />

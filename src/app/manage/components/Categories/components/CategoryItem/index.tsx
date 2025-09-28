@@ -23,7 +23,7 @@ export const CategoryItem = ({ category }: CategoryItemProps) => {
       <div className="flex justify-between p-4">
         <div className="flex items-center gap-2">
           <Icon className="mr-1 size-6" color={category.color ?? undefined} />
-          {category.name}
+          <span>{category.name}</span>
         </div>
         <div className="flex gap-2">
           <EditCategoryButton category={category} />

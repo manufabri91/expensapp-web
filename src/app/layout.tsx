@@ -14,7 +14,7 @@ import { Providers } from './providers';
 export const viewport: Viewport = {
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: 'black' },
+    { media: '(prefers-color-scheme: dark)', color: '#1f2937' },
   ],
 };
 
@@ -52,7 +52,7 @@ export default async function RootLayout({ children }: PropsWithChildren) {
       >
         <NextIntlClientProvider>
           <Providers themeProps={{ attribute: 'class', enableSystem: true }}>
-            <div className="relative flex h-screen flex-col">
+            <div className="relative flex h-screen w-screen flex-col">
               <Navbar />
               <AppProviders>
                 <main className="container-full flex-grow">{children}</main>

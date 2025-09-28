@@ -69,6 +69,7 @@ export const SubcategoryForm = () => {
                   </div>
                 )}
                 <Input
+                  size="lg"
                   id="name"
                   name="name"
                   fullWidth
@@ -78,6 +79,7 @@ export const SubcategoryForm = () => {
                   defaultValue={trySystemTranslation(subcategoryFormData?.name ?? '')}
                 />
                 <Select
+                  size="lg"
                   label={t('SubcategoryForm.belongsTo')}
                   id="parentCategoryId"
                   name="parentCategoryId"

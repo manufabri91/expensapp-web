@@ -113,6 +113,7 @@ export const CategoryForm = () => {
                   </div>
                   <div className="w-3/6">
                     <Input
+                      size="lg"
                       id="name"
                       name="name"
                       fullWidth

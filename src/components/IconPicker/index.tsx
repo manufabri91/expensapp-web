@@ -25,6 +25,7 @@ export const IconPickerFormField: FC<Props> = ({ id, name = 'iconName', initialV
 
   return (
     <Select
+      size="lg"
       label={label ?? 'Icon'}
       placeholder={t('noIcon')}
       labelPlacement="outside"

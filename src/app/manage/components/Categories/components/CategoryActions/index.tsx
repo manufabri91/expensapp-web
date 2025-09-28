@@ -18,7 +18,7 @@ export const CreateCategoryButton = () => {
 
   return (
     <div>
-      <Button color="primary" onPress={handleClick}>
+      <Button size="sm" color="primary" onPress={handleClick}>
         <HiPlus className="mr-1 size-5" />
         {t('new.female')}
       </Button>

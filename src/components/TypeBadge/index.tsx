@@ -29,8 +29,8 @@ export const TypeBadge = ({ type, size }: Props) => {
   const t = useTranslations('Generics');
   const { color, icon: Icon } = getConfig(type);
   return (
-    <Chip size={size} color={color} startContent={<Icon className="h-4 w-4" />}>
-      {t(`${type.toLowerCase()}.plural`)}
+    <Chip size={size} color={color} startContent={<Icon className="size-6 sm:size-4" />}>
+      <span className="hidden sm:block">{t(`${type.toLowerCase()}.plural`)}</span>
     </Chip>
   );
 };

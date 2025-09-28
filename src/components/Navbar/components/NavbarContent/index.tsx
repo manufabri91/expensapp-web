@@ -60,7 +60,7 @@ export const NavbarContent = ({ session }: Props) => {
               <Image src="/images/logo.png" className="object-cover" alt="" fill />
             </div>
 
-            <span className="font-brand hidden self-center text-3xl font-semibold whitespace-nowrap sm:block dark:text-white">
+            <span className="font-brand self-center text-3xl font-semibold whitespace-nowrap dark:text-white">
               e-<span className="text-[#2acfb9]">X</span>pens
             </span>
           </NextLink>
@@ -87,9 +87,11 @@ export const NavbarContent = ({ session }: Props) => {
         )}
       </HeroUINavbarContent>
       <HeroUINavbarContent className="hidden basis-1/5 sm:flex sm:basis-full" justify="end">
-        <NavbarItem className="hidden gap-2 sm:flex">
-          <LocaleSwitcher />
-        </NavbarItem>
+        {!session && (
+          <NavbarItem className="hidden gap-2 sm:flex">
+            <LocaleSwitcher />
+          </NavbarItem>
+        )}
         <NavbarItem className="hidden md:flex">
           <LoginButtons session={session} />
         </NavbarItem>
@@ -132,10 +134,46 @@ export const NavbarContent = ({ session }: Props) => {
         <SettingsDrawer open={isOpen} onClose={onOpenChange} />
       </HeroUINavbarContent>
 
-      <HeroUINavbarContent className="basis-1 pl-4 sm:hidden" justify="end">
-        <LocaleSwitcher />
+      <HeroUINavbarContent className="gap-1 sm:hidden" justify="end">
+        {!session && <LocaleSwitcher />}
         <LoginButtons session={session} />
-        {session && <NavbarMenuToggle />}
+        {session && (
+          <Dropdown placement="bottom-end">
+            <DropdownTrigger>
+              <Avatar
+                isBordered
+                as="button"
+                className="transition-transform"
+                color="primary"
+                name={`${session.user.firstName.charAt(0)}${session.user.lastName.charAt(0)}`}
+                size="sm"
+                src={session.user.imageUrl ?? undefined}
+              />
+            </DropdownTrigger>
+            <DropdownMenu aria-label="Profile Actions" color="primary" variant="shadow" onAction={menuActionHandler}>
+              <DropdownSection showDivider>
+                <DropdownItem key="profile" className="h-14 gap-2" isReadOnly>
+                  <p className="font-semibold">Signed in as</p>
+                  <p className="font-semibold">{session.user.email}</p>
+                </DropdownItem>
+              </DropdownSection>
+              <DropdownItem key="settings" startContent={<HiCog size={24} />} onPress={onOpen}>
+                {t('settings')}
+              </DropdownItem>
+              <DropdownItem key="configurations" startContent={<HiOutlineUser size={24} />}>
+                {t('userAccountSettings')}
+              </DropdownItem>
+              <DropdownItem
+                key="logout"
+                color="danger"
+                startContent={<HiOutlineArrowRightStartOnRectangle size={24} />}
+              >
+                {t('signOut')}
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+        )}
+        {session && <NavbarMenuToggle className="ml-6" />}
       </HeroUINavbarContent>
 
       <NavbarMenu>
