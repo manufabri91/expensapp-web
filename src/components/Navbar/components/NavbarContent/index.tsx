@@ -60,7 +60,13 @@ export const NavbarContent = ({ session }: Props) => {
               <Image src="/images/logo.png" className="object-cover" alt="" fill />
             </div>
 
-            <span className="font-brand self-center text-3xl font-semibold whitespace-nowrap dark:text-white">
+            <span
+              className={clsx({
+                'font-brand self-center text-3xl font-semibold whitespace-nowrap dark:text-white': true,
+                'hidden sm:block': !session,
+                block: session,
+              })}
+            >
               e-<span className="text-[#2acfb9]">X</span>pens
             </span>
           </NextLink>

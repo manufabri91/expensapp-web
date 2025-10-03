@@ -14,6 +14,7 @@ interface CategoriesContextProps {
   deleteCategory: (id: number) => void;
   deleteSubcategory: (id: number) => void;
   refetchAll: () => Promise<void>;
+  getSubcategoriesByCategoryId: (categoryId: number) => SubCategoryResponse[];
 }
 
 const CategoriesContext = createContext<CategoriesContextProps>({
@@ -24,6 +25,7 @@ const CategoriesContext = createContext<CategoriesContextProps>({
   deleteCategory: () => {},
   deleteSubcategory: () => {},
   refetchAll: async () => {},
+  getSubcategoriesByCategoryId: () => [],
 });
 
 const useCategories = (): CategoriesContextProps => {
@@ -66,9 +68,22 @@ const CategoriesProvider: React.FC<{
     setSubcategories(fetchedSubcategories);
   };
 
+  const getSubcategoriesByCategoryId = (categoryId: number): SubCategoryResponse[] => {
+    return subcategories.filter((sub) => sub.parentCategoryId === categoryId);
+  };
+
   return (
     <CategoriesContext.Provider
-      value={{ categories, subcategories, addCategory, addSubcategory, deleteCategory, deleteSubcategory, refetchAll }}
+      value={{
+        categories,
+        subcategories,
+        addCategory,
+        addSubcategory,
+        deleteCategory,
+        deleteSubcategory,
+        refetchAll,
+        getSubcategoriesByCategoryId,
+      }}
     >
       {children}
     </CategoriesContext.Provider>

@@ -60,17 +60,19 @@ export const CategoryForm = () => {
     }
   }, [isOpen]);
 
-  const submitHandler = async (formData: FormData) => {
+  const submitHandler = async (formData: FormData, onSuccessSubmit?: () => void) => {
     setProcessing(true);
     try {
       if (!categoryFormData) {
         const createdCategory = await createCategory(formData);
         await refetchAll();
         setCreatedCategory(createdCategory);
+        if (onSuccessSubmit) onSuccessSubmit();
       } else {
         const updatedAccocreatedCategory = await editCategory(formData);
         await refetchAll();
         setEditedCategory(updatedAccocreatedCategory);
+        if (onSuccessSubmit) onSuccessSubmit();
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -98,7 +100,7 @@ export const CategoryForm = () => {
               </h3>
             </ModalHeader>
             <ModalBody>
-              <form className="flex flex-col gap-4" action={submitHandler}>
+              <form className="flex flex-col gap-4" action={(data) => submitHandler(data, onClose)}>
                 {!!categoryFormData && (
                   <div className="hidden">
                     <Input id="id" name="id" type="text" value={`${categoryFormData?.id}`} readOnly />
@@ -129,7 +131,7 @@ export const CategoryForm = () => {
                   </div>
                 </div>
 
-                <Button onPress={onClose} type="submit" color="primary" isLoading={processing} className="my-6">
+                <Button type="submit" color="primary" isLoading={processing} className="my-6">
                   {categoryFormData ? t('Generics.edit') : t('Generics.save')}
                 </Button>
               </form>

@@ -55,7 +55,7 @@ export const AccountsDetailsContent = ({ accounts }: Props) => {
     <div className="mt-4 flex flex-col gap-6 sm:flex-row">
       {accounts.map((account) => (
         <Card key={account.id}>
-          <CardHeader className="flex justify-between">
+          <CardHeader className="flex justify-between pb-0">
             <h3 className="text-lg font-semibold">{account.name}</h3>
             <div className="flex flex-row justify-evenly gap-4 sm:hidden">
               {!(isEditing === account.id) && (
@@ -83,11 +83,16 @@ export const AccountsDetailsContent = ({ accounts }: Props) => {
             </div>
           </CardHeader>
           <CardBody>
-            <div className="flex justify-center text-center">
-              <Money amount={account.accountBalance} currency={account.currency} locale={locale} className="text-2xl" />
+            <div className="flex items-center justify-center">
+              <Money
+                amount={account.accountBalance}
+                currency={account.currency}
+                locale={locale}
+                className="overflow-hidden text-2xl font-medium"
+              />
             </div>
           </CardBody>
-          <CardFooter>
+          <CardFooter className="pt-0">
             <div className="hidden w-full flex-row justify-evenly gap-4 sm:flex">
               {!(isEditing === account.id) && (
                 <Button

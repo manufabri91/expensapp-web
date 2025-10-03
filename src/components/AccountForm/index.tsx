@@ -45,16 +45,18 @@ export const AccountForm = () => {
     }
   }, [clearForm, createdAccount, editedAccount, addToast, t]);
 
-  const submitHandler = async (formData: FormData) => {
+  const submitHandler = async (formData: FormData, onSuccessSubmit?: () => void) => {
     setProcessing(true);
     try {
       if (!accountFormData) {
         const createdAccount = await createAccount(formData);
         setCreatedAccount(createdAccount);
         addAccount(createdAccount);
+        if (onSuccessSubmit) onSuccessSubmit();
       } else {
         const updatedAccount = await editAccount(formData);
         setEditedAccount(updatedAccount);
+        if (onSuccessSubmit) onSuccessSubmit();
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -80,7 +82,7 @@ export const AccountForm = () => {
               {accountFormData ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.account')}
             </ModalHeader>
             <ModalBody>
-              <form className="flex max-w-md flex-col gap-4" action={submitHandler}>
+              <form className="flex max-w-md flex-col gap-4" action={(data) => submitHandler(data, onClose)}>
                 {!!accountFormData && (
                   <div className="hidden">
                     <Input id="id" name="id" type="text" value={`${accountFormData?.id}`} readOnly />
@@ -126,7 +128,7 @@ export const AccountForm = () => {
                   isRequired
                 />
 
-                <Button onPress={onClose} type="submit" color="primary" isLoading={processing}>
+                <Button type="submit" color="primary" isLoading={processing} disabled={processing}>
                   {accountFormData ? t('Generics.edit') : t('Generics.save')}
                 </Button>
               </form>

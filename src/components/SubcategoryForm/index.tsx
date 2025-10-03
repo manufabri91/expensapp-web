@@ -40,14 +40,16 @@ export const SubcategoryForm = () => {
     }
   }, [addSubcategory, clearForm, createdSubcategory, editedSubcategory, addToast, t]);
 
-  const submitHandler = async (formData: FormData) => {
+  const submitHandler = async (formData: FormData, onSuccessSubmit?: () => void) => {
     setProcessing(true);
     if (isEditMode) {
       const updatedAccocreatedSubcategory = await editSubcategory(formData);
       setEditedSubcategory(updatedAccocreatedSubcategory);
+      if (onSuccessSubmit) onSuccessSubmit();
     } else {
       const createdSubcategory = await createSubcategory(formData);
       setCreatedSubcategory(createdSubcategory);
+      if (onSuccessSubmit) onSuccessSubmit();
     }
   };
 
@@ -62,7 +64,7 @@ export const SubcategoryForm = () => {
               {isEditMode ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.subcategory')}
             </ModalHeader>
             <ModalBody>
-              <form className="flex flex-col gap-4" action={submitHandler}>
+              <form className="flex flex-col gap-4" action={(formData) => submitHandler(formData, onClose)}>
                 {isEditMode && (
                   <div className="hidden">
                     <Input id="id" name="id" type="text" value={`${subcategoryFormData?.id}`} readOnly />
@@ -97,7 +99,7 @@ export const SubcategoryForm = () => {
                   ))}
                 </Select>
 
-                <Button onPress={onClose} type="submit" color="primary" isLoading={processing}>
+                <Button type="submit" color="primary" isLoading={processing}>
                   {isEditMode ? t('Generics.edit') : t('Generics.save')}
                 </Button>
               </form>

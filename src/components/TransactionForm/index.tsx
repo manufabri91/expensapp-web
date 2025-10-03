@@ -126,9 +126,11 @@ export const TransactionForm = () => {
       if (!transactionFormData) {
         const createdTx = await createTransaction(formData);
         setCreatedTransaction(createdTx);
+        if (cb) cb();
       } else {
         const updatedTx = await editTransaction(formData);
         setEditedTransaction(updatedTx);
+        if (cb) cb();
       }
     } catch (error) {
       if (error instanceof Error) {

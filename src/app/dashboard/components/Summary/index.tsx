@@ -31,27 +31,27 @@ export const Summary = async () => {
       <div>
         <div className="flex w-full flex-col justify-center gap-4 md:flex md:flex-row md:flex-wrap">
           {summaries.map((currencySummary) => (
-            <Card key={currencySummary.currency} className="p-4 md:min-w-[300px]">
+            <Card key={currencySummary.currency} className="md:min-w-[300px]">
               <CardBody>
-                <div className="flex w-fit flex-col items-center justify-between self-center">
+                <div className="flex h-fit w-fit flex-col items-center justify-between self-center">
                   <h3 className="text-lg font-semibold text-nowrap">
                     {t('Dashboard.summary.balance.title', {
                       currencyCode: t(`Generics.currencies.${currencySummary.currency}.plural`),
                     })}
                   </h3>
-                  <div className="w-fit">
+                  <div className="mt-2 w-fit justify-items-center">
                     <Money
                       locale={locale}
                       amount={currencySummary.totalBalance}
                       currency={currencySummary.currency}
-                      className="text-2xl font-bold"
+                      className="h-min overflow-hidden text-2xl font-bold"
                       warnIfZero
                     />
                     <div className="flex items-center justify-end gap-2">
                       <Money
                         locale={locale}
                         amount={currencySummary.incomes + currencySummary.expenses}
-                        className="text-sm font-medium"
+                        className="overflow-hidden text-sm font-medium"
                         warnIfZero
                       />
                       <TrendIcon amount={currencySummary.incomes + currencySummary.expenses} />
@@ -62,14 +62,14 @@ export const Summary = async () => {
                 <div className="relative">
                   <Divider className="my-3" />
                 </div>
-                <div>
+                <div className="mt-1 flex flex-col">
                   <div className="flex justify-between">
                     <span className="mr-1">{t('Generics.income.plural')}:</span>
                     <Money
                       amount={currencySummary.incomes}
                       currency={currencySummary.currency}
                       locale={locale}
-                      className="text-base"
+                      className="overflow-hidden text-base"
                     />
                   </div>
                   <div className="flex justify-between">
@@ -78,7 +78,7 @@ export const Summary = async () => {
                       amount={currencySummary.expenses}
                       currency={currencySummary.currency}
                       locale={locale}
-                      className="text-base"
+                      className="overflow-hidden text-base"
                     />
                   </div>
                 </div>
@@ -95,7 +95,7 @@ export const Summary = async () => {
           <div>
             <div className="col-auto grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
               {categorySummaries.map((categorySummary) => (
-                <Card key={categorySummary.id} className="p-4">
+                <Card key={categorySummary.id}>
                   <CardBody>
                     <div className="flex h-full flex-col justify-start">
                       <div className="flex items-baseline justify-between">
@@ -108,7 +108,7 @@ export const Summary = async () => {
                               key={currency}
                               amount={total}
                               currency={currency}
-                              className="text-base font-semibold"
+                              className="overflow-hidden text-base font-semibold"
                             />
                           ))}
                         </div>
@@ -129,7 +129,7 @@ export const Summary = async () => {
                                   amount={subtotal}
                                   currency={currency}
                                   locale={locale}
-                                  className="text-base"
+                                  className="overflow-hidden text-base"
                                 />
                               ))}
                             </div>

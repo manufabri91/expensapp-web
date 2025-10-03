@@ -15,19 +15,18 @@ const getColor = (amount: number, warnIfZero = false) => {
 };
 
 export const Money = ({ amount, currency, locale, warnIfZero, className }: Props) => {
-  // TODO: Use clsx to conditionally apply classes
-  // TODO: Format the amount with the currency
-
   return (
-    <NumberFlow
-      locales={locale}
-      className={`${getColor(amount, warnIfZero)} ${className}`}
-      value={amount}
-      format={
-        currency
-          ? { style: 'currency', currency, trailingZeroDisplay: 'stripIfInteger' }
-          : { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2, signDisplay: 'exceptZero' }
-      }
-    />
+    <div className={className}>
+      <NumberFlow
+        locales={locale}
+        className={`${getColor(amount, warnIfZero)} ${className}`}
+        value={amount}
+        format={
+          currency
+            ? { style: 'currency', currency, trailingZeroDisplay: 'stripIfInteger' }
+            : { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2, signDisplay: 'exceptZero' }
+        }
+      />
+    </div>
   );
 };

@@ -1,32 +1,22 @@
-'use client';
-
 import { Card, CardBody, CardHeader } from '@heroui/card';
-import { Spinner } from '@heroui/spinner';
 import { useTranslations } from 'next-intl';
-import useSWR from 'swr';
 import {
   CreateSubcategoryButton,
   DeleteSubcategoryButton,
   EditSubcategoryButton,
 } from '@/app/manage/components/Categories/components/SubcategoryActions';
 import { SYSTEM_TRANSLATION_KEYS } from '@/constants';
-import { getSubcategoriesByParentCategoryId } from '@/lib/actions/subcategories';
+import { useCategories } from '@/lib/providers/CategoriesProvider';
 
 interface Props {
   parentCategoryId: number;
 }
 
-const useSubcategories = (parentId: number) => {
-  return useSWR(`/api/category/${parentId}/subcategories`, getSubcategoriesByParentCategoryId);
-};
-
 export const SubcategoriesList = ({ parentCategoryId }: Props) => {
   const t = useTranslations();
-  const { data, isLoading } = useSubcategories(parentCategoryId);
+  const { getSubcategoriesByCategoryId } = useCategories();
 
-  if (!data && isLoading) {
-    return <Spinner className="my-4 p-4" />;
-  }
+  const data = getSubcategoriesByCategoryId(parentCategoryId);
 
   return (
     <Card className="my-4">
