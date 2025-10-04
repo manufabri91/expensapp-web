@@ -96,7 +96,7 @@
     }
   },
   "Navbar": {
-    "settings": "Setting",
+    "settings": "Settings",
     "userAccountSettings": "User account settings",
     "signOut": "Sign Out",
     "links": {
@@ -234,6 +234,19 @@
       "SERVICE_UNAVAILABLE": "Service unavailable. Please retry",
       "WRONG_CREDENTIALS": "User or password isn't correct",
       "LOGIN_FAILED": "Failed to login. Please retry"
+    },
+    "themeSelector": {
+      "systemMode": "Same as system",
+      "lightMode": "Light",
+      "darkMode": "Dark",
+      "label": "Theme"
     }
+  },
+  "Settings": {
+    "title": "Settings"
+  },
+  "Transactions": {
+    "title": "Transactions",
+    "noTransactions": "No transactions with current filters"
   }
 }

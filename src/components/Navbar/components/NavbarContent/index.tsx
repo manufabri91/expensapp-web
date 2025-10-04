@@ -13,11 +13,11 @@ import {
   NavbarMenuItem,
   NavbarMenuToggle,
 } from '@heroui/navbar';
-import { link as linkStyles } from '@heroui/theme';
 import clsx from 'clsx';
 
 import Image from 'next/image';
 import NextLink from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Session } from 'next-auth';
 import { useTranslations } from 'next-intl';
 import { Key } from 'react';
@@ -40,6 +40,7 @@ const AUTHORIZED_LINKS = [
 export const NavbarContent = ({ session }: Props) => {
   const t = useTranslations('Navbar');
   const { onOpen, isOpen, onOpenChange } = useDisclosure();
+  const pathname = usePathname();
 
   const menuActionHandler = (key: Key) => {
     const actionMappings = {
@@ -74,19 +75,12 @@ export const NavbarContent = ({ session }: Props) => {
       </HeroUINavbarContent>
       <HeroUINavbarContent justify="center">
         {session && (
-          <ul className="ml-2 hidden justify-start gap-4 lg:flex">
+          <ul className="ml-2 hidden justify-start gap-6 lg:flex">
             {AUTHORIZED_LINKS.map((link) => (
-              <NavbarItem key={link.id}>
-                <NextLink
-                  className={clsx(
-                    linkStyles({ color: 'foreground' }),
-                    'data-[active=true]:text-primary data-[active=true]:font-medium'
-                  )}
-                  color="foreground"
-                  href={link.href}
-                >
+              <NavbarItem key={link.id} isActive={link.href === pathname}>
+                <Link as={NextLink} href={link.href}>
                   {t(`links.${link.id}`)}
-                </NextLink>
+                </Link>
               </NavbarItem>
             ))}
           </ul>

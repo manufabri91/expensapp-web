@@ -118,7 +118,7 @@ const config = {
             default: { ...purple, DEFAULT: green[400], foreground: base[900] },
             primary: {
               ...green,
-              DEFAULT: green[500],
+              DEFAULT: green[700],
               foreground: green[50],
             },
             secondary: {

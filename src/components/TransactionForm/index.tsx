@@ -11,6 +11,7 @@ import { fromDate, getLocalTimeZone } from '@internationalized/date';
 import { formatISO, parseISO } from 'date-fns';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
+import { useSWRConfig } from 'swr';
 import { Button } from '@/components';
 import { useTransactionForm } from '@/components/TransactionForm/TransactionFormProvider';
 import { TransactionTypeSelector } from '@/components/TransactionTypeSelector';
@@ -22,6 +23,7 @@ import { SubCategoryResponse, TransactionResponse } from '@/types/dto';
 import { TransactionType } from '@/types/enums/transactionType';
 
 export const TransactionForm = () => {
+  const { mutate } = useSWRConfig();
   const t = useTranslations();
   const trySystemTranslations = useTrySystemTranslations();
   const { onOpenChange, isOpen } = useTransactionForm();
@@ -37,6 +39,9 @@ export const TransactionForm = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedAccount, setSelectedAccount] = useState<number>(accounts[0]?.id);
   const [selectedType, setSelectedType] = useState<TransactionType>(TransactionType.EXPENSE);
+
+  const revalidateTransactions = () =>
+    mutate((key) => typeof key === 'string' && key.startsWith('/api/transaction'), undefined, { revalidate: true });
 
   const restoreFormState = useCallback(() => {
     setProcessing(false);
@@ -76,11 +81,13 @@ export const TransactionForm = () => {
       setCreatedTransaction(null);
       clearForm();
       restoreFormState();
+      revalidateTransactions();
     } else if (editedTransaction) {
       addToast({ title: t('TransactionForm.editedSuccess', { id: editedTransaction.id }), color: 'success' });
       setEditedTransaction(null);
       clearForm();
       restoreFormState();
+      revalidateTransactions();
     }
   }, [accounts, clearForm, createdTransaction, editedTransaction, restoreFormState, addToast, t]);
 

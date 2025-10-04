@@ -1,9 +1,8 @@
 import { getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
-import { LatestTransactions } from '@/app/dashboard/components/LatestTransactions';
 import { Summary } from '@/app/dashboard/components/Summary';
 import LoadingSummary from '@/app/dashboard/components/Summary/loading';
-import { ListSkeleton } from '@/components';
+import { TransactionsTable } from '@/components';
 import { AccountFormProvider } from '@/components/AccountForm/AccountFormProvider';
 import { TransactionFormProvider } from '@/components/TransactionForm/TransactionFormProvider';
 import { TransactionsFiltersProvider } from '@/lib/providers/TransactionFiltersProvider';
@@ -34,9 +33,7 @@ const Dashboard = async () => {
             <h3 className="mt-8 text-xl font-semibold text-gray-800 md:mt-16 dark:text-gray-100">
               {t('latestTransactions')}
             </h3>
-            <Suspense fallback={<ListSkeleton className="mt-4" rows={3} cols={7} />}>
-              <LatestTransactions />
-            </Suspense>
+            <TransactionsTable showPagination />
           </main>
         </AccountFormProvider>
       </TransactionFormProvider>

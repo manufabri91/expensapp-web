@@ -234,6 +234,19 @@
       "SERVICE_UNAVAILABLE": "Servicio no disponible. Por favor, vuelve a intentarlo",
       "WRONG_CREDENTIALS": "Usuario o contraseña incorrecto",
       "LOGIN_FAILED": "No se pudo iniciar sesión. Por favor, vuelve a intentarlo"
+    },
+    "themeSelector": {
+      "systemMode": "Igual al sistema",
+      "lightMode": "Claro",
+      "darkMode": "Oscuro",
+      "label": "Tema"
     }
+  },
+  "Settings": {
+    "title": "Ajustes"
+  },
+  "Transactions": {
+    "title": "Transacciones",
+    "noTransactions": "No hay transacciones con los filtros actuales"
   }
 }

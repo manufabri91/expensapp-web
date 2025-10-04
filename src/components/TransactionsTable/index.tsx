@@ -5,7 +5,7 @@ import { Spinner } from '@heroui/spinner';
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@heroui/table';
 import { addToast } from '@heroui/toast';
 import { Tooltip } from '@heroui/tooltip';
-import { formatISO, parseISO } from 'date-fns';
+import { parseISO } from 'date-fns';
 import { useFormatter, useLocale, useTranslations } from 'next-intl';
 import React, { useEffect, useState } from 'react';
 import { HiPencil, HiPlus, HiTrash } from 'react-icons/hi2';
@@ -19,18 +19,12 @@ import { deleteTransactionById, getTransactions } from '@/lib/actions/transactio
 import { useTransactionsFilters } from '@/lib/providers/TransactionFiltersProvider';
 import { TransactionResponse } from '@/types/dto';
 import { ActionResult } from '@/types/viewModel/actionResult';
-import { TransactionFilters } from '@/types/viewModel/transactionFilters';
+import { TransactionFilters, transactionFiltersToQueryParams } from '@/types/viewModel/transactionFilters';
 
 const useTransactions = (filters: TransactionFilters) => {
-  const queryParams = `?${new URLSearchParams({
-    page: String(filters.currentPage - 1),
-    size: String(filters.size ?? 10),
-    sort: `${filters.sortBy},${filters.ascending ? 'asc' : 'desc'}`,
-    fromDate: formatISO(filters.fromDate),
-    toDate: formatISO(filters.toDate),
-  }).toString()}`;
+  const queryParams = transactionFiltersToQueryParams(filters);
 
-  return useSWR(`/api/transaction${queryParams}&sort=id,desc`, getTransactions);
+  return useSWR(`/api/transaction${queryParams}`, getTransactions);
 };
 
 interface Props {
@@ -41,7 +35,7 @@ interface Props {
 
 export const TransactionsTable = ({ showPagination = false, noTransactionsMessage }: Props) => {
   const { filters, patchFilters } = useTransactionsFilters();
-  const { data, isLoading } = useTransactions(filters);
+  const { data, isLoading, mutate } = useTransactions(filters);
   const t = useTranslations();
   const format = useFormatter();
   const locale = useLocale();
@@ -79,6 +73,7 @@ export const TransactionsTable = ({ showPagination = false, noTransactionsMessag
       const result = await deleteTransactionById(tx.id);
       setChangedTransaction(result);
       addToast({ title: t('TransactionForm.deletedSuccess', { id: tx.id }), color: 'success' });
+      mutate();
     } catch (error) {
       if (error instanceof Error) {
         addToast({ title: error.message, color: 'danger' });
@@ -101,6 +96,7 @@ export const TransactionsTable = ({ showPagination = false, noTransactionsMessag
 
   return (
     <Table
+      className="mt-4"
       aria-label={t('Generics.transaction.plural')}
       topContent={
         <Button
