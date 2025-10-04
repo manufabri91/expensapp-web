@@ -1,13 +1,13 @@
 'use server';
 
-import { headers as nextHeaders } from 'next/headers';
-import { TransactionRequest, TransactionResponse } from '@/types/dto';
-import { revalidatePath, unstable_noStore } from 'next/cache';
-import { getBaseUrl } from '@/lib/utils/url';
 import { formatISO } from 'date-fns';
+import { revalidatePath, unstable_noStore } from 'next/cache';
+import { headers as nextHeaders } from 'next/headers';
+import { getBaseUrl } from '@/lib/utils/url';
+import { TransactionRequest, TransactionResponse } from '@/types/dto';
+import { PagedResponse } from '@/types/dto/pageable';
 import { TransactionType } from '@/types/enums/transactionType';
 import { ActionResult } from '@/types/viewModel/actionResult';
-import { PagedResponse } from '@/types/dto/pageable';
 
 // TODO: remove this once BE ignores time (TX will care only about date)
 const parseEventDate = (eventDate: Date | null): string | null => {
@@ -17,25 +17,11 @@ const parseEventDate = (eventDate: Date | null): string | null => {
   return formatISO(utcDate);
 };
 
-export const getTransactions = async (pageConfig?: {
-  page: number;
-  pageSize: number;
-  sortBy: string;
-  ascending: boolean;
-}): Promise<PagedResponse<TransactionResponse>> => {
+export const getTransactions = async (url: string): Promise<PagedResponse<TransactionResponse>> => {
   const baseUrl = await getBaseUrl();
   const cookie = (await nextHeaders()).get('cookie')!;
-  let queryParams = '';
-  if (pageConfig) {
-    queryParams = `?${new URLSearchParams({
-      page: String(pageConfig.page),
-      size: String(pageConfig.pageSize),
-      sort: pageConfig.sortBy,
-      ascending: String(pageConfig.ascending),
-    }).toString()}`;
-  }
 
-  const response = await fetch(`${baseUrl}/api/transaction${queryParams}`, {
+  const response = await fetch(`${baseUrl}${url}`, {
     headers: {
       cookie,
     },

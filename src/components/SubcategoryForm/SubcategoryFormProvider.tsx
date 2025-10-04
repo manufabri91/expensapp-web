@@ -1,14 +1,17 @@
 'use client';
-import React, { createContext, useContext, useState, ReactNode, useMemo } from 'react';
+import { useDisclosure } from '@heroui/modal';
+import React, { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 
 import { SubcategoryForm } from '@/components/SubcategoryForm';
 import { SubCategoryResponse } from '@/types/dto';
 
 interface SubcategoryFormContextProps {
   isOpen: boolean;
+  onClose: () => void;
+  onOpenChange: () => void;
   showSubcategoryEditForm: (subcategory?: SubCategoryResponse) => void;
   showSubcategoryCreateForm: (parentCategoryId: number) => void;
-  closeSubcategoryForm: () => void;
+  clearForm: () => void;
   subcategoryFormData: SubCategoryResponse | undefined;
 }
 
@@ -16,12 +19,12 @@ const SubcategoryFormContext = createContext<SubcategoryFormContextProps | undef
 
 export const SubcategoryFormProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [subcategoryFormData, setSubcategoryFormData] = useState<SubCategoryResponse | undefined>();
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const { onOpen, isOpen, onOpenChange, onClose } = useDisclosure();
 
   const showSubcategoryCreateForm = useMemo(
     () => (parentCategoryId: number) => {
-      setSubcategoryFormData({ parentCategoryId, name: '', id: 0, parentCategoryName: '' });
-      setIsOpen(true);
+      setSubcategoryFormData({ parentCategoryId, name: '', id: 0, parentCategoryName: '', readonly: false });
+      onOpen();
     },
     [setSubcategoryFormData]
   );
@@ -29,22 +32,30 @@ export const SubcategoryFormProvider: React.FC<{ children: ReactNode }> = ({ chi
   const showSubcategoryEditForm = useMemo(
     () => (category?: SubCategoryResponse) => {
       setSubcategoryFormData(category);
-      setIsOpen(true);
+
+      onOpen();
     },
     [setSubcategoryFormData]
   );
 
-  const closeSubcategoryForm = useMemo(
+  const clearForm = useMemo(
     () => () => {
       setSubcategoryFormData(undefined);
-      setIsOpen(false);
     },
     [setSubcategoryFormData]
   );
 
   return (
     <SubcategoryFormContext.Provider
-      value={{ showSubcategoryCreateForm, showSubcategoryEditForm, closeSubcategoryForm, subcategoryFormData, isOpen }}
+      value={{
+        showSubcategoryCreateForm,
+        showSubcategoryEditForm,
+        clearForm,
+        onClose,
+        onOpenChange,
+        subcategoryFormData,
+        isOpen,
+      }}
     >
       {children}
       <SubcategoryForm />

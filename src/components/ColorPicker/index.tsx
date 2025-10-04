@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useCallback, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import React, { useCallback, useRef, useState } from 'react';
 import { HexColorPicker } from 'react-colorful';
 
+import { Button } from '@/components/Button';
 import useClickOutside from '@/hooks/useClickOutside';
-import { Button, ButtonVariant } from '@/components/Button';
 
 interface ColorPickerProps {
+  label?: string;
   color: string;
   onChange: (color: string) => void;
 }
@@ -27,7 +28,7 @@ const PRESET_COLORS = [
   '#9a2151',
 ];
 
-export const ColorPicker = ({ color, onChange }: ColorPickerProps) => {
+export const ColorPicker = ({ color, onChange, label = 'Color' }: ColorPickerProps) => {
   const t = useTranslations('Generics');
   const popover = useRef<HTMLDivElement>(null);
   const [isOpen, toggle] = useState(false);
@@ -36,64 +37,64 @@ export const ColorPicker = ({ color, onChange }: ColorPickerProps) => {
   useClickOutside(popover, close);
 
   return (
-    <div>
-      <div className="absolute z-20">
+    <>
+      <div className="flex w-min flex-col items-center gap-2">
+        <span className="text-sm">{label}</span>
         <div
+          className="size-10 cursor-pointer rounded-xl border-2 border-stone-800 dark:border-stone-100"
           style={{
             backgroundColor: color,
-            width: '28px',
-            height: '28px',
-            borderRadius: '8px',
-            border: '3px solid #fff',
-            boxShadow: ' 0 0 0 1px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(0, 0, 0, 0.1)',
-            cursor: 'pointer',
+            boxShadow: '0 0 0 1px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(0, 0, 0, 0.1)',
           }}
           onClick={() => toggle(true)}
         />
-
-        {isOpen && (
-          <div
-            className="bg-white dark:bg-slate-500"
-            style={{
-              position: 'absolute',
-              top: 'calc(100% + 2px)',
-              left: '0',
-              borderRadius: '9px',
-              boxShadow: ' 0 6px 12px rgba(0, 0, 0, 0.15)',
-            }}
-            ref={popover}
-          >
-            <HexColorPicker color={color} onChange={onChange} />
-            <div className="grid grid-cols-4 p-3">
-              {PRESET_COLORS.map((presetColor) => (
-                <button
+      </div>
+      {isOpen && (
+        <div className="fixed z-20">
+          <div className="absolute">
+            <div
+              className="dark:bg-brand-purple-800 bg-white"
+              style={{
+                position: 'absolute',
+                top: 'calc(100% + 2px)',
+                left: '0',
+                borderRadius: '9px',
+                boxShadow: ' 0 6px 12px rgba(0, 0, 0, 0.15)',
+              }}
+              ref={popover}
+            >
+              <HexColorPicker color={color} onChange={onChange} />
+              <div className="grid grid-cols-4 p-3">
+                {PRESET_COLORS.map((presetColor) => (
+                  <button
+                    type="button"
+                    key={presetColor}
+                    className="m-1 size-6 rounded-md"
+                    style={{ background: presetColor }}
+                    onClick={() => {
+                      onChange(presetColor);
+                      toggle(false);
+                    }}
+                  />
+                ))}
+              </div>
+              <div className="m-2">
+                <Button
+                  color="primary"
+                  fullWidth
                   type="button"
-                  key={presetColor}
-                  className="m-1 size-6 rounded-md"
-                  style={{ background: presetColor }}
-                  onClick={() => {
-                    onChange(presetColor);
+                  onPress={() => {
+                    onChange('');
                     toggle(false);
                   }}
-                />
-              ))}
-            </div>
-            <div className="m-2">
-              <Button
-                variant={ButtonVariant.Primary}
-                fullSized
-                type="button"
-                onClick={() => {
-                  onChange('');
-                  toggle(false);
-                }}
-              >
-                {t('clear')}
-              </Button>
+                >
+                  {t('clear')}
+                </Button>
+              </div>
             </div>
           </div>
-        )}
-      </div>
-    </div>
+        </div>
+      )}
+    </>
   );
 };

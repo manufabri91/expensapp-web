@@ -10,6 +10,7 @@ declare module 'next-auth' {
     username: string;
     firstName: string;
     lastName: string;
+    imageUrl?: string;
     email: string;
     validatedUser: boolean;
     token: string;

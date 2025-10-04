@@ -1,7 +1,8 @@
 'use client';
 
-import { LinkStyle, LinkType, StyledLink } from '@/components';
 import Image from 'next/image';
+import Link from 'next/link';
+import { Button } from '@/components/Button';
 
 export default function Error() {
   return (
@@ -10,13 +11,13 @@ export default function Error() {
         <Image className="object-contain" src="/images/oh-no.svg" alt="" fill />
       </div>
       <div className="p-12">
-        <h1 className="text-xl uppercase tracking-widest">Whoops! Something wrong happened</h1>
+        <h1 className="text-xl tracking-widest uppercase">Whoops! Something wrong happened</h1>
         <p>It&apos;s likely to be our fault, don&apos;t worry</p>
       </div>
 
-      <StyledLink style={LinkStyle.Button} type={LinkType.Primary} href="/">
+      <Button color="primary" as={Link} href="/">
         Go Back
-      </StyledLink>
+      </Button>
     </main>
   );
 }

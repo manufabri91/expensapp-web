@@ -1,13 +1,16 @@
 'use client';
 
+import { useDisclosure } from '@heroui/modal';
+import React, { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 import { CategoryForm } from '@/components/CategoryForm';
 import { CategoryResponse } from '@/types/dto';
-import React, { createContext, useContext, useState, ReactNode, useMemo } from 'react';
 
 interface CategoryFormContextProps {
   isOpen: boolean;
+  onOpenChange: () => void;
+  onClose: () => void;
   showCategoryForm: (Category?: CategoryResponse) => void;
-  closeCategoryForm: () => void;
+  clearForm: () => void;
   categoryFormData: CategoryResponse | undefined;
 }
 
@@ -15,26 +18,27 @@ const CategoryFormContext = createContext<CategoryFormContextProps | undefined>(
 
 export const CategoryFormProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [categoryFormData, setCategoryFormData] = useState<CategoryResponse | undefined>();
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const { onOpen, isOpen, onOpenChange, onClose } = useDisclosure();
 
   const showCategoryForm = useMemo(
     () => (category?: CategoryResponse) => {
       setCategoryFormData(category);
-      setIsOpen(true);
+      onOpen();
     },
     [setCategoryFormData]
   );
 
-  const closeCategoryForm = useMemo(
+  const clearForm = useMemo(
     () => () => {
       setCategoryFormData(undefined);
-      setIsOpen(false);
     },
     [setCategoryFormData]
   );
 
   return (
-    <CategoryFormContext.Provider value={{ showCategoryForm, closeCategoryForm, categoryFormData, isOpen }}>
+    <CategoryFormContext.Provider
+      value={{ showCategoryForm, clearForm, onClose, categoryFormData, onOpenChange, isOpen }}
+    >
       {children}
       <CategoryForm />
     </CategoryFormContext.Provider>

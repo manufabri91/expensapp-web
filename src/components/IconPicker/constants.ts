@@ -1,4 +1,3 @@
-import { Icon } from '@/types/enums/icon';
 import { IconType } from 'react-icons';
 import {
   LiaBabySolid,
@@ -10,6 +9,7 @@ import {
   LiaCreditCardSolid,
   LiaDollarSignSolid,
   LiaEuroSignSolid,
+  LiaExchangeAltSolid,
   LiaFileInvoiceSolid,
   LiaFutbolSolid,
   LiaGamepadSolid,
@@ -30,9 +30,9 @@ import {
   LiaTicketAltSolid,
   LiaTintSolid,
   LiaTshirtSolid,
-  LiaExchangeAltSolid,
   LiaWifiSolid,
 } from 'react-icons/lia';
+import { Icon } from '@/types/enums/icon';
 
 export const AVAILABLE_ICONS = new Map<Icon, IconType>([
   [Icon.BASKET, LiaShoppingBasketSolid],

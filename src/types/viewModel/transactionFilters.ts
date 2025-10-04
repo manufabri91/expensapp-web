@@ -1,7 +1,9 @@
 export interface TransactionFilters {
-  year: number;
-  month: number;
   currentPage: number;
   totalPages: number;
-  pageSize: number;
+  size: number;
+  sortBy: string;
+  ascending: boolean;
+  fromDate: Date;
+  toDate: Date;
 }

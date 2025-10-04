@@ -1,11 +1,12 @@
+import { getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
-import { ListSkeleton } from '@/components';
-import { TransactionFormProvider } from '@/components/TransactionForm/TransactionFormProvider';
 import { LatestTransactions } from '@/app/dashboard/components/LatestTransactions';
-import { AccountFormProvider } from '@/components/AccountForm/AccountFormProvider';
 import { Summary } from '@/app/dashboard/components/Summary';
 import LoadingSummary from '@/app/dashboard/components/Summary/loading';
-import { getTranslations } from 'next-intl/server';
+import { ListSkeleton } from '@/components';
+import { AccountFormProvider } from '@/components/AccountForm/AccountFormProvider';
+import { TransactionFormProvider } from '@/components/TransactionForm/TransactionFormProvider';
+import { TransactionsFiltersProvider } from '@/lib/providers/TransactionFiltersProvider';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -22,22 +23,24 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 const Dashboard = async () => {
   const t = await getTranslations('Dashboard');
   return (
-    <TransactionFormProvider>
-      <AccountFormProvider>
-        <main className="max-w-[100vw] p-6">
-          <Suspense fallback={<LoadingSummary />}>
-            <Summary />
-          </Suspense>
+    <TransactionsFiltersProvider initialFilters={{ size: 20 }}>
+      <TransactionFormProvider>
+        <AccountFormProvider>
+          <main className="max-w-[100vw] p-6">
+            <Suspense fallback={<LoadingSummary />}>
+              <Summary />
+            </Suspense>
 
-          <h3 className="mt-8 text-xl font-semibold text-gray-800 dark:text-gray-100 md:mt-16">
-            {t('latestTransactions')}
-          </h3>
-          <Suspense fallback={<ListSkeleton className="mt-4" rows={3} />}>
-            <LatestTransactions />
-          </Suspense>
-        </main>
-      </AccountFormProvider>
-    </TransactionFormProvider>
+            <h3 className="mt-8 text-xl font-semibold text-gray-800 md:mt-16 dark:text-gray-100">
+              {t('latestTransactions')}
+            </h3>
+            <Suspense fallback={<ListSkeleton className="mt-4" rows={3} cols={7} />}>
+              <LatestTransactions />
+            </Suspense>
+          </main>
+        </AccountFormProvider>
+      </TransactionFormProvider>
+    </TransactionsFiltersProvider>
   );
 };
 

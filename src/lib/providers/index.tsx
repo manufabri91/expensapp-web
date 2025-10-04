@@ -1,12 +1,11 @@
+import { SessionProvider } from 'next-auth/react';
+import { ReactNode } from 'react';
 import { getAccounts } from '@/lib/actions/accounts';
 import { getCategories } from '@/lib/actions/categories';
 import { getSubcategories } from '@/lib/actions/subcategories';
 import { auth } from '@/lib/auth';
 import { AccountsProvider } from '@/lib/providers/AccountsProvider';
 import { CategoriesProvider } from '@/lib/providers/CategoriesProvider';
-import { TransactionsFiltersProvider } from '@/lib/providers/TransactionFiltersProvider';
-import { SessionProvider } from 'next-auth/react';
-import { ReactNode } from 'react';
 
 export const AppProviders = async ({ children }: { children: ReactNode }) => {
   const session = await auth();
@@ -20,7 +19,7 @@ export const AppProviders = async ({ children }: { children: ReactNode }) => {
     <SessionProvider session={session}>
       <AccountsProvider initialAccounts={accounts}>
         <CategoriesProvider initialCategories={categories} initialSubcategories={subcategories}>
-          <TransactionsFiltersProvider>{children}</TransactionsFiltersProvider>
+          {children}
         </CategoriesProvider>
       </AccountsProvider>
     </SessionProvider>

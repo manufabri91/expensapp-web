@@ -1,55 +1,56 @@
 'use client';
-import React, { FC, useState } from 'react';
-import { Dropdown, TextInput } from 'flowbite-react';
+import { Select, SelectItem } from '@heroui/select';
+import React, { FC } from 'react';
 
-import { AVAILABLE_ICONS } from './constants';
+import { useTranslations } from 'use-intl';
 import { Icon } from '@/types/enums/icon';
-import { useTranslations } from 'next-intl';
-
-export const IconPicker: React.FC<{ value: Icon; onChange: (icon: Icon) => void }> = ({ value, onChange }) => {
-  const t = useTranslations('IconPicker');
-  const handleSelect = (iconName: Icon) => {
-    onChange(iconName);
-  };
-
-  const SelectedIcon = AVAILABLE_ICONS.get(value) || null;
-
-  return (
-    <>
-      <Dropdown label={SelectedIcon ? <SelectedIcon /> : t('noIcon')} inline>
-        <Dropdown.Item onClick={() => handleSelect(Icon.NONE)}>
-          <div className="flex items-center space-x-2">
-            <span>{t('noIcon')}</span>
-          </div>
-        </Dropdown.Item>
-        {AVAILABLE_ICONS.entries()
-          .toArray()
-          .map(([name, Icon]) => (
-            <Dropdown.Item key={name} onClick={() => handleSelect(name)}>
-              <div className="flex items-center space-x-2">
-                <Icon className="size-5" />
-                <span>{name}</span>
-              </div>
-            </Dropdown.Item>
-          ))}
-      </Dropdown>
-    </>
-  );
-};
+import { AVAILABLE_ICONS } from './constants';
 
 interface Props {
   id?: string;
   name?: string;
+  label?: string;
   initialValue?: Icon;
 }
 
-export const IconPickerFormField: FC<Props> = ({ id, name = 'iconName', initialValue = Icon.NONE }) => {
-  const [selectedIcon, setSelectedIcon] = useState<Icon>(initialValue);
+export const IconPickerFormField: FC<Props> = ({ id, name = 'iconName', initialValue = Icon.NONE, label }) => {
+  const t = useTranslations('IconPicker');
+  const iconItems = AVAILABLE_ICONS.entries()
+    .toArray()
+    .map(([name, Icon]) => ({
+      key: name,
+      Icon,
+      label: name,
+    }));
 
   return (
-    <div className="min-w-max">
-      <IconPicker value={selectedIcon} onChange={setSelectedIcon} />
-      <TextInput type="hidden" id={id ?? name} name={name} value={selectedIcon} />
-    </div>
+    <Select
+      size="lg"
+      label={label ?? 'Icon'}
+      placeholder={t('noIcon')}
+      labelPlacement="outside"
+      fullWidth
+      id={id ?? name}
+      name={name}
+      items={iconItems}
+      defaultSelectedKeys={[initialValue]}
+      renderValue={(items) => {
+        return items.map(
+          ({ key, data }) =>
+            data && (
+              <div key={key} className="flex items-center gap-2">
+                {<data.Icon className="size-5" />}
+                <span>{data.label}</span>
+              </div>
+            )
+        );
+      }}
+    >
+      {({ key, Icon, label }) => (
+        <SelectItem key={key} startContent={<Icon className="size-5" />}>
+          {label}
+        </SelectItem>
+      )}
+    </Select>
   );
 };

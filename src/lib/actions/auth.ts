@@ -1,10 +1,10 @@
 'use server';
+import { CredentialsSignin as CredentialsSigninError } from 'next-auth';
+import { getTranslations } from 'next-intl/server';
 import { signIn, signOut } from '@/lib/auth';
 import { register } from '@/lib/auth/handlers';
 import { RegisterError } from '@/types/exceptions/RegisterError';
 import { UnreachableLoginError } from '@/types/exceptions/unreachableLogin';
-import { CredentialsSignin as CredentialsSigninError } from 'next-auth';
-import { getTranslations } from 'next-intl/server';
 
 export const handleLogoutAction = async () => {
   await signOut({ redirectTo: '/' });

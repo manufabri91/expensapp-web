@@ -1,21 +1,22 @@
-import { PropsWithChildren } from 'react';
+import '@/styles/globals.css';
+import clsx from 'clsx';
+import { Viewport } from 'next';
+
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getTranslations } from 'next-intl/server';
-import { Montserrat, Miriam_Libre } from 'next/font/google';
-import { Flowbite, ThemeModeScript } from 'flowbite-react';
-
-import './globals.css';
+import { PropsWithChildren } from 'react';
+import { Navbar } from '@/components';
+import { Footer } from '@/components/Footer';
+import { fontBrand, fontSans } from '@/config/fonts';
 import { AppProviders } from '@/lib/providers';
-import { Footer, Navbar, Toast } from '@/components';
-import { ToastProvider } from '@/components/Toast/ToastProvider';
+import { Providers } from './providers';
 
-const montserrat = Montserrat({ subsets: ['latin'], variable: '--font-montserrat' });
-const poppins = Miriam_Libre({
-  subsets: ['latin'],
-  weight: ['400', '600', '700'],
-  display: 'swap',
-  variable: '--font-poppins',
-});
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: 'white' },
+    { media: '(prefers-color-scheme: dark)', color: '#1f2937' },
+  ],
+};
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -33,9 +34,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 export default async function RootLayout({ children }: PropsWithChildren) {
   const locale = await getLocale();
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html suppressHydrationWarning lang={locale}>
       <head>
-        <ThemeModeScript />
         <link rel="manifest" href="/manifest.json" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
@@ -43,53 +43,25 @@ export default async function RootLayout({ children }: PropsWithChildren) {
         <link rel="icon" href="/icons/icon-192x192.png" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
       </head>
-      <Flowbite
-        // eslint-disable-next-line tailwindcss/no-custom-classname
-        theme={{
-          theme: {
-            select: {
-              field: {
-                select: {
-                  sizes: {
-                    md: 'p-2.5 text-base',
-                  },
-                },
-              },
-            },
-            textInput: {
-              field: {
-                input: {
-                  sizes: {
-                    md: 'p-2.5 text-base',
-                  },
-                },
-              },
-            },
-          },
-          mode: 'auto',
-        }}
+      <body
+        className={clsx(
+          fontBrand.variable,
+          fontSans.variable,
+          'text-foreground bg-background min-h-screen font-sans antialiased'
+        )}
       >
-        <body
-          className={`${poppins.variable} ${montserrat.variable} bg-stone-100 font-Montserrat text-black antialiased dark:bg-slate-950 dark:text-white`}
-        >
-          <NextIntlClientProvider>
-            <ToastProvider>
-              <div className="flex h-svh max-h-svh w-full">
-                <div className="h-full flex-1">
-                  <div className="flex h-full flex-col justify-between">
-                    <Navbar />
-                    <AppProviders>
-                      <div className="flex-1">{children}</div>
-                    </AppProviders>
-                    <Toast />
-                    <Footer />
-                  </div>
-                </div>
-              </div>
-            </ToastProvider>
-          </NextIntlClientProvider>
-        </body>
-      </Flowbite>
+        <NextIntlClientProvider>
+          <Providers themeProps={{ attribute: 'class', enableSystem: true }}>
+            <div className="relative flex h-screen w-screen flex-col">
+              <Navbar />
+              <AppProviders>
+                <main className="container-full flex-grow">{children}</main>
+              </AppProviders>
+              <Footer />
+            </div>
+          </Providers>
+        </NextIntlClientProvider>
+      </body>
     </html>
   );
 }

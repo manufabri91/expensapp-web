@@ -1,9 +1,9 @@
 'use client';
 
-import { HiPlus } from 'react-icons/hi2';
-import { Button, ButtonVariant } from '@/components';
-import { useAccountForm } from '@/components/AccountForm/AccountFormProvider';
 import { useTranslations } from 'next-intl';
+import { HiPlus } from 'react-icons/hi2';
+import { Button } from '@/components';
+import { useAccountForm } from '@/components/AccountForm/AccountFormProvider';
 
 export const AccountActions = () => {
   const t = useTranslations('Generics');
@@ -11,8 +11,9 @@ export const AccountActions = () => {
   return (
     <div>
       <Button
-        variant={ButtonVariant.Primary}
-        onClick={() => {
+        color="primary"
+        size="sm"
+        onPress={() => {
           showAccountForm();
         }}
       >

@@ -1,25 +1,24 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Label, Modal, TextInput } from 'flowbite-react';
+import { Input } from '@heroui/input';
+import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@heroui/modal';
+import { addToast } from '@heroui/toast';
 import { useTranslations } from 'next-intl';
+import { useEffect, useState } from 'react';
 
-import { Button, ButtonVariant } from '@/components/Button';
-import { useToaster } from '@/components/Toast/ToastProvider';
-import { CategoryResponse } from '@/types/dto';
+import { ColorPicker, IconPickerFormField } from '@/components';
+import { Button } from '@/components/Button';
 import { useCategoryForm } from '@/components/CategoryForm/CategoryFormProvider';
-import { useCategories } from '@/lib/providers/CategoriesProvider';
-import { createCategory, editCategory } from '@/lib/actions/categories';
-import { IconPickerFormField } from '@/components/IconPicker';
-import { TransactionType } from '@/types/enums/transactionType';
+
 import { TransactionTypeSelector } from '@/components/TransactionTypeSelector';
-import { ColorPicker } from '@/components/ColorPicker';
-import { ToastType } from '@/components/Toast';
+import { createCategory, editCategory } from '@/lib/actions/categories';
+import { useCategories } from '@/lib/providers/CategoriesProvider';
+import { CategoryResponse } from '@/types/dto';
+import { TransactionType } from '@/types/enums/transactionType';
 
 export const CategoryForm = () => {
   const t = useTranslations();
-  const { showToast } = useToaster();
-  const { categoryFormData, isOpen, closeCategoryForm } = useCategoryForm();
+  const { categoryFormData, clearForm, isOpen, onOpenChange } = useCategoryForm();
   const { refetchAll } = useCategories();
   const [createdCategory, setCreatedCategory] = useState<CategoryResponse | null>(null);
   const [editedCategory, setEditedCategory] = useState<CategoryResponse | null>(null);
@@ -29,20 +28,20 @@ export const CategoryForm = () => {
 
   useEffect(() => {
     if (createdCategory) {
-      showToast(t('CategoryForm.createdSuccess', { id: createdCategory.id }), ToastType.Success);
+      addToast({ title: t('CategoryForm.createdSuccess', { id: createdCategory.id }), color: 'success' });
       setCreatedCategory(null);
-      closeCategoryForm();
+      clearForm();
       setProcessing(false);
       setColor('');
     } else if (editedCategory) {
-      showToast(t('CategoryForm.editedSuccess', { id: editedCategory.id }), ToastType.Success);
+      addToast({ title: t('CategoryForm.editedSuccess', { id: editedCategory.id }), color: 'success' });
       setEditedCategory(null);
-      closeCategoryForm();
+      clearForm();
       setProcessing(false);
       setColor('');
       refetchAll();
     }
-  }, [closeCategoryForm, createdCategory, editedCategory, showToast, refetchAll, t]);
+  }, [clearForm, createdCategory, editedCategory, addToast, refetchAll, t]);
 
   useEffect(() => {
     if (categoryFormData) {
@@ -61,95 +60,89 @@ export const CategoryForm = () => {
     }
   }, [isOpen]);
 
-  const submitHandler = async (formData: FormData) => {
+  const submitHandler = async (formData: FormData, onSuccessSubmit?: () => void) => {
     setProcessing(true);
     try {
       if (!categoryFormData) {
         const createdCategory = await createCategory(formData);
         await refetchAll();
         setCreatedCategory(createdCategory);
+        if (onSuccessSubmit) onSuccessSubmit();
       } else {
         const updatedAccocreatedCategory = await editCategory(formData);
         await refetchAll();
         setEditedCategory(updatedAccocreatedCategory);
+        if (onSuccessSubmit) onSuccessSubmit();
       }
     } catch (error) {
       if (error instanceof Error) {
-        showToast(error.message, ToastType.Error);
+        addToast({ title: error.message, color: 'danger' });
       } else {
-        showToast(t('CategoryForm.unexpectedError'), ToastType.Error);
+        addToast({ title: t('CategoryForm.unexpectedError'), color: 'danger' });
       }
       setCreatedCategory(null);
       setEditedCategory(null);
       setProcessing(false);
-      closeCategoryForm();
+      clearForm();
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <Modal show={isOpen} size="2xl" onClose={closeCategoryForm} popup>
-      <Modal.Header as={'div'} className="m-4">
-        <h3>
-          {categoryFormData ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.category')}
-        </h3>
-      </Modal.Header>
-      <Modal.Body>
-        <form className="flex flex-col gap-4" action={submitHandler}>
-          {!!categoryFormData && (
-            <div className="hidden">
-              <div className="mb-2 block">
-                <Label htmlFor="id" value="ID" />
+    <Modal backdrop="blur" isOpen={isOpen} onOpenChange={onOpenChange} size="lg">
+      <ModalContent>
+        {(onClose) => (
+          <form action={(data) => submitHandler(data, onClose)}>
+            <ModalHeader>
+              {categoryFormData ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.category')}
+            </ModalHeader>
+            <ModalBody>
+              {!!categoryFormData && (
+                <div className="hidden">
+                  <Input id="id" name="id" type="text" value={`${categoryFormData?.id}`} readOnly />
+                </div>
+              )}
+              <div>
+                <TransactionTypeSelector initialValue={type} onSelect={setType} hideTransfers />
               </div>
-              <TextInput id="id" name="id" type="text" value={categoryFormData?.id} readOnly shadow />
-            </div>
-          )}
-          <div className="mb-2">
-            <TransactionTypeSelector initialValue={type} onSelect={setType} hideTransfers />
-          </div>
-          <div>
-            <div className="mb-2 block">
-              <Label htmlFor="name" value={t('CategoryForm.name')} />
-            </div>
-            <TextInput
-              addon={
-                <IconPickerFormField
-                  id="iconName"
-                  name="iconName"
-                  initialValue={categoryFormData?.iconName}
-                ></IconPickerFormField>
-              }
-              id="name"
-              name="name"
-              type="text"
-              defaultValue={categoryFormData?.name}
-              required
-              shadow
-            />
-          </div>
-          <div className="flex gap-2">
-            <div className="mb-2 block">
-              <Label htmlFor="color" value={t('CategoryForm.color')} />
-            </div>
-            <ColorPicker color={color} onChange={setColor} />
-            <div className="hidden">
-              <TextInput
-                id="color"
-                name="color"
-                type="text"
-                value={color}
-                onChange={(e) => setColor(e.target.value)}
-                shadow
-              />
-            </div>
-          </div>
-
-          <Button type="submit" variant={ButtonVariant.Primary} isProcessing={processing}>
-            {categoryFormData ? t('Generics.edit') : t('Generics.save')}
-          </Button>
-        </form>
-      </Modal.Body>
+              <div className="flex w-full items-center justify-center gap-3">
+                <div className="w-1/3">
+                  <IconPickerFormField id="iconName" name="iconName" initialValue={categoryFormData?.iconName} />
+                </div>
+                <div className="w-3/6">
+                  <Input
+                    size="lg"
+                    id="name"
+                    name="name"
+                    fullWidth
+                    isRequired
+                    labelPlacement="outside-top"
+                    label={t('CategoryForm.name')}
+                    defaultValue={categoryFormData?.name}
+                  />
+                </div>
+                <ColorPicker color={color} onChange={setColor} />
+                <div className="hidden">
+                  <Input id="color" name="color" fullWidth value={color} onChange={(e) => setColor(e.target.value)} />
+                </div>
+              </div>
+            </ModalBody>
+            <ModalFooter>
+              {!processing && (
+                <Button type="submit" color="primary" fullWidth>
+                  {categoryFormData ? t('Generics.edit') : t('Generics.save')}
+                </Button>
+              )}
+              {processing && (
+                <Button type="button" isLoading disabled fullWidth>
+                  {categoryFormData ? t('Generics.editing') : t('Generics.saving')}...
+                </Button>
+              )}
+            </ModalFooter>
+          </form>
+        )}
+      </ModalContent>
     </Modal>
   );
 };

@@ -1,5 +1,5 @@
-import { auth } from '@/lib/auth';
 import { NavbarContent } from '@/components/Navbar/components/NavbarContent';
+import { auth } from '@/lib/auth';
 
 export const Navbar = async () => {
   const session = await auth();

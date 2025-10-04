@@ -1,10 +1,10 @@
 'use client';
 
+import React, { Suspense, useState } from 'react';
+import { SubcategoriesList } from '@/app/manage/components/Categories/components/SubcategoriesList';
 import { AVAILABLE_ICONS } from '@/components/IconPicker/constants';
 import { CategoryResponse } from '@/types/dto';
 import { DeleteCategoryButton, EditCategoryButton } from '../CategoryActions';
-import React, { Suspense, useState } from 'react';
-import { SubcategoriesList } from '@/app/manage/components/Categories/components/SubcategoriesList';
 
 interface CategoryItemProps {
   category: CategoryResponse;
@@ -23,7 +23,7 @@ export const CategoryItem = ({ category }: CategoryItemProps) => {
       <div className="flex justify-between p-4">
         <div className="flex items-center gap-2">
           <Icon className="mr-1 size-6" color={category.color ?? undefined} />
-          {category.name}
+          <span>{category.name}</span>
         </div>
         <div className="flex gap-2">
           <EditCategoryButton category={category} />

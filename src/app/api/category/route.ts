@@ -1,6 +1,6 @@
+import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { UnauthorizedError } from '@/types/exceptions/unauthorized';
-import { NextRequest, NextResponse } from 'next/server';
 
 export const GET = async () => {
   try {
@@ -36,8 +36,13 @@ export const POST = async (req: NextRequest) => {
         ['Content-Type']: 'application/json',
       },
     });
-    const newTransaction = await response.json();
-    return NextResponse.json(newTransaction);
+    const newCategory = await response.json();
+
+    if (!response.ok) {
+      console.error('Failed to create Subcategory:', newCategory);
+      throw new Error(newCategory.message || 'UNEXPECTED_ERROR');
+    }
+    return NextResponse.json(newCategory);
   } catch (error) {
     console.log(error);
     return NextResponse.error();

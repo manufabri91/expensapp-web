@@ -1,8 +1,8 @@
 import { WavesBottom, WavesTop } from '@/components';
 
-import { Hero } from './components/Hero';
-import { Features } from './components/Features';
 import { Engage } from './components/Engage';
+import { Features } from './components/Features';
+import { Hero } from './components/Hero';
 
 export default function Landing() {
   return (

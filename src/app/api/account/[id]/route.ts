@@ -1,6 +1,6 @@
+import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { UnauthorizedError } from '@/types/exceptions/unauthorized';
-import { NextRequest, NextResponse } from 'next/server';
 
 type tParams = Promise<{ id: string }>;
 
@@ -43,8 +43,14 @@ export const PUT = async (req: NextRequest, { params }: { params: tParams }) => 
         ['Content-Type']: 'application/json',
       },
     });
-    const newTransaction = await response.json();
-    return NextResponse.json(newTransaction);
+    const newAccount = await response.json();
+
+    if (!response.ok) {
+      console.error('Failed to edit Account:', newAccount);
+      throw new Error(newAccount.message || 'UNEXPECTED_ERROR');
+    }
+
+    return NextResponse.json(newAccount);
   } catch (error) {
     console.log(error);
     return NextResponse.error();

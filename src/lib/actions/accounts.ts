@@ -1,9 +1,9 @@
 'use server';
 
-import { headers as nextHeaders } from 'next/headers';
-import { AccountRequest, AccountResponse } from '@/types/dto';
-import { getBaseUrl } from '@/lib/utils/url';
 import { revalidatePath, unstable_noStore } from 'next/cache';
+import { headers as nextHeaders } from 'next/headers';
+import { getBaseUrl } from '@/lib/utils/url';
+import { AccountRequest, AccountResponse } from '@/types/dto';
 import { ActionResult } from '@/types/viewModel/actionResult';
 
 export const getAccounts = async (): Promise<AccountResponse[]> => {

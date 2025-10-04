@@ -1,11 +1,11 @@
-import { RegisterButton } from '@/components/RegisterButton';
 import { getTranslations } from 'next-intl/server';
+import { RegisterButton } from '@/components/RegisterButton';
 
 export const Engage = async () => {
   const t = await getTranslations('HomePage.engage');
   return (
     <section className="container mx-auto mb-12 py-6 text-center">
-      <h2 className="my-6 w-full text-center text-5xl font-bold leading-tight">{t('title')}</h2>
+      <h2 className="my-6 w-full text-center text-5xl leading-tight font-bold">{t('title')}</h2>
       <div className="mb-6 w-full">
         <div className="mx-auto my-0 h-1 w-1/6 rounded-t bg-white py-0 opacity-25"></div>
       </div>

@@ -1,14 +1,13 @@
 'use client';
-
-import { HiPencil, HiPlus, HiTrash } from 'react-icons/hi2';
-import { Button, ButtonVariant, ToastType } from '@/components';
-import { useCategoryForm } from '@/components/CategoryForm/CategoryFormProvider';
-import { CategoryResponse } from '@/types/dto';
-import { useState } from 'react';
-import { deleteCategoryById } from '@/lib/actions/categories';
-import { Spinner } from 'flowbite-react';
+import { Spinner } from '@heroui/spinner';
+import { addToast } from '@heroui/toast';
 import { useTranslations } from 'next-intl';
-import { useToaster } from '@/components/Toast/ToastProvider';
+import { useState } from 'react';
+import { HiPencil, HiPlus, HiTrash } from 'react-icons/hi2';
+import { Button } from '@/components';
+import { useCategoryForm } from '@/components/CategoryForm/CategoryFormProvider';
+import { deleteCategoryById } from '@/lib/actions/categories';
+import { CategoryResponse } from '@/types/dto';
 
 export const CreateCategoryButton = () => {
   const t = useTranslations('Generics');
@@ -19,7 +18,7 @@ export const CreateCategoryButton = () => {
 
   return (
     <div>
-      <Button variant={ButtonVariant.Primary} onClick={handleClick}>
+      <Button size="sm" color="primary" onPress={handleClick}>
         <HiPlus className="mr-1 size-5" />
         {t('new.female')}
       </Button>
@@ -34,7 +33,7 @@ export const EditCategoryButton = ({ category }: { category: CategoryResponse })
     showCategoryForm(category);
   };
   return (
-    <Button variant={ButtonVariant.Secondary} onClick={handleClick}>
+    <Button size="sm" color="secondary" onPress={handleClick}>
       <HiPencil className="mr-1 size-5" />
 
       <span className="hidden md:block">{t('edit')}</span>
@@ -44,7 +43,6 @@ export const EditCategoryButton = ({ category }: { category: CategoryResponse })
 
 export const DeleteCategoryButton = ({ categoryId }: { categoryId: number }) => {
   const t = useTranslations();
-  const { showToast } = useToaster();
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   const deleteHandler = async () => {
@@ -52,12 +50,12 @@ export const DeleteCategoryButton = ({ categoryId }: { categoryId: number }) => 
 
     try {
       await deleteCategoryById(categoryId);
-      showToast(t('CategoryForm.deletedSuccess', { id: categoryId }), ToastType.Success);
+      addToast({ title: t('CategoryForm.deletedSuccess', { id: categoryId }), color: 'success' });
     } catch (error) {
       if (error instanceof Error) {
-        showToast(error.message, ToastType.Error);
+        addToast({ title: error.message, color: 'danger' });
       } else {
-        showToast(t('CategoryForm.unexpectedError'), ToastType.Error);
+        addToast({ title: t('CategoryForm.unexpectedError'), color: 'danger' });
       }
     } finally {
       setIsDeleting(false);
@@ -65,7 +63,7 @@ export const DeleteCategoryButton = ({ categoryId }: { categoryId: number }) => 
   };
 
   return (
-    <Button variant={ButtonVariant.Critical} onClick={deleteHandler} disabled={isDeleting}>
+    <Button size="sm" color="danger" onPress={deleteHandler} disabled={isDeleting}>
       {!isDeleting && <HiTrash className="mr-1 size-5" />}
       {isDeleting && <Spinner className="mr-1 size-5" />}
       <span className="hidden md:block">{isDeleting ? `${t('Generics.deleting')}...` : t('Generics.delete')}</span>

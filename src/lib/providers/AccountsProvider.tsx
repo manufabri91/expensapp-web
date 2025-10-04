@@ -1,7 +1,7 @@
 'use client';
 
+import React, { createContext, ReactNode, useContext, useState } from 'react';
 import { AccountResponse } from '@/types/dto';
-import React, { createContext, useState, ReactNode, useContext } from 'react';
 
 interface AccountsContextProps {
   accounts: AccountResponse[];
