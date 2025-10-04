@@ -13,8 +13,8 @@ import { Providers } from './providers';
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: '#1f2937' },
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#020618' },
   ],
 };
 
@@ -39,7 +39,7 @@ export default async function RootLayout({ children }: PropsWithChildren) {
         <link rel="manifest" href="/manifest.json" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-        <meta name="theme-color" content="#1f2937" media="(prefers-color-scheme: dark)" />
+        <meta name="theme-color" content="#020618" media="(prefers-color-scheme: dark)" />
         <link rel="icon" href="/icons/icon-192x192.png" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
       </head>
