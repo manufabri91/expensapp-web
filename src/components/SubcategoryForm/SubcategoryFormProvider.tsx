@@ -23,7 +23,7 @@ export const SubcategoryFormProvider: React.FC<{ children: ReactNode }> = ({ chi
 
   const showSubcategoryCreateForm = useMemo(
     () => (parentCategoryId: number) => {
-      setSubcategoryFormData({ parentCategoryId, name: '', id: 0, parentCategoryName: '' });
+      setSubcategoryFormData({ parentCategoryId, name: '', id: 0, parentCategoryName: '', readonly: false });
       onOpen();
     },
     [setSubcategoryFormData]

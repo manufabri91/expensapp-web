@@ -3,4 +3,5 @@ export interface SubCategoryResponse {
   name: string;
   parentCategoryId: number;
   parentCategoryName: string;
+  readonly: boolean;
 }

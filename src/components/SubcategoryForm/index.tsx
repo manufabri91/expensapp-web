@@ -1,7 +1,7 @@
 'use client';
 
 import { Input } from '@heroui/input';
-import { Modal, ModalBody, ModalContent, ModalHeader } from '@heroui/modal';
+import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@heroui/modal';
 import { Select, SelectItem } from '@heroui/select';
 import { addToast } from '@heroui/toast';
 import { useTranslations } from 'next-intl';
@@ -19,7 +19,7 @@ export const SubcategoryForm = () => {
   const trySystemTranslation = useTrySystemTranslations();
   const { subcategoryFormData, clearForm, isOpen, onOpenChange } = useSubcategoryForm();
 
-  const { categories, addSubcategory } = useCategories();
+  const { categories, addSubcategory, refetchAll } = useCategories();
   const [createdSubcategory, setCreatedSubcategory] = useState<SubCategoryResponse | null>(null);
   const [editedSubcategory, setEditedSubcategory] = useState<SubCategoryResponse | null>(null);
   const [processing, setProcessing] = useState<boolean>(false);
@@ -40,16 +40,32 @@ export const SubcategoryForm = () => {
     }
   }, [addSubcategory, clearForm, createdSubcategory, editedSubcategory, addToast, t]);
 
-  const submitHandler = async (formData: FormData, onSuccessSubmit?: () => void) => {
+  const submitHandler = async (e: React.FormEvent<HTMLFormElement>, cb?: () => void) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
     setProcessing(true);
-    if (isEditMode) {
-      const updatedAccocreatedSubcategory = await editSubcategory(formData);
-      setEditedSubcategory(updatedAccocreatedSubcategory);
-      if (onSuccessSubmit) onSuccessSubmit();
-    } else {
-      const createdSubcategory = await createSubcategory(formData);
-      setCreatedSubcategory(createdSubcategory);
-      if (onSuccessSubmit) onSuccessSubmit();
+    try {
+      if (isEditMode) {
+        const updatedAccocreatedSubcategory = await editSubcategory(formData);
+        setEditedSubcategory(updatedAccocreatedSubcategory);
+        await refetchAll();
+        if (cb) cb();
+      } else {
+        const createdSubcategory = await createSubcategory(formData);
+        setCreatedSubcategory(createdSubcategory);
+        if (cb) cb();
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        addToast({ title: error.message, color: 'danger' });
+      } else {
+        addToast({ title: t('AccountForm.unexpectedError'), color: 'danger' });
+      }
+      setEditedSubcategory(null);
+      setCreatedSubcategory(null);
+      setProcessing(false);
+      clearForm();
+      if (cb) cb();
     }
   };
 
@@ -59,52 +75,58 @@ export const SubcategoryForm = () => {
     <Modal backdrop="blur" isOpen={isOpen} onOpenChange={onOpenChange}>
       <ModalContent>
         {(onClose) => (
-          <>
+          <form onSubmit={(e) => submitHandler(e, onClose)}>
             <ModalHeader>
               {isEditMode ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.subcategory')}
             </ModalHeader>
             <ModalBody>
-              <form className="flex flex-col gap-4" action={(formData) => submitHandler(formData, onClose)}>
-                {isEditMode && (
-                  <div className="hidden">
-                    <Input id="id" name="id" type="text" value={`${subcategoryFormData?.id}`} readOnly />
-                  </div>
-                )}
-                <Input
-                  size="lg"
-                  id="name"
-                  name="name"
-                  fullWidth
-                  isRequired
-                  labelPlacement="outside-top"
-                  label={t('CategoryForm.name')}
-                  defaultValue={trySystemTranslation(subcategoryFormData?.name ?? '')}
-                />
-                <Select
-                  size="lg"
-                  label={t('SubcategoryForm.belongsTo')}
-                  id="parentCategoryId"
-                  name="parentCategoryId"
-                  defaultSelectedKeys={
-                    subcategoryFormData ? [subcategoryFormData.parentCategoryId.toString()] : undefined
-                  }
-                  isRequired
-                  labelPlacement="outside"
-                  placeholder={t('TransactionForm.selectCategory')}
-                >
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} hidden={category.readOnly}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </Select>
-
-                <Button type="submit" color="primary" isLoading={processing}>
+              {isEditMode && (
+                <div className="hidden">
+                  <Input id="id" name="id" type="text" value={`${subcategoryFormData?.id}`} readOnly />
+                </div>
+              )}
+              <Input
+                size="lg"
+                id="name"
+                name="name"
+                fullWidth
+                isRequired
+                labelPlacement="outside-top"
+                label={t('CategoryForm.name')}
+                defaultValue={trySystemTranslation(subcategoryFormData?.name ?? '')}
+              />
+              <Select
+                size="lg"
+                label={t('SubcategoryForm.belongsTo')}
+                id="parentCategoryId"
+                name="parentCategoryId"
+                defaultSelectedKeys={
+                  subcategoryFormData ? [subcategoryFormData.parentCategoryId.toString()] : undefined
+                }
+                isRequired
+                labelPlacement="outside"
+                placeholder={t('TransactionForm.selectCategory')}
+              >
+                {categories.map((category) => (
+                  <SelectItem key={category.id} hidden={category.readOnly}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </Select>
+            </ModalBody>
+            <ModalFooter>
+              {!processing && (
+                <Button type="submit" color="primary" fullWidth>
                   {isEditMode ? t('Generics.edit') : t('Generics.save')}
                 </Button>
-              </form>
-            </ModalBody>
-          </>
+              )}
+              {processing && (
+                <Button type="button" isLoading disabled fullWidth>
+                  {isEditMode ? t('Generics.editing') : t('Generics.saving')}...
+                </Button>
+              )}
+            </ModalFooter>
+          </form>
         )}
       </ModalContent>
     </Modal>

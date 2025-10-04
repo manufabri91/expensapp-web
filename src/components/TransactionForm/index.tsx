@@ -2,7 +2,7 @@
 
 import { DatePicker } from '@heroui/date-picker';
 import { Input } from '@heroui/input';
-import { Modal, ModalBody, ModalContent, ModalHeader } from '@heroui/modal';
+import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@heroui/modal';
 import { NumberInput } from '@heroui/number-input';
 import { Select, SelectItem } from '@heroui/select';
 import { Switch } from '@heroui/switch';
@@ -136,7 +136,7 @@ export const TransactionForm = () => {
       if (error instanceof Error) {
         addToast({ title: error.message, color: 'danger' });
       } else {
-        addToast({ title: t('AccountForm.unexpectedError'), color: 'danger' });
+        addToast({ title: t('TransactionForm.unexpectedError'), color: 'danger' });
       }
       setEditedTransaction(null);
       setCreatedTransaction(null);
@@ -152,198 +152,192 @@ export const TransactionForm = () => {
     <Modal backdrop="blur" isOpen={isOpen} onOpenChange={onOpenChange}>
       <ModalContent>
         {(onClose) => (
-          <>
+          <form onSubmit={(e) => submitHandler(e, onClose)}>
             <ModalHeader>
               {transactionFormData ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.transaction.singular')}
             </ModalHeader>
             <ModalBody>
-              <form className="flex max-w-md flex-col gap-4" onSubmit={(e) => submitHandler(e, onClose)}>
-                <div className="hidden">
-                  <Input id="id" name="id" type="text" value={`${transactionFormData?.id}`} readOnly />
-                </div>
-                <div>
-                  <TransactionTypeSelector initialValue={selectedType} onSelect={onTypeChange} />
-                </div>
-                <NumberInput
-                  defaultValue={
-                    transactionFormData?.amount ? Number(Math.abs(transactionFormData?.amount).toFixed(2)) : 0
+              <div className="hidden">
+                <Input id="id" name="id" type="text" value={`${transactionFormData?.id}`} readOnly />
+              </div>
+              <div>
+                <TransactionTypeSelector initialValue={selectedType} onSelect={onTypeChange} />
+              </div>
+              <NumberInput
+                defaultValue={
+                  transactionFormData?.amount ? Number(Math.abs(transactionFormData?.amount).toFixed(2)) : 0
+                }
+                formatOptions={
+                  accounts.find((acc) => acc.id === selectedAccount) && {
+                    style: 'currency',
+                    currency: accounts.find((acc) => acc.id === selectedAccount)?.currency || '',
                   }
-                  formatOptions={
-                    accounts.find((acc) => acc.id === selectedAccount) && {
-                      style: 'currency',
-                      currency: accounts.find((acc) => acc.id === selectedAccount)?.currency || '',
-                    }
-                  }
-                  inputMode="decimal"
-                  size="lg"
-                  hideStepper
-                  label={t('Generics.amount')}
-                  id="amount"
-                  name="amount"
-                  labelPlacement="outside"
-                  fullWidth
-                  isRequired
-                  min="0"
-                  step={0.01}
-                />
-                {selectedType !== TransactionType.TRANSFER && (
-                  <Switch
-                    size="sm"
-                    id="excludeFromTotals"
-                    name="excludeFromTotals"
-                    defaultSelected={transactionFormData?.excludeFromTotals ?? false}
+                }
+                inputMode="decimal"
+                size="lg"
+                hideStepper
+                label={t('Generics.amount')}
+                id="amount"
+                name="amount"
+                labelPlacement="outside"
+                fullWidth
+                isRequired
+                min="0"
+                step={0.01}
+              />
+              {selectedType !== TransactionType.TRANSFER && (
+                <Switch
+                  size="sm"
+                  id="excludeFromTotals"
+                  name="excludeFromTotals"
+                  defaultSelected={transactionFormData?.excludeFromTotals ?? false}
+                >
+                  {t('TransactionForm.excludeFromTotals')}
+                </Switch>
+              )}
+              {selectedType !== TransactionType.TRANSFER && (
+                <>
+                  <Select
+                    size="lg"
+                    label={t('Generics.account')}
+                    id="account"
+                    name="account"
+                    defaultSelectedKeys={transactionFormData?.accountId.toString() ?? accounts[0]?.id.toString()}
+                    value={transactionFormData?.accountId ?? accounts[0]?.id}
+                    isRequired
+                    labelPlacement="outside"
+                    onChange={onAccountChange}
                   >
-                    {t('TransactionForm.excludeFromTotals')}
-                  </Switch>
-                )}
-                {selectedType !== TransactionType.TRANSFER && (
-                  <>
-                    <Select
-                      size="lg"
-                      label={t('Generics.account')}
-                      id="account"
-                      name="account"
-                      defaultSelectedKeys={transactionFormData?.accountId.toString() ?? accounts[0]?.id.toString()}
-                      value={transactionFormData?.accountId ?? accounts[0]?.id}
-                      isRequired
-                      labelPlacement="outside"
-                      onChange={onAccountChange}
-                    >
-                      {accounts.map((account) => (
-                        <SelectItem key={account.id}>{account.name}</SelectItem>
-                      ))}
-                    </Select>
-                    <Input
-                      size="lg"
-                      id="description"
-                      name="description"
-                      fullWidth
-                      isRequired
-                      labelPlacement="outside-top"
-                      label={t('Generics.description')}
-                      defaultValue={transactionFormData?.description}
-                    />
-                  </>
-                )}
-                {selectedType === TransactionType.TRANSFER && (
-                  <>
-                    <Select
-                      size="lg"
-                      label={t('Generics.account')}
-                      id="account"
-                      name="account"
-                      defaultSelectedKeys={transactionFormData?.accountId.toString() ?? accounts[0]?.id.toString()}
-                      value={
-                        (transactionFormData && transactionFormData.subcategory.name === 'TRANSFER.OUT.SUBCATEGORY'
-                          ? transactionFormData?.accountId
-                          : transactionFormData?.linkedTransaction?.accountId) ?? accounts[0]?.id
-                      }
-                      isRequired
-                      labelPlacement="outside"
-                      onChange={onAccountChange}
-                      placeholder={t('TransactionForm.selectAccount')}
-                    >
-                      {accounts.map((account) => (
-                        <SelectItem key={account.id}>{account.name}</SelectItem>
-                      ))}
-                    </Select>
-                    <Select
-                      size="lg"
-                      label={t('TransactionForm.destinationAccount')}
-                      id="destinationAccount"
-                      name="destinationAccount"
-                      defaultSelectedKeys={[
-                        transactionFormData && transactionFormData.subcategory.name === 'TRANSFER.IN.SUBCATEGORY'
-                          ? transactionFormData.accountId.toString()
-                          : (transactionFormData?.linkedTransaction?.accountId.toString() ?? ''),
-                      ]}
-                      isRequired
-                      labelPlacement="outside"
-                      placeholder={t('TransactionForm.selectAccount')}
-                    >
-                      {accounts.map((account) => (
-                        <SelectItem key={account.id}>{account.name}</SelectItem>
-                      ))}
-                    </Select>
-                  </>
-                )}
+                    {accounts.map((account) => (
+                      <SelectItem key={account.id}>{account.name}</SelectItem>
+                    ))}
+                  </Select>
+                  <Input
+                    size="lg"
+                    id="description"
+                    name="description"
+                    fullWidth
+                    isRequired
+                    labelPlacement="outside-top"
+                    label={t('Generics.description')}
+                    defaultValue={transactionFormData?.description}
+                  />
+                </>
+              )}
+              {selectedType === TransactionType.TRANSFER && (
+                <>
+                  <Select
+                    size="lg"
+                    label={t('Generics.account')}
+                    id="account"
+                    name="account"
+                    defaultSelectedKeys={transactionFormData?.accountId.toString() ?? accounts[0]?.id.toString()}
+                    value={
+                      (transactionFormData && transactionFormData.subcategory.name === 'TRANSFER.OUT.SUBCATEGORY'
+                        ? transactionFormData?.accountId
+                        : transactionFormData?.linkedTransaction?.accountId) ?? accounts[0]?.id
+                    }
+                    isRequired
+                    labelPlacement="outside"
+                    onChange={onAccountChange}
+                    placeholder={t('TransactionForm.selectAccount')}
+                  >
+                    {accounts.map((account) => (
+                      <SelectItem key={account.id}>{account.name}</SelectItem>
+                    ))}
+                  </Select>
+                  <Select
+                    size="lg"
+                    label={t('TransactionForm.destinationAccount')}
+                    id="destinationAccount"
+                    name="destinationAccount"
+                    defaultSelectedKeys={[
+                      transactionFormData && transactionFormData.subcategory.name === 'TRANSFER.IN.SUBCATEGORY'
+                        ? transactionFormData.accountId.toString()
+                        : (transactionFormData?.linkedTransaction?.accountId.toString() ?? ''),
+                    ]}
+                    isRequired
+                    labelPlacement="outside"
+                    placeholder={t('TransactionForm.selectAccount')}
+                  >
+                    {accounts.map((account) => (
+                      <SelectItem key={account.id}>{account.name}</SelectItem>
+                    ))}
+                  </Select>
+                </>
+              )}
 
-                <DatePicker
-                  size="lg"
-                  id="eventDate"
-                  name="eventDate"
-                  granularity="day"
-                  label={t('Generics.date')}
-                  defaultValue={fromDate(selectedDate, getLocalTimeZone())}
-                  value={fromDate(selectedDate, getLocalTimeZone())}
-                  onChange={(date) => {
-                    onDateChanged(date?.toDate());
-                  }}
-                  selectorButtonPlacement="start"
-                  labelPlacement="outside"
-                  isRequired
-                />
-                {selectedType !== TransactionType.TRANSFER && (
-                  <>
-                    <Select
-                      size="lg"
-                      label={t('Generics.category')}
-                      id="category"
-                      name="category"
-                      defaultSelectedKeys={
-                        transactionFormData ? [transactionFormData.category.id.toString()] : undefined
-                      }
-                      isRequired
-                      labelPlacement="outside"
-                      onChange={onSelectedCategory}
-                      placeholder={t('TransactionForm.selectCategory')}
-                    >
-                      {categories.map((category) => (
-                        <SelectItem key={category.id} hidden={category.type !== selectedType}>
-                          {category.name}
-                        </SelectItem>
-                      ))}
-                    </Select>
+              <DatePicker
+                size="lg"
+                id="eventDate"
+                name="eventDate"
+                granularity="day"
+                label={t('Generics.date')}
+                defaultValue={fromDate(selectedDate, getLocalTimeZone())}
+                value={fromDate(selectedDate, getLocalTimeZone())}
+                onChange={(date) => {
+                  onDateChanged(date?.toDate());
+                }}
+                selectorButtonPlacement="start"
+                labelPlacement="outside"
+                isRequired
+              />
+              {selectedType !== TransactionType.TRANSFER && (
+                <>
+                  <Select
+                    size="lg"
+                    label={t('Generics.category')}
+                    id="category"
+                    name="category"
+                    defaultSelectedKeys={transactionFormData ? [transactionFormData.category.id.toString()] : undefined}
+                    isRequired
+                    labelPlacement="outside"
+                    onChange={onSelectedCategory}
+                    placeholder={t('TransactionForm.selectCategory')}
+                  >
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} hidden={category.type !== selectedType}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </Select>
 
-                    <Select
-                      size="lg"
-                      label={t('Generics.subcategory')}
-                      id="subcategory"
-                      name="subcategory"
-                      isRequired
-                      labelPlacement="outside"
-                      defaultSelectedKeys={
-                        transactionFormData?.subcategory.id
-                          ? [transactionFormData.subcategory.id.toString()]
-                          : undefined
-                      }
-                      disabled={!selectedCategory}
-                      onChange={onSelectedSubcategory}
-                      value={selectedSubcategory}
-                      items={filteredSubcategories}
-                      placeholder={t('TransactionForm.selectSubcategory')}
-                    >
-                      {filteredSubcategories.map((subcategory) => (
-                        <SelectItem key={subcategory.id}>{trySystemTranslations(subcategory.name)}</SelectItem>
-                      ))}
-                    </Select>
-                  </>
-                )}
-                <div className="my-5 flex w-full">
-                  {!processing && (
-                    <Button type="submit" color="primary" fullWidth>
-                      {transactionFormData ? t('Generics.edit') : t('Generics.save')}
-                    </Button>
-                  )}
-                  {processing && (
-                    <Button type="button" isLoading disabled fullWidth>
-                      {transactionFormData ? t('Generics.editing') : t('Generics.saving')}...
-                    </Button>
-                  )}
-                </div>
-              </form>
+                  <Select
+                    size="lg"
+                    label={t('Generics.subcategory')}
+                    id="subcategory"
+                    name="subcategory"
+                    isRequired
+                    labelPlacement="outside"
+                    defaultSelectedKeys={
+                      transactionFormData?.subcategory.id ? [transactionFormData.subcategory.id.toString()] : undefined
+                    }
+                    disabled={!selectedCategory}
+                    onChange={onSelectedSubcategory}
+                    value={selectedSubcategory}
+                    items={filteredSubcategories}
+                    placeholder={t('TransactionForm.selectSubcategory')}
+                  >
+                    {filteredSubcategories.map((subcategory) => (
+                      <SelectItem key={subcategory.id}>{trySystemTranslations(subcategory.name)}</SelectItem>
+                    ))}
+                  </Select>
+                </>
+              )}
             </ModalBody>
-          </>
+            <ModalFooter>
+              {!processing && (
+                <Button type="submit" color="primary" fullWidth>
+                  {transactionFormData ? t('Generics.edit') : t('Generics.save')}
+                </Button>
+              )}
+              {processing && (
+                <Button type="button" isLoading disabled fullWidth>
+                  {transactionFormData ? t('Generics.editing') : t('Generics.saving')}...
+                </Button>
+              )}
+            </ModalFooter>
+          </form>
         )}
       </ModalContent>
     </Modal>

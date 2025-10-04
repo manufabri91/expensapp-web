@@ -1,7 +1,7 @@
 'use client';
 
 import { Input } from '@heroui/input';
-import { Modal, ModalBody, ModalContent, ModalHeader } from '@heroui/modal';
+import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@heroui/modal';
 import { NumberInput } from '@heroui/number-input';
 import { Select, SelectItem } from '@heroui/select';
 import { addToast } from '@heroui/toast';
@@ -77,63 +77,69 @@ export const AccountForm = () => {
     <Modal backdrop="blur" isOpen={isOpen} onOpenChange={onOpenChange} className="overflow-y-auto">
       <ModalContent>
         {(onClose) => (
-          <>
+          <form action={(data) => submitHandler(data, onClose)}>
             <ModalHeader>
               {accountFormData ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.account')}
             </ModalHeader>
             <ModalBody>
-              <form className="flex max-w-md flex-col gap-4" action={(data) => submitHandler(data, onClose)}>
-                {!!accountFormData && (
-                  <div className="hidden">
-                    <Input id="id" name="id" type="text" value={`${accountFormData?.id}`} readOnly />
-                  </div>
-                )}
-                <Input
-                  size="lg"
-                  type="text"
-                  id="name"
-                  name="name"
-                  label={t('AccountForm.name')}
-                  labelPlacement="outside-top"
-                  defaultValue={accountFormData?.name}
-                  isRequired
-                  fullWidth
-                />
-                <Select
-                  size="lg"
-                  labelPlacement="outside"
-                  label={t('AccountForm.currency')}
-                  id="currency"
-                  name="currency"
-                  defaultSelectedKeys={[accountFormData?.currency || 'EUR']}
-                  value={accountFormData?.currency || 'EUR'}
-                  isRequired
-                  fullWidth
-                >
-                  {currencyItems.map(({ key, label }) => (
-                    <SelectItem key={key}>{label}</SelectItem>
-                  ))}
-                </Select>
-                <NumberInput
-                  size="lg"
-                  id="initialBalance"
-                  name="initialBalance"
-                  label={t('AccountForm.initialBalance')}
-                  labelPlacement="outside"
-                  defaultValue={accountFormData?.initialBalance ?? 0}
-                  min="0"
-                  inputMode="decimal"
-                  hideStepper
-                  fullWidth
-                  isRequired
-                />
-
-                <Button type="submit" color="primary" isLoading={processing} disabled={processing}>
+              {!!accountFormData && (
+                <div className="hidden">
+                  <Input id="id" name="id" type="text" value={`${accountFormData?.id}`} readOnly />
+                </div>
+              )}
+              <Input
+                size="lg"
+                type="text"
+                id="name"
+                name="name"
+                label={t('AccountForm.name')}
+                labelPlacement="outside-top"
+                defaultValue={accountFormData?.name}
+                isRequired
+                fullWidth
+              />
+              <Select
+                size="lg"
+                labelPlacement="outside"
+                label={t('AccountForm.currency')}
+                id="currency"
+                name="currency"
+                defaultSelectedKeys={[accountFormData?.currency || 'EUR']}
+                value={accountFormData?.currency || 'EUR'}
+                isRequired
+                fullWidth
+              >
+                {currencyItems.map(({ key, label }) => (
+                  <SelectItem key={key}>{label}</SelectItem>
+                ))}
+              </Select>
+              <NumberInput
+                size="lg"
+                id="initialBalance"
+                name="initialBalance"
+                label={t('AccountForm.initialBalance')}
+                labelPlacement="outside"
+                defaultValue={accountFormData?.initialBalance ?? 0}
+                min="0"
+                inputMode="decimal"
+                hideStepper
+                fullWidth
+                isRequired
+              />
+            </ModalBody>
+            <ModalFooter>
+              {!processing && (
+                <Button type="submit" color="primary" fullWidth>
                   {accountFormData ? t('Generics.edit') : t('Generics.save')}
                 </Button>
-              </form>
-            </ModalBody>
-          </>
+              )}
+              {processing && (
+                <Button type="button" isLoading disabled fullWidth>
+                  {accountFormData ? t('Generics.editing') : t('Generics.saving')}...
+                </Button>
+              )}
+            </ModalFooter>
+          </form>
         )}
       </ModalContent>
     </Modal>

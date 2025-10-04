@@ -26,7 +26,8 @@ export const GET = async (_: NextRequest, { params }: { params: tParams }) => {
   }
 };
 
-export const PUT = async (_: NextRequest, { params }: { params: tParams }) => {
+export const PUT = async (req: NextRequest, { params }: { params: tParams }) => {
+  const payload = await req.json();
   const { id } = await params;
   try {
     const session = await auth();
@@ -35,10 +36,17 @@ export const PUT = async (_: NextRequest, { params }: { params: tParams }) => {
     }
     const response = await fetch(`${process.env.API_URL}/subcategory/${id}`, {
       method: 'PUT',
+      body: JSON.stringify(payload),
       headers: {
         Authorization: session.user.token,
+        ['Content-Type']: 'application/json',
       },
     });
+
+    if (!response.ok) {
+      throw new Error('Failed to update subcategory');
+    }
+
     const subcategory = await response.json();
     return NextResponse.json(subcategory);
   } catch (error) {

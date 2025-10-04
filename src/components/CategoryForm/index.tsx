@@ -1,7 +1,7 @@
 'use client';
 
 import { Input } from '@heroui/input';
-import { Modal, ModalBody, ModalContent, ModalHeader } from '@heroui/modal';
+import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@heroui/modal';
 import { addToast } from '@heroui/toast';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
@@ -93,50 +93,54 @@ export const CategoryForm = () => {
     <Modal backdrop="blur" isOpen={isOpen} onOpenChange={onOpenChange} size="lg">
       <ModalContent>
         {(onClose) => (
-          <>
-            <ModalHeader as={'div'} className="m-4">
-              <h3>
-                {categoryFormData ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.category')}
-              </h3>
+          <form action={(data) => submitHandler(data, onClose)}>
+            <ModalHeader>
+              {categoryFormData ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.category')}
             </ModalHeader>
             <ModalBody>
-              <form className="flex flex-col gap-4" action={(data) => submitHandler(data, onClose)}>
-                {!!categoryFormData && (
-                  <div className="hidden">
-                    <Input id="id" name="id" type="text" value={`${categoryFormData?.id}`} readOnly />
-                  </div>
-                )}
-                <div>
-                  <TransactionTypeSelector initialValue={type} onSelect={setType} hideTransfers />
+              {!!categoryFormData && (
+                <div className="hidden">
+                  <Input id="id" name="id" type="text" value={`${categoryFormData?.id}`} readOnly />
                 </div>
-                <div className="flex w-full items-center justify-center gap-3">
-                  <div className="w-1/3">
-                    <IconPickerFormField id="iconName" name="iconName" initialValue={categoryFormData?.iconName} />
-                  </div>
-                  <div className="w-3/6">
-                    <Input
-                      size="lg"
-                      id="name"
-                      name="name"
-                      fullWidth
-                      isRequired
-                      labelPlacement="outside-top"
-                      label={t('CategoryForm.name')}
-                      defaultValue={categoryFormData?.name}
-                    />
-                  </div>
-                  <ColorPicker color={color} onChange={setColor} />
-                  <div className="hidden">
-                    <Input id="color" name="color" fullWidth value={color} onChange={(e) => setColor(e.target.value)} />
-                  </div>
+              )}
+              <div>
+                <TransactionTypeSelector initialValue={type} onSelect={setType} hideTransfers />
+              </div>
+              <div className="flex w-full items-center justify-center gap-3">
+                <div className="w-1/3">
+                  <IconPickerFormField id="iconName" name="iconName" initialValue={categoryFormData?.iconName} />
                 </div>
-
-                <Button type="submit" color="primary" isLoading={processing} className="my-6">
+                <div className="w-3/6">
+                  <Input
+                    size="lg"
+                    id="name"
+                    name="name"
+                    fullWidth
+                    isRequired
+                    labelPlacement="outside-top"
+                    label={t('CategoryForm.name')}
+                    defaultValue={categoryFormData?.name}
+                  />
+                </div>
+                <ColorPicker color={color} onChange={setColor} />
+                <div className="hidden">
+                  <Input id="color" name="color" fullWidth value={color} onChange={(e) => setColor(e.target.value)} />
+                </div>
+              </div>
+            </ModalBody>
+            <ModalFooter>
+              {!processing && (
+                <Button type="submit" color="primary" fullWidth>
                   {categoryFormData ? t('Generics.edit') : t('Generics.save')}
                 </Button>
-              </form>
-            </ModalBody>
-          </>
+              )}
+              {processing && (
+                <Button type="button" isLoading disabled fullWidth>
+                  {categoryFormData ? t('Generics.editing') : t('Generics.saving')}...
+                </Button>
+              )}
+            </ModalFooter>
+          </form>
         )}
       </ModalContent>
     </Modal>

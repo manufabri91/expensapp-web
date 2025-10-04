@@ -49,8 +49,10 @@ export const createSubcategory = async (formData: FormData): Promise<SubCategory
   const data = Object.fromEntries(formData);
 
   const payload: SubCategoryRequest = {
+    id: Number(data.id),
     name: String(data.name),
     parentCategoryId: Number(data.parentCategoryId),
+    readOnly: false, // read only is only for system categories
   };
 
   const baseUrl = await getBaseUrl();

@@ -36,8 +36,14 @@ export const POST = async (req: NextRequest) => {
         ['Content-Type']: 'application/json',
       },
     });
-    const newTransaction = await response.json();
-    return NextResponse.json(newTransaction);
+    const newSubcategory = await response.json();
+
+    if (!response.ok) {
+      console.error('Failed to create Subcategory:', newSubcategory);
+      throw new Error(newSubcategory.message || 'UNEXPECTED_ERROR');
+    }
+
+    return NextResponse.json(newSubcategory);
   } catch (error) {
     console.log(error);
     return NextResponse.error();
