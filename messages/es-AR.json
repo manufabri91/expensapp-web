@@ -121,7 +121,8 @@
       "createAccount": "Crear cuenta",
       "alreadyHaveAccount": "¿Ya tenés una cuenta? ",
       "login": "Ingresar",
-      "loading": "Cargando..."
+      "loading": "Cargando...",
+      "rememberMe": "Recordar"
     }
   },
   "Navbar": {

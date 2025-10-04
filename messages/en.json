@@ -180,7 +180,8 @@
       "createAccount": "Create account",
       "alreadyHaveAccount": "Already have an account? ",
       "login": "Login",
-      "loading": "Loading..."
+      "loading": "Loading...",
+      "rememberMe": "Remember me"
     }
   },
   "LocaleSwitcher": {
