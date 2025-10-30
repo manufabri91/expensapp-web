@@ -12,8 +12,8 @@ interface TransactionsFiltersContextProps {
 
 const date = new Date();
 const defaultFilters: TransactionFilters = {
-  fromDate: startOfMonth(Date.UTC(date.getFullYear(), date.getMonth())),
-  toDate: endOfMonth(Date.UTC(date.getFullYear(), date.getMonth())),
+  fromDate: startOfMonth(new Date(date.getFullYear(), date.getMonth())),
+  toDate: endOfMonth(new Date(date.getFullYear(), date.getMonth())),
   currentPage: 1,
   totalPages: 1,
   size: 10,
