@@ -13,7 +13,7 @@ import { ActionResult } from '@/types/viewModel/actionResult';
 const parseEventDate = (eventDate: Date | null): string | null => {
   if (!eventDate) return null;
 
-  const utcDate = new Date(eventDate.getTime() - eventDate.getTimezoneOffset() * 60000);
+  const utcDate = new Date(eventDate.getTime() - (eventDate.getTimezoneOffset() * -1) * 60000);
   return formatISO(utcDate);
 };
 
