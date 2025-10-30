@@ -33,8 +33,8 @@ export const MonthPicker = () => {
   };
 
   useEffect(() => {
-    const fromDate = startOfMonth(Date.UTC(year, month - 1));
-    const toDate = endOfMonth(Date.UTC(year, month - 1));
+    const fromDate = startOfMonth(new Date(year, month - 1));
+    const toDate = endOfMonth(new Date(year, month - 1));
     patchFilters({ fromDate, toDate });
   }, [year, month, patchFilters]);
 
