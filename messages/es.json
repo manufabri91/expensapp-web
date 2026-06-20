@@ -132,7 +132,7 @@
     "links": {
       "dashboard": "Inicio",
       "transactions": "Transacciones",
-      "manage": "Cuentas y Categorias"
+      "manage": "Cuentas"
     }
   },
   "CategoryForm": {
