@@ -55,7 +55,7 @@ export default async function RootLayout({ children }: PropsWithChildren) {
             <div className="relative flex h-screen w-screen flex-col">
               <Navbar />
               <AppProviders>
-                <main className="container-full flex-grow">{children}</main>
+                <main className="container-full grow">{children}</main>
               </AppProviders>
               <Footer />
             </div>
