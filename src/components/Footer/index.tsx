@@ -4,9 +4,8 @@ import { getTranslations } from 'next-intl/server';
 export const Footer = async () => {
   const t = await getTranslations('Footer');
   return (
-    <footer className="flex w-full flex-col items-center justify-center py-3">
+    <footer className="flex w-full flex-col items-center justify-center pb-20 lg:py-3">
       <Link isExternal href="https://www.manuelfabri.com" title="ManukoDEV. Developer personal site">
-        {' '}
         ManukoDEV
       </Link>
       <p>
