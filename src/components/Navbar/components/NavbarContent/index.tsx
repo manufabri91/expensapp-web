@@ -9,9 +9,6 @@ import {
   NavbarContent as HeroUINavbarContent,
   NavbarBrand,
   NavbarItem,
-  NavbarMenu,
-  NavbarMenuItem,
-  NavbarMenuToggle,
 } from '@heroui/navbar';
 import clsx from 'clsx';
 
@@ -21,12 +18,12 @@ import { usePathname } from 'next/navigation';
 import { Session } from 'next-auth';
 import { useTranslations } from 'next-intl';
 import { Key } from 'react';
-import { HiCog, HiHome, HiOutlineArrowRightStartOnRectangle, HiOutlineUser, HiWallet, HiOutlineDocumentCurrencyDollar  } from 'react-icons/hi2';
+import { HiCog, HiHome, HiOutlineArrowRightStartOnRectangle, HiOutlineDocumentCurrencyDollar, HiOutlineUser, HiWallet  } from 'react-icons/hi2';
 import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 import { LoginButtons } from '@/components/Navbar/components/LoginButtons';
+import { MobileNavbar } from '@/components/Navbar/components/MobileNavbar/MobileNavbar';
 import { SettingsDrawer } from '@/components/Navbar/components/SettingsDrawer';
 import { handleLogoutAction } from '@/lib/actions/auth';
-import { MobileNavbar } from '@/components/Navbar/components/MobileNavbar/MobileNavbar';
 
 interface Props {
   session: Session | null;

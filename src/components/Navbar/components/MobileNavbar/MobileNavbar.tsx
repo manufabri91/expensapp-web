@@ -1,8 +1,8 @@
 import { Link } from '@heroui/link';
 import clsx from 'clsx';
-import { useTranslations } from 'next-intl';
 import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import React from 'react';
 import { IconType } from 'react-icons';
 
