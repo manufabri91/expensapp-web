@@ -1,6 +1,5 @@
 'use client';
-import { Spinner } from '@heroui/spinner';
-import { addToast } from '@heroui/toast';
+import { Spinner, toast } from '@heroui/react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { HiPencil, HiPlus, HiTrash } from 'react-icons/hi2';
@@ -18,7 +17,7 @@ export const CreateCategoryButton = () => {
 
   return (
     <div>
-      <Button size="sm" color="primary" onPress={handleClick}>
+      <Button size="sm" variant="primary" onPress={handleClick}>
         <HiPlus className="mr-1 size-5" />
         {t('new.female')}
       </Button>
@@ -33,7 +32,7 @@ export const EditCategoryButton = ({ category }: { category: CategoryResponse })
     showCategoryForm(category);
   };
   return (
-    <Button size="sm" color="secondary" onPress={handleClick}>
+    <Button size="sm" variant="secondary" onPress={handleClick}>
       <HiPencil className="mr-1 size-5" />
 
       <span className="hidden md:block">{t('edit')}</span>
@@ -50,12 +49,12 @@ export const DeleteCategoryButton = ({ categoryId }: { categoryId: number }) => 
 
     try {
       await deleteCategoryById(categoryId);
-      addToast({ title: t('CategoryForm.deletedSuccess', { id: categoryId }), color: 'success' });
+      toast.success(t('CategoryForm.deletedSuccess', { id: categoryId }));
     } catch (error) {
       if (error instanceof Error) {
-        addToast({ title: error.message, color: 'danger' });
+        toast.danger(error.message);
       } else {
-        addToast({ title: t('CategoryForm.unexpectedError'), color: 'danger' });
+        toast.danger(t('CategoryForm.unexpectedError'));
       }
     } finally {
       setIsDeleting(false);
@@ -63,7 +62,7 @@ export const DeleteCategoryButton = ({ categoryId }: { categoryId: number }) => 
   };
 
   return (
-    <Button size="sm" color="danger" onPress={deleteHandler} disabled={isDeleting}>
+    <Button size="sm" variant="danger" onPress={deleteHandler} isDisabled={isDeleting}>
       {!isDeleting && <HiTrash className="mr-1 size-5" />}
       {isDeleting && <Spinner className="mr-1 size-5" />}
       <span className="hidden md:block">{isDeleting ? `${t('Generics.deleting')}...` : t('Generics.delete')}</span>

@@ -1,8 +1,6 @@
 'use client';
-import { Avatar } from '@heroui/avatar';
-import { Select, SelectItem } from '@heroui/select';
-import { ChangeEvent } from 'react';
-import { HiLanguage } from 'react-icons/hi2';
+import { Avatar, Label, ListBox, Select } from '@heroui/react';
+import { Key } from 'react';
 import { setUserLocale } from '@/services/locale';
 type Props = {
   defaultValue: string;
@@ -10,30 +8,35 @@ type Props = {
   label: string;
 };
 
-const Flag = ({ code }: { code: string }) => <Avatar src={`/images/flags/${code.toUpperCase()}.png`} size="sm" />;
+const Flag = ({ code }: { code: string }) => (
+  <Avatar size="sm">
+    <Avatar.Image src={`/images/flags/${code.toUpperCase()}.png`} />
+  </Avatar>
+);
 
 export default function LocaleSwitcherSelect({ defaultValue, items, label }: Props) {
-  const setLocale = (e: ChangeEvent<HTMLSelectElement>) => {
-    const locale = e.target.value;
-    setUserLocale(locale as 'en' | 'es' | 'es-AR');
+  const setLocale = (key: Key | null) => {
+    if (key) {
+      setUserLocale(key as 'en' | 'es' | 'es-AR');
+    }
   };
 
   return (
-    <Select
-      labelPlacement="outside"
-      selectedKeys={[defaultValue]}
-      onChange={setLocale}
-      label={label}
-      startContent={<HiLanguage />}
-      fullWidth
-    >
-      {items.map(({ value, label, code }) => {
-        return (
-          <SelectItem key={value} startContent={<Flag code={code} />}>
-            {label}
-          </SelectItem>
-        );
-      })}
+    <Select name="locale" defaultSelectedKey={defaultValue} onSelectionChange={setLocale} variant="secondary">
+      <Label>{label}</Label>
+      <Select.Trigger>
+        <Select.Value />
+        <Select.Indicator />
+      </Select.Trigger>
+      <Select.Popover>
+        <ListBox>
+          {items.map(({ value, label, code }) => (
+            <ListBox.Item id={value} key={value} textValue={label}>
+              <Flag code={code} /> {label}
+            </ListBox.Item>
+          ))}
+        </ListBox>
+      </Select.Popover>
     </Select>
   );
 }

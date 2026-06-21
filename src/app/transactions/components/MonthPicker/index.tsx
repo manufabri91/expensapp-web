@@ -40,11 +40,11 @@ export const MonthPicker = () => {
 
   return (
     <div className="mt-8 flex items-center justify-center gap-4 md:mt-16 md:gap-8">
-      <Button color="primary" variant="ghost" onPress={onPrevMonthHandler} size="sm">
+      <Button variant="ghost" onPress={onPrevMonthHandler} size="sm">
         <HiChevronLeft />
       </Button>
       <span>{format.dateTime(new Date(year, month - 1), { year: 'numeric', month: 'long' })}</span>
-      <Button color="primary" variant="ghost" onPress={onNextMonthHandler} size="sm">
+      <Button variant="ghost" onPress={onNextMonthHandler} size="sm">
         <HiChevronRight />
       </Button>
     </div>

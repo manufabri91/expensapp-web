@@ -1,9 +1,9 @@
 'use client';
-import { Select, SelectItem } from '@heroui/select';
+import { Label, ListBox, Select } from '@heroui/react';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
-import { ChangeEvent } from 'react';
-import { HiComputerDesktop, HiMiniPaintBrush, HiMoon, HiSun } from 'react-icons/hi2';
+import { Key } from 'react';
+import { HiComputerDesktop, HiMoon, HiSun } from 'react-icons/hi2';
 
 const THEMES = ['system', 'light', 'dark'] as const;
 
@@ -11,9 +11,10 @@ export const ThemeSelector = () => {
   const { theme, setTheme } = useTheme();
   const t = useTranslations('System.themeSelector');
 
-  const onThemeModeChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    const mode = e.target.value;
-    setTheme(mode);
+  const onThemeModeChange = (key: Key | null) => {
+    if (key) {
+      setTheme(key as string);
+    }
   };
 
   const themeLabelMap = {
@@ -39,20 +40,25 @@ export const ThemeSelector = () => {
 
   return (
     <Select
-      labelPlacement="outside"
-      selectedKeys={[theme || 'system']}
-      onChange={onThemeModeChange}
-      label={t('label')}
-      startContent={<HiMiniPaintBrush />}
-      fullWidth
+      name="theme"
+      defaultSelectedKey={theme || 'system'}
+      onSelectionChange={onThemeModeChange}
+      variant="secondary"
     >
-      {themeItems.map(({ key, label, Icon }) => {
-        return (
-          <SelectItem key={key} startContent={<Icon />}>
-            {label}
-          </SelectItem>
-        );
-      })}
+      <Label>{t('label')}</Label>
+      <Select.Trigger>
+        <Select.Value />
+        <Select.Indicator />
+      </Select.Trigger>
+      <Select.Popover>
+        <ListBox>
+          {themeItems.map(({ key, label, Icon }) => (
+            <ListBox.Item id={key} key={key} textValue={label}>
+              <Icon /> {label}
+            </ListBox.Item>
+          ))}
+        </ListBox>
+      </Select.Popover>
     </Select>
   );
 };

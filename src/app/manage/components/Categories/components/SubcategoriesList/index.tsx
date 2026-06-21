@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader } from '@heroui/card';
+import { Card } from '@heroui/react';
 import { useTranslations } from 'next-intl';
 import {
   CreateSubcategoryButton,
@@ -20,11 +20,11 @@ export const SubcategoriesList = ({ parentCategoryId }: Props) => {
 
   return (
     <Card className="my-4">
-      <CardHeader>
+      <Card.Header>
         <h5 className="mr-4 font-medium">{t('Manage.categories.subcategoriesTitle')}</h5>
         <CreateSubcategoryButton parentCategoryId={parentCategoryId} />
-      </CardHeader>
-      <CardBody>
+      </Card.Header>
+      <Card.Content>
         {data &&
           data.map((subcategory, idx) => (
             <div key={subcategory.id} className={`${idx < data.length - 1 ? 'border-b dark:border-slate-600' : ''}`}>
@@ -39,7 +39,7 @@ export const SubcategoriesList = ({ parentCategoryId }: Props) => {
               </div>
             </div>
           ))}
-      </CardBody>
+      </Card.Content>
     </Card>
   );
 };

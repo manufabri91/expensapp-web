@@ -1,3 +1,163 @@
-@import 'tailwindcss';
+@import '@heroui/react/styles';
 
-@config "../../tailwind.config.ts";
+@config '../../tailwind.config.ts';
+
+@layer base {
+  /* expensapp Light */
+  :root,
+  .light,
+  [data-theme='light'] {
+    color-scheme: light;
+
+    /* Primitive Colors (Do not change between light and dark) */
+    --white: oklch(100% 0 0);
+    --black: oklch(0% 0 0);
+    --snow: oklch(0.9911 0 0);
+    --eclipse: oklch(0.17 0.0769 269.93); /* blueZinc-900 */
+
+    /* Spacing & Layout */
+    --spacing: 0.25rem;
+    --border-width: 1px;
+    --field-border-width: 0px;
+    --disabled-opacity: 0.5;
+    --ring-offset-width: 2px;
+    --cursor-interactive: pointer;
+    --cursor-disabled: not-allowed;
+
+    /* Radius */
+    --radius: 0.5rem;
+    --field-radius: calc(var(--radius) * 1.5);
+
+    /* Base Colors */
+    --background: oklch(0.9755 0.0046 258.42); /* blueZinc-50 */
+    --foreground: var(--eclipse);
+
+    /* Surface: Used for non-overlay components (cards, accordions) */
+    --surface: var(--white);
+    --surface-foreground: var(--foreground);
+    --surface-secondary: oklch(0.9755 0.0046 258.42); /* blueZinc-50 */
+    --surface-secondary-foreground: var(--foreground);
+
+    /* Overlay: Used for floating/overlay components (modals, popovers) */
+    --overlay: var(--white);
+    --overlay-foreground: var(--foreground);
+
+    --muted: oklch(0.5234 0.0793 264.62); /* purple-500 */
+
+    --scrollbar-thumb: color-mix(in oklch, var(--foreground) 15%, transparent);
+    --scrollbar-track: transparent;
+    --scrollbar-gutter: auto;
+    --scrollbar-width: thin;
+    --scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+    --scrollbar: var(--scrollbar-thumb);
+
+    --default: oklch(94% 0.001 286.375);
+    --default-foreground: var(--eclipse);
+
+    /* Accent — green primary action color */
+    --accent: oklch(0.5999 0.1156 172.64); /* green-700 */
+    --accent-foreground: oklch(0.9578 0.0254 187.86); /* green-50 */
+
+    /* Form Field Defaults */
+    --field-background: var(--white);
+    --field-foreground: var(--eclipse);
+    --field-placeholder: var(--muted);
+    --field-border: transparent;
+
+    /* Status */
+    --success: oklch(0.6905 0.1294 175.75); /* green-500 */
+    --success-foreground: var(--eclipse);
+
+    --warning: oklch(0.7819 0.1585 72.33);
+    --warning-foreground: var(--eclipse);
+
+    --danger: oklch(0.6532 0.2328 25.74);
+    --danger-foreground: var(--snow);
+
+    /* Component Colors */
+    --segment: var(--white);
+    --segment-foreground: var(--foreground);
+
+    /* Misc */
+    --border: oklch(0.8536 0.0407 277.74); /* blueZinc-200 */
+    --separator: oklch(92% 0.004 286.32);
+    --focus: var(--accent);
+    --link: var(--accent);
+
+    /* Shadows */
+    --surface-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.06), 0 0 1px 0 rgba(0, 0, 0, 0.06);
+    --overlay-shadow: 0 4px 16px 0 rgba(24, 24, 27, 0.08), 0 8px 24px 0 rgba(24, 24, 27, 0.09);
+    --field-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.06), 0 0 1px 0 rgba(0, 0, 0, 0.06);
+
+    --skeleton-animation: shimmer;
+    --tooltip-delay: 1500ms;
+    --tooltip-close-delay: 500ms;
+  }
+
+  /* expensapp Dark */
+  .dark,
+  [data-theme='dark'] {
+    color-scheme: dark;
+
+    /* Base Colors */
+    --background: oklch(0.1298 0.0425 265.14); /* blue-900 */
+    --foreground: var(--snow);
+
+    /* Surface: Used for non-overlay components (cards, accordions) */
+    --surface: oklch(0.17 0.0769 269.93); /* blueZinc-900 */
+    --surface-foreground: var(--foreground);
+    --surface-secondary: oklch(0.2165 0.0912 268.28); /* base-800 / blue-800 */
+    --surface-secondary-foreground: var(--foreground);
+
+    /* Overlay: Used for floating/overlay components (modals, popovers) */
+    --overlay: oklch(0.2165 0.0912 268.28); /* base-800 */
+    --overlay-foreground: var(--foreground);
+
+    --muted: oklch(0.65 0.05 277); /* blueZinc-400 area */
+
+    --scrollbar-thumb: color-mix(in oklch, var(--foreground) 15%, transparent);
+    --scrollbar-track: transparent;
+    --scrollbar-gutter: auto;
+    --scrollbar-width: thin;
+    --scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+    --scrollbar: var(--scrollbar-thumb);
+
+    --default: color-mix(in oklch, var(--accent) 15%, oklch(0.2394 0.0752 273.92)); /* accent-tinted blueZinc-800 */
+    --default-foreground: var(--snow);
+
+    /* Form Field Defaults */
+    --field-background: oklch(0.2394 0.0752 273.92); /* blueZinc-800, untinted */
+    --field-foreground: var(--foreground);
+    --field-placeholder: var(--muted);
+    --field-border: transparent;
+
+    /* Accent — green action color (lighter for dark mode) */
+    --accent: oklch(0.65 0.1232 174.46); /* green-600 */
+    --accent-foreground: var(--snow);
+
+    /* Status */
+    --success: oklch(0.6905 0.1294 175.75); /* green-500 */
+    --success-foreground: var(--eclipse);
+
+    --warning: oklch(0.8203 0.1388 76.34);
+    --warning-foreground: var(--eclipse);
+
+    --danger: oklch(0.594 0.1967 24.63);
+    --danger-foreground: var(--snow);
+
+    /* Component Colors */
+    --segment: oklch(0.3304 0.0906 276.13); /* blueZinc-700 */
+    --segment-foreground: var(--foreground);
+
+    /* Misc */
+    --border: oklch(0.2394 0.0752 273.92); /* blueZinc-800 */
+    --separator: oklch(0.2394 0.0752 273.92); /* blueZinc-800 */
+    --focus: oklch(0.6905 0.1294 175.75); /* green-500 */
+    --link: oklch(0.6905 0.1294 175.75); /* green-500 */
+
+    /* Shadows — transparent in dark mode */
+    --surface-shadow: 0 0 0 0 transparent inset;
+    --overlay-shadow: 0 0 0 0 transparent inset;
+    --field-shadow: 0 0 0 0 transparent inset;
+  }
+}

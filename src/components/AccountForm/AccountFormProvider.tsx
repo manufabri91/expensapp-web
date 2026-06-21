@@ -1,15 +1,14 @@
 'use client';
 
-import { useDisclosure } from '@heroui/modal';
+import { useOverlayState, type UseOverlayStateReturn } from '@heroui/react';
 import React, { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 import { AccountForm } from '@/components/AccountForm';
 import { AccountResponse } from '@/types/dto';
 
 interface AccountFormContextProps {
-  isOpen: boolean;
+  overlayState: UseOverlayStateReturn;
   showAccountForm: (Account?: AccountResponse) => void;
   clearForm: () => void;
-  onOpenChange: () => void;
   accountFormData: AccountResponse | undefined;
 }
 
@@ -17,12 +16,12 @@ const AccountFormContext = createContext<AccountFormContextProps | undefined>(un
 
 export const AccountFormProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [accountFormData, setaccountFormData] = useState<AccountResponse | undefined>();
-  const { onOpen, isOpen, onOpenChange } = useDisclosure();
+  const overlayState = useOverlayState();
 
   const showAccountForm = useMemo(
     () => (account?: AccountResponse) => {
       setaccountFormData(account);
-      onOpen();
+      overlayState.open();
     },
     [setaccountFormData]
   );
@@ -35,7 +34,7 @@ export const AccountFormProvider: React.FC<{ children: ReactNode }> = ({ childre
   );
 
   return (
-    <AccountFormContext.Provider value={{ showAccountForm, clearForm, accountFormData, isOpen, onOpenChange }}>
+    <AccountFormContext.Provider value={{ showAccountForm, clearForm, accountFormData, overlayState }}>
       {children}
       <AccountForm />
     </AccountFormContext.Provider>

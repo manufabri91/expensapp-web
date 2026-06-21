@@ -16,7 +16,7 @@ export const Hero = async () => {
           </div>
         </div>
         <div className="w-full py-6 text-center md:w-3/5">
-          <Image className="z-50 w-full md:w-4/5" src="/images/hero.svg" alt="" height={500} width={500} />
+          <Image className="z-50 w-full md:w-4/5" src="/images/hero.svg" alt="" height={500} width={500} loading="eager" />
         </div>
       </div>
     </div>

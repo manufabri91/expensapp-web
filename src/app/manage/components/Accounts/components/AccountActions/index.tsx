@@ -11,7 +11,7 @@ export const AccountActions = () => {
   return (
     <div>
       <Button
-        color="primary"
+        variant="primary"
         size="sm"
         onPress={() => {
           showAccountForm();

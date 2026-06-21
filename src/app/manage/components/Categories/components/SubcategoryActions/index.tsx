@@ -1,6 +1,6 @@
 'use client';
 
-import { addToast } from '@heroui/toast';
+import { toast } from '@heroui/react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { HiPencil, HiPlus, HiTrash } from 'react-icons/hi2';
@@ -19,7 +19,7 @@ export const CreateSubcategoryButton = ({ parentCategoryId, className }: CreateS
   const { showSubcategoryCreateForm } = useSubcategoryForm();
   return (
     <Button
-      color="primary"
+      variant="primary"
       size="sm"
       onPress={() => {
         showSubcategoryCreateForm(parentCategoryId);
@@ -34,12 +34,12 @@ export const CreateSubcategoryButton = ({ parentCategoryId, className }: CreateS
 
 export const EditSubcategoryButton = ({ subcategory }: { subcategory: SubCategoryResponse }) => {
   const t = useTranslations('Generics');
-  const { showSubcategoryEditForm, isOpen } = useSubcategoryForm();
+  const { showSubcategoryEditForm, overlayState } = useSubcategoryForm();
+  const isOpen = overlayState.isOpen;
   return (
     <Button
-      color="secondary"
+      variant="secondary"
       size="sm"
-      isLoading={isOpen}
       isDisabled={isOpen}
       onPress={() => {
         showSubcategoryEditForm(subcategory);
@@ -59,12 +59,12 @@ export const DeleteSubcategoryButton = ({ subcategoryId }: { subcategoryId: numb
     setIsDeleting(true);
     try {
       await deleteSubcategoryById(subcategoryId);
-      addToast({ title: t('SubcategoryForm.deletedSuccess', { id: subcategoryId }), color: 'primary' });
+      toast(t('SubcategoryForm.deletedSuccess', { id: subcategoryId }));
     } catch (error) {
       if (error instanceof Error) {
-        addToast({ title: error.message, color: 'danger' });
+        toast.danger(error.message);
       } else {
-        addToast({ title: t('SubcategoryForm.unexpectedError'), color: 'danger' });
+        toast.danger(t('SubcategoryForm.unexpectedError'));
       }
     } finally {
       setIsDeleting(false);
@@ -73,13 +73,12 @@ export const DeleteSubcategoryButton = ({ subcategoryId }: { subcategoryId: numb
 
   return (
     <Button
-      color="danger"
+      variant="danger"
       size="sm"
       onPress={() => {
         deleteHandler();
       }}
       isDisabled={isDeleting}
-      isLoading={isDeleting}
     >
       {!isDeleting && <HiTrash className="mr-1 size-5" />}
       <span className="hidden md:block">{isDeleting ? `${t('Generics.deleting')}...` : t('Generics.delete')}</span>

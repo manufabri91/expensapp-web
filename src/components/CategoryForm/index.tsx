@@ -1,8 +1,6 @@
 'use client';
 
-import { Input } from '@heroui/input';
-import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@heroui/modal';
-import { addToast } from '@heroui/toast';
+import { InputGroup, Label, Modal, TextField, toast } from '@heroui/react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
@@ -18,7 +16,7 @@ import { TransactionType } from '@/types/enums/transactionType';
 
 export const CategoryForm = () => {
   const t = useTranslations();
-  const { categoryFormData, clearForm, isOpen, onOpenChange } = useCategoryForm();
+  const { categoryFormData, clearForm, overlayState } = useCategoryForm();
   const { refetchAll } = useCategories();
   const [createdCategory, setCreatedCategory] = useState<CategoryResponse | null>(null);
   const [editedCategory, setEditedCategory] = useState<CategoryResponse | null>(null);
@@ -28,20 +26,20 @@ export const CategoryForm = () => {
 
   useEffect(() => {
     if (createdCategory) {
-      addToast({ title: t('CategoryForm.createdSuccess', { id: createdCategory.id }), color: 'success' });
+      toast.success(t('CategoryForm.createdSuccess', { id: createdCategory.id }));
       setCreatedCategory(null);
       clearForm();
       setProcessing(false);
       setColor('');
     } else if (editedCategory) {
-      addToast({ title: t('CategoryForm.editedSuccess', { id: editedCategory.id }), color: 'success' });
+      toast.success(t('CategoryForm.editedSuccess', { id: editedCategory.id }));
       setEditedCategory(null);
       clearForm();
       setProcessing(false);
       setColor('');
       refetchAll();
     }
-  }, [clearForm, createdCategory, editedCategory, addToast, refetchAll, t]);
+  }, [clearForm, createdCategory, editedCategory, refetchAll, t]);
 
   useEffect(() => {
     if (categoryFormData) {
@@ -51,14 +49,14 @@ export const CategoryForm = () => {
   }, [categoryFormData]);
 
   useEffect(() => {
-    if (!isOpen) {
+    if (!overlayState.isOpen) {
       setType(TransactionType.EXPENSE);
       setCreatedCategory(null);
       setEditedCategory(null);
       setProcessing(false);
       setColor('');
     }
-  }, [isOpen]);
+  }, [overlayState.isOpen]);
 
   const submitHandler = async (formData: FormData, onSuccessSubmit?: () => void) => {
     setProcessing(true);
@@ -76,9 +74,9 @@ export const CategoryForm = () => {
       }
     } catch (error) {
       if (error instanceof Error) {
-        addToast({ title: error.message, color: 'danger' });
+        toast.danger(error.message);
       } else {
-        addToast({ title: t('CategoryForm.unexpectedError'), color: 'danger' });
+        toast.danger(t('CategoryForm.unexpectedError'));
       }
       setCreatedCategory(null);
       setEditedCategory(null);
@@ -87,20 +85,21 @@ export const CategoryForm = () => {
     }
   };
 
-  if (!isOpen) return null;
+  if (!overlayState.isOpen) return null;
 
   return (
-    <Modal backdrop="blur" isOpen={isOpen} onOpenChange={onOpenChange} size="lg">
-      <ModalContent>
-        {(onClose) => (
-          <form action={(data) => submitHandler(data, onClose)}>
-            <ModalHeader>
+    <Modal.Backdrop variant="blur" isOpen={overlayState.isOpen} onOpenChange={overlayState.setOpen}>
+      <Modal.Container>
+        <Modal.Dialog>
+          <Modal.CloseTrigger />
+          <form action={(data) => submitHandler(data, () => overlayState.close())}>
+            <Modal.Header>
               {categoryFormData ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.category')}
-            </ModalHeader>
-            <ModalBody>
+            </Modal.Header>
+            <Modal.Body className="flex flex-col gap-4">
               {!!categoryFormData && (
                 <div className="hidden">
-                  <Input id="id" name="id" type="text" value={`${categoryFormData?.id}`} readOnly />
+                  <input id="id" name="id" type="hidden" value={`${categoryFormData?.id}`} readOnly />
                 </div>
               )}
               <div>
@@ -111,38 +110,32 @@ export const CategoryForm = () => {
                   <IconPickerFormField id="iconName" name="iconName" initialValue={categoryFormData?.iconName} />
                 </div>
                 <div className="w-3/6">
-                  <Input
-                    size="lg"
-                    id="name"
-                    name="name"
-                    fullWidth
-                    isRequired
-                    labelPlacement="outside-top"
-                    label={t('CategoryForm.name')}
-                    defaultValue={categoryFormData?.name}
-                  />
+                  <TextField name="name" isRequired defaultValue={categoryFormData?.name} fullWidth>
+                    <Label>{t('CategoryForm.name')}</Label>
+                    <InputGroup variant="secondary">
+                      <InputGroup.Input id="name" type="text" />
+                    </InputGroup>
+                  </TextField>
                 </div>
                 <ColorPicker color={color} onChange={setColor} />
-                <div className="hidden">
-                  <Input id="color" name="color" fullWidth value={color} onChange={(e) => setColor(e.target.value)} />
-                </div>
+                <input id="color" name="color" type="hidden" value={color} onChange={(e) => setColor(e.target.value)} />
               </div>
-            </ModalBody>
-            <ModalFooter>
+            </Modal.Body>
+            <Modal.Footer>
               {!processing && (
-                <Button type="submit" color="primary" fullWidth>
+                <Button type="submit" variant="primary" fullWidth>
                   {categoryFormData ? t('Generics.edit') : t('Generics.save')}
                 </Button>
               )}
               {processing && (
-                <Button type="button" isLoading disabled fullWidth>
+                <Button type="button" isDisabled fullWidth>
                   {categoryFormData ? t('Generics.editing') : t('Generics.saving')}...
                 </Button>
               )}
-            </ModalFooter>
+            </Modal.Footer>
           </form>
-        )}
-      </ModalContent>
-    </Modal>
+        </Modal.Dialog>
+      </Modal.Container>
+    </Modal.Backdrop>
   );
 };

@@ -15,12 +15,12 @@ export const CTAButton = ({ isLoginMode, handleLoginClicked }: Props) => {
   return (
     <>
       {!pending && (
-        <Button color="primary" type="submit" onPress={handleLoginClicked}>
+        <Button variant="primary" type="submit" fullWidth onPress={handleLoginClicked}>
           {isLoginMode ? t('login.cta') : t('register.cta')}
         </Button>
       )}
       {pending && (
-        <Button isLoading disabled onPress={handleLoginClicked}>
+        <Button isDisabled fullWidth onPress={handleLoginClicked}>
           {t('form.loading')}
         </Button>
       )}

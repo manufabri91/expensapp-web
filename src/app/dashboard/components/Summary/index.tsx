@@ -1,5 +1,4 @@
-import { Card, CardBody } from '@heroui/card';
-import { Divider } from '@heroui/divider';
+import { Card, Separator } from '@heroui/react';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { HiArrowTrendingDown, HiArrowTrendingUp, HiEquals } from 'react-icons/hi2';
 import { Money } from '@/components';
@@ -32,7 +31,7 @@ export const Summary = async () => {
         <div className="flex w-full flex-col justify-center gap-4 md:flex md:flex-row md:flex-wrap">
           {summaries.map((currencySummary) => (
             <Card key={currencySummary.currency} className="md:min-w-[300px]">
-              <CardBody>
+              <Card.Content>
                 <div className="flex h-fit w-fit flex-col items-center justify-between self-center">
                   <h3 className="text-lg font-semibold text-nowrap">
                     {t('Dashboard.summary.balance.title', {
@@ -60,7 +59,7 @@ export const Summary = async () => {
                 </div>
 
                 <div className="relative">
-                  <Divider className="my-3" />
+                  <Separator className="my-3" />
                 </div>
                 <div className="mt-1 flex flex-col">
                   <div className="flex justify-between">
@@ -82,7 +81,7 @@ export const Summary = async () => {
                     />
                   </div>
                 </div>
-              </CardBody>
+              </Card.Content>
             </Card>
           ))}
         </div>
@@ -96,7 +95,7 @@ export const Summary = async () => {
             <div className="col-auto grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
               {categorySummaries.map((categorySummary) => (
                 <Card key={categorySummary.id}>
-                  <CardBody>
+                  <Card.Content>
                     <div className="flex h-full flex-col justify-start">
                       <div className="flex items-baseline justify-between">
                         <span className="text-lg font-semibold text-nowrap">{categorySummary.name}</span>
@@ -113,7 +112,7 @@ export const Summary = async () => {
                           ))}
                         </div>
                       </div>
-                      <Divider className="my-3" />
+                      <Separator className="my-3" />
                       {categorySummary.subTotalsPerSubCategory.map((subCategory, idx) => (
                         <div key={subCategory.id}>
                           <div className="mb-1 flex items-start justify-between">
@@ -135,12 +134,12 @@ export const Summary = async () => {
                             </div>
                           </div>
                           {idx < categorySummary.subTotalsPerSubCategory.length - 1 && (
-                            <Divider className="my-2 opacity-40" />
+                            <Separator className="my-2 opacity-40" />
                           )}
                         </div>
                       ))}
                     </div>
-                  </CardBody>
+                  </Card.Content>
                 </Card>
               ))}
             </div>
