@@ -84,7 +84,7 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
               isRequired
               errorMessage="Please an username"
               label={t('form.username')}
-              name="lastName"
+              name="userName"
               defaultValue={(formData?.get('userName') || '') as string}
               type="text"
             />
