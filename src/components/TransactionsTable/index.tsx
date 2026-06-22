@@ -94,7 +94,7 @@ export const TransactionsTable = ({ showPagination = false, noTransactionsMessag
       <Button
         size="sm"
         variant="primary"
-        className="w-min"
+        className="mb-6 w-min"
         onPress={() => {
           showTransactionForm();
         }}
@@ -103,7 +103,7 @@ export const TransactionsTable = ({ showPagination = false, noTransactionsMessag
         <div className="hidden md:block">{t('Generics.new.female')}</div>
       </Button>
 
-      <Table variant="primary">
+      <Table>
         <Table.ScrollContainer>
           <Table.Content aria-label={t('Generics.transaction.plural')}>
             <Table.Header>

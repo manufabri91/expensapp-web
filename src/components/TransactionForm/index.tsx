@@ -168,13 +168,15 @@ export const TransactionForm = () => {
 
   return (
     <Modal.Backdrop variant="blur" isOpen={overlayState.isOpen} onOpenChange={overlayState.setOpen}>
-      <Modal.Container>
+      <Modal.Container scroll="outside">
         <Modal.Dialog>
           <Modal.CloseTrigger />
-          <form onSubmit={(e) => submitHandler(e, () => overlayState.close())}>
-            <Modal.Header>
+          <Modal.Header>
+            <Modal.Heading>
               {transactionFormData ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.transaction.singular')}
-            </Modal.Header>
+            </Modal.Heading>
+          </Modal.Header>
+          <form onSubmit={(e) => submitHandler(e, () => overlayState.close())}>
             <Modal.Body className="flex flex-col gap-4">
               <input id="id" name="id" type="hidden" value={`${transactionFormData?.id}`} readOnly />
               <div>

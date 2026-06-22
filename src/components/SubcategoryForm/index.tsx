@@ -73,10 +73,12 @@ export const SubcategoryForm = () => {
       <Modal.Container>
         <Modal.Dialog>
           <Modal.CloseTrigger />
-          <form onSubmit={(e) => submitHandler(e, () => overlayState.close())}>
-            <Modal.Header>
+          <Modal.Header>
+            <Modal.Heading>
               {isEditMode ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.subcategory')}
-            </Modal.Header>
+            </Modal.Heading>
+          </Modal.Header>
+          <form onSubmit={(e) => submitHandler(e, () => overlayState.close())}>
             <Modal.Body className="flex flex-col gap-4">
               {isEditMode && (
                 <input id="id" name="id" type="hidden" value={`${subcategoryFormData?.id}`} readOnly />

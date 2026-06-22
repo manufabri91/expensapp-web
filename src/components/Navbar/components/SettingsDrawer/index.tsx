@@ -15,7 +15,9 @@ export function SettingsDrawer({ state }: Props) {
       <Drawer.Content placement="right">
         <Drawer.Dialog>
           <Drawer.CloseTrigger />
-          <Drawer.Header>{t('title')}</Drawer.Header>
+          <Drawer.Header>
+            <Drawer.Heading>{t('title')}</Drawer.Heading>
+          </Drawer.Header>
           <Drawer.Body>
             <LocaleSwitcher type="select" />
             <ThemeSelector />

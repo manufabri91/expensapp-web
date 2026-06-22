@@ -92,10 +92,12 @@ export const CategoryForm = () => {
       <Modal.Container>
         <Modal.Dialog>
           <Modal.CloseTrigger />
-          <form action={(data) => submitHandler(data, () => overlayState.close())}>
-            <Modal.Header>
+          <Modal.Header>
+            <Modal.Heading>
               {categoryFormData ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.category')}
-            </Modal.Header>
+            </Modal.Heading>
+          </Modal.Header>
+          <form action={(data) => submitHandler(data, () => overlayState.close())}>
             <Modal.Body className="flex flex-col gap-4">
               {!!categoryFormData && (
                 <div className="hidden">

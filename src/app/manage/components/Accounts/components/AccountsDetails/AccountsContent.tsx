@@ -56,30 +56,42 @@ export const AccountsDetailsContent = ({ accounts }: Props) => {
       {accounts.map((account) => (
         <Card key={account.id}>
           <Card.Header className="flex justify-between pb-0">
-            <h3 className="text-lg font-semibold">{account.name}</h3>
-            <div className="flex flex-row justify-evenly gap-4 sm:hidden">
-              {!(isEditing === account.id) && (
-                <Button variant="secondary" onPress={() => editHandler(account)} size="sm" aria-label={t('Generics.edit')}>
-                  <HiPencil className="mr-1 size-5" aria-label="" />
-                  <span className="hidden md:block">{t('Generics.edit')}</span>
-                </Button>
-              )}
-              {isEditing === account.id && (
-                <Button isDisabled variant="secondary" size="sm" aria-label={t('Generics.editing')}>
-                  <span className="hidden md:block">{t('Generics.editing')}</span>
-                </Button>
-              )}
-              {!(isDeleting === account.id) && (
-                <Button variant="danger" onPress={() => deleteHandler(account)} size="sm" aria-label={t('Generics.delete')}>
-                  <HiTrash className="mr-1 size-5" aria-label="" />
-                  <span className="hidden md:block">{t('Generics.delete')}</span>
-                </Button>
-              )}
-              {isDeleting === account.id && (
-                <Button isDisabled variant="danger" size="sm" aria-label={t('Generics.deleting')}>
-                  <span className="hidden md:block">{t('Generics.deleting')}</span>
-                </Button>
-              )}
+            <div className="flex justify-between">
+              <h3 className="text-lg font-semibold">{account.name}</h3>
+              <div className="flex flex-row justify-evenly gap-2 sm:hidden">
+                {!(isEditing === account.id) && (
+                  <Button
+                    variant="secondary"
+                    onPress={() => editHandler(account)}
+                    size="sm"
+                    aria-label={t('Generics.edit')}
+                  >
+                    <HiPencil className="mr-1 size-5" aria-label="" />
+                    <span className="hidden md:block">{t('Generics.edit')}</span>
+                  </Button>
+                )}
+                {isEditing === account.id && (
+                  <Button isDisabled variant="secondary" size="sm" aria-label={t('Generics.editing')}>
+                    <span className="hidden md:block">{t('Generics.editing')}</span>
+                  </Button>
+                )}
+                {!(isDeleting === account.id) && (
+                  <Button
+                    variant="danger"
+                    onPress={() => deleteHandler(account)}
+                    size="sm"
+                    aria-label={t('Generics.delete')}
+                  >
+                    <HiTrash className="mr-1 size-5" aria-label="" />
+                    <span className="hidden md:block">{t('Generics.delete')}</span>
+                  </Button>
+                )}
+                {isDeleting === account.id && (
+                  <Button isDisabled variant="danger" size="sm" aria-label={t('Generics.deleting')}>
+                    <span className="hidden md:block">{t('Generics.deleting')}</span>
+                  </Button>
+                )}
+              </div>
             </div>
           </Card.Header>
           <Card.Content>

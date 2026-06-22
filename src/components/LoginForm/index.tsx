@@ -45,8 +45,11 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
   };
 
   return (
-    <Form action={action}>
-      <Modal.Header>{isLoginMode ? t('login.title') : t('register.title')}</Modal.Header>
+    <>
+      <Modal.Header>
+        <Modal.Heading>{isLoginMode ? t('login.title') : t('register.title')}</Modal.Heading>
+      </Modal.Header>
+      <Form action={action}>
       <Modal.Body className="flex w-full flex-col gap-4">
         {error && (
           <Alert status="danger">
@@ -175,6 +178,7 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
           )}
         </div>
       </Modal.Footer>
-    </Form>
+      </Form>
+    </>
   );
 };

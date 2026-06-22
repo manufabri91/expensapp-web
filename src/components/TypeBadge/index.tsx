@@ -31,7 +31,7 @@ export const TypeBadge = ({ type, size }: Props) => {
   return (
     <Chip size={size} color={color}>
       <Icon className="size-6 sm:size-4" />
-      <span className="hidden sm:block">{t(`${type.toLowerCase()}.plural`)}</span>
+      <Chip.Label className="hidden sm:block">{t(`${type.toLowerCase()}.plural`)}</Chip.Label>
     </Chip>
   );
 };

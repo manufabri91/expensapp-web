@@ -74,10 +74,12 @@ export const AccountForm = () => {
       <Modal.Container>
         <Modal.Dialog>
           <Modal.CloseTrigger />
-          <form action={(data) => submitHandler(data, () => overlayState.close())}>
-            <Modal.Header>
+          <Modal.Header>
+            <Modal.Heading>
               {accountFormData ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.account')}
-            </Modal.Header>
+            </Modal.Heading>
+          </Modal.Header>
+          <form action={(data) => submitHandler(data, () => overlayState.close())}>
             <Modal.Body className="flex flex-col gap-4">
               {!!accountFormData && (
                 <div className="hidden">
