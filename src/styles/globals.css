@@ -54,9 +54,9 @@
     --default: oklch(94% 0.001 286.375);
     --default-foreground: var(--eclipse);
 
-    /* Accent — green primary action color */
-    --accent: oklch(0.5999 0.1156 172.64); /* green-700 */
-    --accent-foreground: oklch(0.9578 0.0254 187.86); /* green-50 */
+    /* Accent — brand teal #2acfb9 */
+    --accent: oklch(0.68 0.11 175); /* brand teal, darkened for light bg contrast */
+    --accent-foreground: var(--white);
 
     /* Form Field Defaults */
     --field-background: var(--white);
@@ -131,9 +131,9 @@
     --field-placeholder: var(--muted);
     --field-border: transparent;
 
-    /* Accent — green action color (lighter for dark mode) */
-    --accent: oklch(0.65 0.1232 174.46); /* green-600 */
-    --accent-foreground: var(--snow);
+    /* Accent — brand teal #2acfb9, brighter for dark bg */
+    --accent: oklch(0.76 0.11 175); /* ≈ #2acfb9 */
+    --accent-foreground: var(--eclipse);
 
     /* Status */
     --success: oklch(0.6905 0.1294 175.75); /* green-500 */
