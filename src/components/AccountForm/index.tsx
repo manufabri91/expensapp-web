@@ -1,10 +1,6 @@
 'use client';
 
-import { Input } from '@heroui/input';
-import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@heroui/modal';
-import { NumberInput } from '@heroui/number-input';
-import { Select, SelectItem } from '@heroui/select';
-import { addToast } from '@heroui/toast';
+import { InputGroup, Label, ListBox, Modal, NumberField, Select, TextField, toast } from '@heroui/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { useAccountForm } from '@/components/AccountForm/AccountFormProvider';
@@ -19,7 +15,7 @@ import { getCurrencySymbol } from '@/utils/currency';
 export const AccountForm = () => {
   const t = useTranslations();
   const locale = useLocale();
-  const { accountFormData, clearForm, isOpen, onOpenChange } = useAccountForm();
+  const { accountFormData, clearForm, overlayState } = useAccountForm();
   const { addAccount } = useAccounts();
   const [createdAccount, setCreatedAccount] = useState<AccountResponse | null>(null);
   const [editedAccount, setEditedAccount] = useState<AccountResponse | null>(null);
@@ -33,17 +29,17 @@ export const AccountForm = () => {
   useEffect(() => {
     console.log(createdAccount);
     if (createdAccount) {
-      addToast({ title: t('AccountForm.createdSuccess', { id: createdAccount.id }), color: 'success' });
+      toast.success(t('AccountForm.createdSuccess', { id: createdAccount.id }));
       setCreatedAccount(null);
       setProcessing(false);
       clearForm();
     } else if (editedAccount) {
-      addToast({ title: t('AccountForm.editedSuccess', { id: editedAccount.id }), color: 'success' });
+      toast.success(t('AccountForm.editedSuccess', { id: editedAccount.id }));
       setEditedAccount(null);
       setProcessing(false);
       clearForm();
     }
-  }, [clearForm, createdAccount, editedAccount, addToast, t]);
+  }, [clearForm, createdAccount, editedAccount, t]);
 
   const submitHandler = async (formData: FormData, onSuccessSubmit?: () => void) => {
     setProcessing(true);
@@ -60,9 +56,9 @@ export const AccountForm = () => {
       }
     } catch (error) {
       if (error instanceof Error) {
-        addToast({ title: error.message, color: 'danger' });
+        toast.danger(error.message);
       } else {
-        addToast({ title: t('AccountForm.unexpectedError'), color: 'danger' });
+        toast.danger(t('AccountForm.unexpectedError'));
       }
       setCreatedAccount(null);
       setEditedAccount(null);
@@ -71,77 +67,83 @@ export const AccountForm = () => {
     }
   };
 
-  if (!isOpen) return null;
+  if (!overlayState.isOpen) return null;
 
   return (
-    <Modal backdrop="blur" isOpen={isOpen} onOpenChange={onOpenChange} className="overflow-y-auto">
-      <ModalContent>
-        {(onClose) => (
-          <form action={(data) => submitHandler(data, onClose)}>
-            <ModalHeader>
+    <Modal.Backdrop variant="blur" isOpen={overlayState.isOpen} onOpenChange={overlayState.setOpen}>
+      <Modal.Container>
+        <Modal.Dialog>
+          <Modal.CloseTrigger />
+          <Modal.Header>
+            <Modal.Heading>
               {accountFormData ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.account')}
-            </ModalHeader>
-            <ModalBody>
+            </Modal.Heading>
+          </Modal.Header>
+          <form action={(data) => submitHandler(data, () => overlayState.close())}>
+            <Modal.Body className="flex flex-col gap-4">
               {!!accountFormData && (
                 <div className="hidden">
-                  <Input id="id" name="id" type="text" value={`${accountFormData?.id}`} readOnly />
+                  <input id="id" name="id" type="hidden" value={`${accountFormData?.id}`} readOnly />
                 </div>
               )}
-              <Input
-                size="lg"
-                type="text"
-                id="name"
-                name="name"
-                label={t('AccountForm.name')}
-                labelPlacement="outside-top"
-                defaultValue={accountFormData?.name}
-                isRequired
-                fullWidth
-              />
+              <TextField name="name" isRequired defaultValue={accountFormData?.name} fullWidth>
+                <Label>{t('AccountForm.name')}</Label>
+                <InputGroup variant="secondary">
+                  <InputGroup.Input id="name" type="text" />
+                </InputGroup>
+              </TextField>
               <Select
-                size="lg"
-                labelPlacement="outside"
-                label={t('AccountForm.currency')}
                 id="currency"
                 name="currency"
-                defaultSelectedKeys={[accountFormData?.currency || 'EUR']}
-                value={accountFormData?.currency || 'EUR'}
+                defaultSelectedKey={accountFormData?.currency || 'EUR'}
                 isRequired
                 fullWidth
+                variant="secondary"
               >
-                {currencyItems.map(({ key, label }) => (
-                  <SelectItem key={key}>{label}</SelectItem>
-                ))}
+                <Label>{t('AccountForm.currency')}</Label>
+                <Select.Trigger>
+                  <Select.Value />
+                  <Select.Indicator />
+                </Select.Trigger>
+                <Select.Popover>
+                  <ListBox>
+                    {currencyItems.map(({ key, label }) => (
+                      <ListBox.Item key={key} id={key} textValue={label}>
+                        {label}
+                      </ListBox.Item>
+                    ))}
+                  </ListBox>
+                </Select.Popover>
               </Select>
-              <NumberInput
-                size="lg"
+              <NumberField
                 id="initialBalance"
                 name="initialBalance"
-                label={t('AccountForm.initialBalance')}
-                labelPlacement="outside"
                 defaultValue={accountFormData?.initialBalance ?? 0}
-                min="0"
-                inputMode="decimal"
-                hideStepper
                 fullWidth
                 isRequired
-              />
-            </ModalBody>
-            <ModalFooter>
+                variant="secondary"
+              >
+                <Label>{t('AccountForm.initialBalance')}</Label>
+                <InputGroup variant="secondary" fullWidth>
+                  <InputGroup.Input />
+                </InputGroup>
+              </NumberField>
+            </Modal.Body>
+            <Modal.Footer>
               {!processing && (
-                <Button type="submit" color="primary" fullWidth>
+                <Button type="submit" variant="primary" fullWidth>
                   {accountFormData ? t('Generics.edit') : t('Generics.save')}
                 </Button>
               )}
               {processing && (
-                <Button type="button" isLoading disabled fullWidth>
+                <Button type="button" isDisabled fullWidth>
                   {accountFormData ? t('Generics.editing') : t('Generics.saving')}...
                 </Button>
               )}
-            </ModalFooter>
+            </Modal.Footer>
           </form>
-        )}
-      </ModalContent>
-    </Modal>
+        </Modal.Dialog>
+      </Modal.Container>
+    </Modal.Backdrop>
   );
 };

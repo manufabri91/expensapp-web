@@ -1,5 +1,5 @@
 'use client';
-import { Chip } from '@heroui/chip';
+import { Chip } from '@heroui/react';
 import React, { FC } from 'react';
 import { HiArrowTrendingDown, HiArrowTrendingUp } from 'react-icons/hi2';
 import { LiaExchangeAltSolid } from 'react-icons/lia';
@@ -12,7 +12,7 @@ interface Props {
 }
 
 interface BadgeConfig {
-  color?: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | undefined;
+  color?: 'default' | 'accent' | 'success' | 'warning' | 'danger' | undefined;
   icon: FC<React.SVGProps<SVGSVGElement>>;
 }
 
@@ -29,8 +29,9 @@ export const TypeBadge = ({ type, size }: Props) => {
   const t = useTranslations('Generics');
   const { color, icon: Icon } = getConfig(type);
   return (
-    <Chip size={size} color={color} startContent={<Icon className="size-6 sm:size-4" />}>
-      <span className="hidden sm:block">{t(`${type.toLowerCase()}.plural`)}</span>
+    <Chip size={size} color={color}>
+      <Icon className="size-6 sm:size-4" />
+      <Chip.Label className="hidden sm:block">{t(`${type.toLowerCase()}.plural`)}</Chip.Label>
     </Chip>
   );
 };

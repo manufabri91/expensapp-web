@@ -1,14 +1,12 @@
 'use client';
 
-import { useDisclosure } from '@heroui/modal';
+import { useOverlayState, type UseOverlayStateReturn } from '@heroui/react';
 import React, { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 import { CategoryForm } from '@/components/CategoryForm';
 import { CategoryResponse } from '@/types/dto';
 
 interface CategoryFormContextProps {
-  isOpen: boolean;
-  onOpenChange: () => void;
-  onClose: () => void;
+  overlayState: UseOverlayStateReturn;
   showCategoryForm: (Category?: CategoryResponse) => void;
   clearForm: () => void;
   categoryFormData: CategoryResponse | undefined;
@@ -18,12 +16,12 @@ const CategoryFormContext = createContext<CategoryFormContextProps | undefined>(
 
 export const CategoryFormProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [categoryFormData, setCategoryFormData] = useState<CategoryResponse | undefined>();
-  const { onOpen, isOpen, onOpenChange, onClose } = useDisclosure();
+  const overlayState = useOverlayState();
 
   const showCategoryForm = useMemo(
     () => (category?: CategoryResponse) => {
       setCategoryFormData(category);
-      onOpen();
+      overlayState.open();
     },
     [setCategoryFormData]
   );
@@ -37,7 +35,7 @@ export const CategoryFormProvider: React.FC<{ children: ReactNode }> = ({ childr
 
   return (
     <CategoryFormContext.Provider
-      value={{ showCategoryForm, clearForm, onClose, categoryFormData, onOpenChange, isOpen }}
+      value={{ showCategoryForm, clearForm, categoryFormData, overlayState }}
     >
       {children}
       <CategoryForm />

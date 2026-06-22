@@ -1,7 +1,6 @@
 'use client';
 
-import { Card, CardBody, CardFooter, CardHeader } from '@heroui/card';
-import { addToast, closeAll } from '@heroui/toast';
+import { Card, toast } from '@heroui/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { HiPencil, HiTrash } from 'react-icons/hi2';
@@ -18,15 +17,16 @@ export const AccountsDetailsContent = ({ accounts }: Props) => {
   const locale = useLocale();
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
   const [isEditing, setIsEditing] = useState<number | null>(null);
-  const { showAccountForm, isOpen: isAccountFormOpen } = useAccountForm();
+  const { showAccountForm, overlayState } = useAccountForm();
+  const isAccountFormOpen = overlayState.isOpen;
 
   useEffect(() => {
     if (!isAccountFormOpen) {
       setIsEditing(null);
     } else {
-      closeAll();
+      toast.clear();
     }
-  }, [isAccountFormOpen, closeAll]);
+  }, [isAccountFormOpen]);
 
   const editHandler = (account: AccountResponse) => {
     setIsEditing(account.id);
@@ -39,12 +39,12 @@ export const AccountsDetailsContent = ({ accounts }: Props) => {
     try {
       await deleteAccountById(account.id);
 
-      addToast({ title: t('AccountForm.deletedSuccess', { id: account.id }), color: 'success' });
+      toast.success(t('AccountForm.deletedSuccess', { id: account.id }));
     } catch (error) {
       if (error instanceof Error) {
-        addToast({ title: error.message, color: 'danger' });
+        toast.danger(error.message);
       } else {
-        addToast({ title: t('AccountForm.unexpectedError'), color: 'danger' });
+        toast.danger(t('AccountForm.unexpectedError'));
       }
     } finally {
       setIsDeleting(null);
@@ -55,34 +55,46 @@ export const AccountsDetailsContent = ({ accounts }: Props) => {
     <div className="mt-4 flex flex-col gap-6 sm:flex-row">
       {accounts.map((account) => (
         <Card key={account.id}>
-          <CardHeader className="flex justify-between pb-0">
-            <h3 className="text-lg font-semibold">{account.name}</h3>
-            <div className="flex flex-row justify-evenly gap-4 sm:hidden">
-              {!(isEditing === account.id) && (
-                <Button color="secondary" onPress={() => editHandler(account)} size="sm" title={t('Generics.edit')}>
-                  <HiPencil className="mr-1 size-5" aria-label="" />
-                  <span className="hidden md:block">{t('Generics.edit')}</span>
-                </Button>
-              )}
-              {isEditing === account.id && (
-                <Button isLoading color="secondary" size="sm" title={t('Generics.editing')}>
-                  <span className="hidden md:block">{t('Generics.editing')}</span>
-                </Button>
-              )}
-              {!(isDeleting === account.id) && (
-                <Button color="danger" onPress={() => deleteHandler(account)} size="sm" title={t('Generics.delete')}>
-                  <HiTrash className="mr-1 size-5" aria-label="" />
-                  <span className="hidden md:block">{t('Generics.delete')}</span>
-                </Button>
-              )}
-              {isDeleting === account.id && (
-                <Button isLoading color="danger" size="sm" title={t('Generics.deleting')}>
-                  <span className="hidden md:block">{t('Generics.deleting')}</span>
-                </Button>
-              )}
+          <Card.Header className="flex justify-between pb-0">
+            <div className="flex justify-between">
+              <h3 className="text-lg font-semibold">{account.name}</h3>
+              <div className="flex flex-row justify-evenly gap-2 sm:hidden">
+                {!(isEditing === account.id) && (
+                  <Button
+                    variant="secondary"
+                    onPress={() => editHandler(account)}
+                    size="sm"
+                    aria-label={t('Generics.edit')}
+                  >
+                    <HiPencil className="mr-1 size-5" aria-label="" />
+                    <span className="hidden md:block">{t('Generics.edit')}</span>
+                  </Button>
+                )}
+                {isEditing === account.id && (
+                  <Button isDisabled variant="secondary" size="sm" aria-label={t('Generics.editing')}>
+                    <span className="hidden md:block">{t('Generics.editing')}</span>
+                  </Button>
+                )}
+                {!(isDeleting === account.id) && (
+                  <Button
+                    variant="danger"
+                    onPress={() => deleteHandler(account)}
+                    size="sm"
+                    aria-label={t('Generics.delete')}
+                  >
+                    <HiTrash className="mr-1 size-5" aria-label="" />
+                    <span className="hidden md:block">{t('Generics.delete')}</span>
+                  </Button>
+                )}
+                {isDeleting === account.id && (
+                  <Button isDisabled variant="danger" size="sm" aria-label={t('Generics.deleting')}>
+                    <span className="hidden md:block">{t('Generics.deleting')}</span>
+                  </Button>
+                )}
+              </div>
             </div>
-          </CardHeader>
-          <CardBody>
+          </Card.Header>
+          <Card.Content>
             <div className="flex items-center justify-center">
               <Money
                 amount={account.accountBalance}
@@ -91,45 +103,45 @@ export const AccountsDetailsContent = ({ accounts }: Props) => {
                 className="overflow-hidden text-2xl font-medium"
               />
             </div>
-          </CardBody>
-          <CardFooter className="pt-0">
+          </Card.Content>
+          <Card.Footer className="pt-0">
             <div className="hidden w-full flex-row justify-evenly gap-4 sm:flex">
               {!(isEditing === account.id) && (
                 <Button
                   className="md:min-w-28"
-                  color="secondary"
+                  variant="secondary"
                   onPress={() => editHandler(account)}
                   size="sm"
-                  title={t('Generics.edit')}
+                  aria-label={t('Generics.edit')}
                 >
                   <HiPencil className="mr-1 size-5" aria-label="" />
                   <span className="hidden md:block">{t('Generics.edit')}</span>
                 </Button>
               )}
               {isEditing === account.id && (
-                <Button isLoading color="secondary" size="sm" title={t('Generics.editing')}>
+                <Button isDisabled variant="secondary" size="sm" aria-label={t('Generics.editing')}>
                   <span className="hidden md:block">{t('Generics.editing')}</span>
                 </Button>
               )}
               {!(isDeleting === account.id) && (
                 <Button
                   className="md:min-w-28"
-                  color="danger"
+                  variant="danger"
                   onPress={() => deleteHandler(account)}
                   size="sm"
-                  title={t('Generics.delete')}
+                  aria-label={t('Generics.delete')}
                 >
                   <HiTrash className="mr-1 size-5" aria-label="" />
                   <span className="hidden md:block">{t('Generics.delete')}</span>
                 </Button>
               )}
               {isDeleting === account.id && (
-                <Button isLoading color="danger" size="sm" title={t('Generics.deleting')}>
+                <Button isDisabled variant="danger" size="sm" aria-label={t('Generics.deleting')}>
                   <span className="hidden md:block">{t('Generics.deleting')}</span>
                 </Button>
               )}
             </div>
-          </CardFooter>
+          </Card.Footer>
         </Card>
       ))}
     </div>

@@ -1,9 +1,6 @@
 'use client';
 
-import { Input } from '@heroui/input';
-import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@heroui/modal';
-import { Select, SelectItem } from '@heroui/select';
-import { addToast } from '@heroui/toast';
+import { InputGroup, Label, ListBox, Modal, Select, TextField, toast } from '@heroui/react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
@@ -17,7 +14,7 @@ import { SubCategoryResponse } from '@/types/dto';
 export const SubcategoryForm = () => {
   const t = useTranslations();
   const trySystemTranslation = useTrySystemTranslations();
-  const { subcategoryFormData, clearForm, isOpen, onOpenChange } = useSubcategoryForm();
+  const { subcategoryFormData, clearForm, overlayState } = useSubcategoryForm();
 
   const { categories, addSubcategory, refetchAll } = useCategories();
   const [createdSubcategory, setCreatedSubcategory] = useState<SubCategoryResponse | null>(null);
@@ -27,18 +24,18 @@ export const SubcategoryForm = () => {
 
   useEffect(() => {
     if (createdSubcategory) {
-      addToast({ title: t('SubcategoryForm.createdSuccess', { id: createdSubcategory.id }), color: 'success' });
+      toast.success(t('SubcategoryForm.createdSuccess', { id: createdSubcategory.id }));
       addSubcategory(createdSubcategory);
       setCreatedSubcategory(null);
       clearForm();
       setProcessing(false);
     } else if (editedSubcategory) {
-      addToast({ title: t('SubcategoryForm.editedSuccess', { id: editedSubcategory.id }), color: 'success' });
+      toast.success(t('SubcategoryForm.editedSuccess', { id: editedSubcategory.id }));
       setEditedSubcategory(null);
       clearForm();
       setProcessing(false);
     }
-  }, [addSubcategory, clearForm, createdSubcategory, editedSubcategory, addToast, t]);
+  }, [addSubcategory, clearForm, createdSubcategory, editedSubcategory, t]);
 
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>, cb?: () => void) => {
     e.preventDefault();
@@ -57,9 +54,9 @@ export const SubcategoryForm = () => {
       }
     } catch (error) {
       if (error instanceof Error) {
-        addToast({ title: error.message, color: 'danger' });
+        toast.danger(error.message);
       } else {
-        addToast({ title: t('AccountForm.unexpectedError'), color: 'danger' });
+        toast.danger(t('AccountForm.unexpectedError'));
       }
       setEditedSubcategory(null);
       setCreatedSubcategory(null);
@@ -69,66 +66,75 @@ export const SubcategoryForm = () => {
     }
   };
 
-  if (!isOpen) return null;
+  if (!overlayState.isOpen) return null;
 
   return (
-    <Modal backdrop="blur" isOpen={isOpen} onOpenChange={onOpenChange}>
-      <ModalContent>
-        {(onClose) => (
-          <form onSubmit={(e) => submitHandler(e, onClose)}>
-            <ModalHeader>
+    <Modal.Backdrop variant="blur" isOpen={overlayState.isOpen} onOpenChange={overlayState.setOpen}>
+      <Modal.Container>
+        <Modal.Dialog>
+          <Modal.CloseTrigger />
+          <Modal.Header>
+            <Modal.Heading>
               {isEditMode ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.subcategory')}
-            </ModalHeader>
-            <ModalBody>
+            </Modal.Heading>
+          </Modal.Header>
+          <form onSubmit={(e) => submitHandler(e, () => overlayState.close())}>
+            <Modal.Body className="flex flex-col gap-4">
               {isEditMode && (
-                <div className="hidden">
-                  <Input id="id" name="id" type="text" value={`${subcategoryFormData?.id}`} readOnly />
-                </div>
+                <input id="id" name="id" type="hidden" value={`${subcategoryFormData?.id}`} readOnly />
               )}
-              <Input
-                size="lg"
-                id="name"
-                name="name"
-                fullWidth
-                isRequired
-                labelPlacement="outside-top"
-                label={t('CategoryForm.name')}
-                defaultValue={trySystemTranslation(subcategoryFormData?.name ?? '')}
-              />
+              <TextField name="name" isRequired defaultValue={trySystemTranslation(subcategoryFormData?.name ?? '')} fullWidth>
+                <Label>{t('CategoryForm.name')}</Label>
+                <InputGroup variant="secondary">
+                  <InputGroup.Input id="name" type="text" />
+                </InputGroup>
+              </TextField>
               <Select
-                size="lg"
-                label={t('SubcategoryForm.belongsTo')}
                 id="parentCategoryId"
                 name="parentCategoryId"
-                defaultSelectedKeys={
-                  subcategoryFormData ? [subcategoryFormData.parentCategoryId.toString()] : undefined
+                defaultSelectedKey={
+                  subcategoryFormData ? subcategoryFormData.parentCategoryId.toString() : undefined
                 }
                 isRequired
-                labelPlacement="outside"
                 placeholder={t('TransactionForm.selectCategory')}
+                variant="secondary"
               >
-                {categories.map((category) => (
-                  <SelectItem key={category.id} hidden={category.readOnly}>
-                    {category.name}
-                  </SelectItem>
-                ))}
+                <Label>{t('SubcategoryForm.belongsTo')}</Label>
+                <Select.Trigger>
+                  <Select.Value />
+                  <Select.Indicator />
+                </Select.Trigger>
+                <Select.Popover>
+                  <ListBox>
+                    {categories.map((category) => (
+                      <ListBox.Item
+                        key={category.id}
+                        id={category.id.toString()}
+                        textValue={category.name}
+                        hidden={category.readOnly}
+                      >
+                        {category.name}
+                      </ListBox.Item>
+                    ))}
+                  </ListBox>
+                </Select.Popover>
               </Select>
-            </ModalBody>
-            <ModalFooter>
+            </Modal.Body>
+            <Modal.Footer>
               {!processing && (
-                <Button type="submit" color="primary" fullWidth>
+                <Button type="submit" variant="primary" fullWidth>
                   {isEditMode ? t('Generics.edit') : t('Generics.save')}
                 </Button>
               )}
               {processing && (
-                <Button type="button" isLoading disabled fullWidth>
+                <Button type="button" isDisabled fullWidth>
                   {isEditMode ? t('Generics.editing') : t('Generics.saving')}...
                 </Button>
               )}
-            </ModalFooter>
+            </Modal.Footer>
           </form>
-        )}
-      </ModalContent>
-    </Modal>
+        </Modal.Dialog>
+      </Modal.Container>
+    </Modal.Backdrop>
   );
 };

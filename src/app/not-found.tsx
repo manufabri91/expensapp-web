@@ -12,9 +12,9 @@ export default function NotFound() {
         <h1 className="text-xl tracking-widest uppercase">404 | Not Found</h1>
       </div>
 
-      <Button color="primary" as={Link} href="/">
-        Go Home
-      </Button>
+      <Link href="/">
+        <Button variant="primary">Go Home</Button>
+      </Link>
     </main>
   );
 }

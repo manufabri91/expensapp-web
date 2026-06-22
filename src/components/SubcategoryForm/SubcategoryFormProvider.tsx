@@ -1,14 +1,12 @@
 'use client';
-import { useDisclosure } from '@heroui/modal';
+import { useOverlayState, type UseOverlayStateReturn } from '@heroui/react';
 import React, { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 
 import { SubcategoryForm } from '@/components/SubcategoryForm';
 import { SubCategoryResponse } from '@/types/dto';
 
 interface SubcategoryFormContextProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onOpenChange: () => void;
+  overlayState: UseOverlayStateReturn;
   showSubcategoryEditForm: (subcategory?: SubCategoryResponse) => void;
   showSubcategoryCreateForm: (parentCategoryId: number) => void;
   clearForm: () => void;
@@ -19,12 +17,12 @@ const SubcategoryFormContext = createContext<SubcategoryFormContextProps | undef
 
 export const SubcategoryFormProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [subcategoryFormData, setSubcategoryFormData] = useState<SubCategoryResponse | undefined>();
-  const { onOpen, isOpen, onOpenChange, onClose } = useDisclosure();
+  const overlayState = useOverlayState();
 
   const showSubcategoryCreateForm = useMemo(
     () => (parentCategoryId: number) => {
       setSubcategoryFormData({ parentCategoryId, name: '', id: 0, parentCategoryName: '', readonly: false });
-      onOpen();
+      overlayState.open();
     },
     [setSubcategoryFormData]
   );
@@ -33,7 +31,7 @@ export const SubcategoryFormProvider: React.FC<{ children: ReactNode }> = ({ chi
     () => (category?: SubCategoryResponse) => {
       setSubcategoryFormData(category);
 
-      onOpen();
+      overlayState.open();
     },
     [setSubcategoryFormData]
   );
@@ -51,10 +49,8 @@ export const SubcategoryFormProvider: React.FC<{ children: ReactNode }> = ({ chi
         showSubcategoryCreateForm,
         showSubcategoryEditForm,
         clearForm,
-        onClose,
-        onOpenChange,
+        overlayState,
         subcategoryFormData,
-        isOpen,
       }}
     >
       {children}

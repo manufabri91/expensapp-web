@@ -1,5 +1,5 @@
 'use client';
-import { Select, SelectItem } from '@heroui/select';
+import { Label, ListBox, Select } from '@heroui/react';
 import React, { FC } from 'react';
 
 import { useTranslations } from 'use-intl';
@@ -17,40 +17,50 @@ export const IconPickerFormField: FC<Props> = ({ id, name = 'iconName', initialV
   const t = useTranslations('IconPicker');
   const iconItems = AVAILABLE_ICONS.entries()
     .toArray()
-    .map(([name, Icon]) => ({
-      key: name,
-      Icon,
-      label: name,
+    .map(([iconName, IconComponent]) => ({
+      key: iconName,
+      IconComponent,
+      label: iconName,
     }));
 
   return (
     <Select
-      size="lg"
-      label={label ?? 'Icon'}
       placeholder={t('noIcon')}
-      labelPlacement="outside"
       fullWidth
       id={id ?? name}
       name={name}
-      items={iconItems}
-      defaultSelectedKeys={[initialValue]}
-      renderValue={(items) => {
-        return items.map(
-          ({ key, data }) =>
-            data && (
-              <div key={key} className="flex items-center gap-2">
-                {<data.Icon className="size-5" />}
-                <span>{data.label}</span>
-              </div>
-            )
-        );
-      }}
+      defaultSelectedKey={initialValue}
+      variant="secondary"
     >
-      {({ key, Icon, label }) => (
-        <SelectItem key={key} startContent={<Icon className="size-5" />}>
-          {label}
-        </SelectItem>
-      )}
+      <Label>{label ?? 'Icon'}</Label>
+      <Select.Trigger>
+        <Select.Value>
+          {({ selectedItem }) => {
+            if (!selectedItem) return null;
+            const iconEntry = iconItems.find((item) => item.key === selectedItem);
+            if (!iconEntry) return null;
+            return (
+              <div className="flex items-center gap-2">
+                <iconEntry.IconComponent className="size-5" />
+                <span>{iconEntry.label}</span>
+              </div>
+            );
+          }}
+        </Select.Value>
+        <Select.Indicator />
+      </Select.Trigger>
+      <Select.Popover>
+        <ListBox>
+          {iconItems.map(({ key, IconComponent, label: iconLabel }) => (
+            <ListBox.Item key={key} id={key} textValue={iconLabel}>
+              <div className="flex items-center gap-2">
+                <IconComponent className="size-5" />
+                <span>{iconLabel}</span>
+              </div>
+            </ListBox.Item>
+          ))}
+        </ListBox>
+      </Select.Popover>
     </Select>
   );
 };

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@heroui/button';
+import { Button } from '@heroui/react';
 import { useIsSSR } from '@react-aria/ssr';
 import { useTheme } from 'next-themes';
 import { FC } from 'react';
@@ -16,7 +16,7 @@ export const ThemeSwitch: FC = () => {
   };
 
   return (
-    <Button variant="light" isIconOnly onPress={onChange}>
+    <Button variant="ghost" isIconOnly onPress={onChange}>
       {theme === 'dark' || isSSR ? <HiSun size={22} /> : <HiMoon size={22} />}
     </Button>
   );

@@ -1,4 +1,4 @@
-import { Divider } from '@heroui/divider';
+import { Separator } from '@heroui/react';
 import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
 
@@ -23,10 +23,10 @@ export const Features = async () => {
           </div>
         </div>
 
-        <Divider className="my-0 px-8 sm:hidden" />
+        <Separator className="my-0 px-8 sm:hidden" />
         <div className="flex w-full flex-col-reverse flex-wrap sm:flex-row">
           <div className="relative mt-6 hidden w-full flex-1 p-6 sm:block sm:h-96 sm:w-1/3">
-            <Image title={t('2.imageTitle')} src="/images/goals.svg" className="object-contain" fill alt="" />
+            <Image title={t('2.imageTitle')} src="/images/goals.svg" className="object-contain" fill sizes="(max-width: 640px) 100vw, 33vw" alt="" loading="eager" />
           </div>
           <div className="mt-6 w-full content-center p-6 sm:w-1/2">
             <div className="align-middle">

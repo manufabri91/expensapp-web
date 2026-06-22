@@ -1,17 +1,17 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
-import React, { useCallback, useRef, useState } from 'react';
-import { HexColorPicker } from 'react-colorful';
-
-import { Button } from '@/components/Button';
-import useClickOutside from '@/hooks/useClickOutside';
-
-interface ColorPickerProps {
-  label?: string;
-  color: string;
-  onChange: (color: string) => void;
-}
+import {
+  ColorArea,
+  ColorField,
+  ColorSlider,
+  ColorSwatch,
+  ColorSwatchPicker,
+  ColorPicker as HeroUIColorPicker,
+  Label,
+  parseColor,
+} from '@heroui/react';
+import type { Color } from '@heroui/react';
+import { useState } from 'react';
 
 const PRESET_COLORS = [
   '#85bb65',
@@ -28,73 +28,57 @@ const PRESET_COLORS = [
   '#9a2151',
 ];
 
-export const ColorPicker = ({ color, onChange, label = 'Color' }: ColorPickerProps) => {
-  const t = useTranslations('Generics');
-  const popover = useRef<HTMLDivElement>(null);
-  const [isOpen, toggle] = useState(false);
+interface ColorPickerProps {
+  label?: string;
+  color: string;
+  onChange: (color: string) => void;
+}
 
-  const close = useCallback(() => toggle(false), []);
-  useClickOutside(popover, close);
+export const ColorPicker = ({ color, onChange, label = 'Color' }: ColorPickerProps) => {
+  const [value, setValue] = useState(parseColor(color || '#000000'));
+
+  const handleChange = (newColor: Color) => {
+    setValue(newColor);
+    onChange(newColor.toString('hex'));
+  };
 
   return (
-    <>
-      <div className="flex w-min flex-col items-center gap-2">
-        <span className="text-sm">{label}</span>
-        <div
-          className="size-10 cursor-pointer rounded-xl border-2 border-stone-800 dark:border-stone-100"
-          style={{
-            backgroundColor: color,
-            boxShadow: '0 0 0 1px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(0, 0, 0, 0.1)',
-          }}
-          onClick={() => toggle(true)}
-        />
-      </div>
-      {isOpen && (
-        <div className="fixed z-20">
-          <div className="absolute">
-            <div
-              className="dark:bg-brand-purple-800 bg-white"
-              style={{
-                position: 'absolute',
-                top: 'calc(100% + 2px)',
-                left: '0',
-                borderRadius: '9px',
-                boxShadow: ' 0 6px 12px rgba(0, 0, 0, 0.15)',
-              }}
-              ref={popover}
-            >
-              <HexColorPicker color={color} onChange={onChange} />
-              <div className="grid grid-cols-4 p-3">
-                {PRESET_COLORS.map((presetColor) => (
-                  <button
-                    type="button"
-                    key={presetColor}
-                    className="m-1 size-6 rounded-md"
-                    style={{ background: presetColor }}
-                    onClick={() => {
-                      onChange(presetColor);
-                      toggle(false);
-                    }}
-                  />
-                ))}
-              </div>
-              <div className="m-2">
-                <Button
-                  color="primary"
-                  fullWidth
-                  type="button"
-                  onPress={() => {
-                    onChange('');
-                    toggle(false);
-                  }}
-                >
-                  {t('clear')}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+    <HeroUIColorPicker value={value} onChange={handleChange}>
+      <HeroUIColorPicker.Trigger>
+        <ColorSwatch size="lg" />
+        <Label>{label}</Label>
+      </HeroUIColorPicker.Trigger>
+      <HeroUIColorPicker.Popover className="gap-2">
+        <ColorSwatchPicker className="justify-center pt-2" size="xs">
+          {PRESET_COLORS.map((preset) => (
+            <ColorSwatchPicker.Item key={preset} color={preset}>
+              <ColorSwatchPicker.Swatch />
+            </ColorSwatchPicker.Item>
+          ))}
+        </ColorSwatchPicker>
+        <ColorArea
+          aria-label="Color area"
+          className="max-w-full"
+          colorSpace="hsb"
+          xChannel="saturation"
+          yChannel="brightness"
+        >
+          <ColorArea.Thumb />
+        </ColorArea>
+        <ColorSlider aria-label="Hue slider" channel="hue" className="flex-1 px-1" colorSpace="hsb">
+          <ColorSlider.Track>
+            <ColorSlider.Thumb />
+          </ColorSlider.Track>
+        </ColorSlider>
+        <ColorField aria-label="Color field">
+          <ColorField.Group variant="secondary">
+            <ColorField.Prefix>
+              <ColorSwatch size="xs" />
+            </ColorField.Prefix>
+            <ColorField.Input />
+          </ColorField.Group>
+        </ColorField>
+      </HeroUIColorPicker.Popover>
+    </HeroUIColorPicker>
   );
 };

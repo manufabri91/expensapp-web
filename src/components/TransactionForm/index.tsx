@@ -1,15 +1,22 @@
 'use client';
 
-import { DatePicker } from '@heroui/date-picker';
-import { Input } from '@heroui/input';
-import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@heroui/modal';
-import { NumberInput } from '@heroui/number-input';
-import { Select, SelectItem } from '@heroui/select';
-import { Switch } from '@heroui/switch';
-import { addToast } from '@heroui/toast';
+import {
+  Calendar,
+  DateField,
+  DatePicker,
+  InputGroup,
+  Label,
+  ListBox,
+  Modal,
+  NumberField,
+  Select,
+  Switch,
+  TextField,
+  toast,
+} from '@heroui/react';
 import { fromDate, getLocalTimeZone } from '@internationalized/date';
 import { formatISO, parseISO } from 'date-fns';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { useSWRConfig } from 'swr';
 import { Button } from '@/components';
@@ -21,12 +28,14 @@ import { useAccounts } from '@/lib/providers/AccountsProvider';
 import { useCategories } from '@/lib/providers/CategoriesProvider';
 import { SubCategoryResponse, TransactionResponse } from '@/types/dto';
 import { TransactionType } from '@/types/enums/transactionType';
+import { getCurrencySymbol } from '@/utils/currency';
 
 export const TransactionForm = () => {
   const { mutate } = useSWRConfig();
   const t = useTranslations();
+  const locale = useLocale();
   const trySystemTranslations = useTrySystemTranslations();
-  const { onOpenChange, isOpen } = useTransactionForm();
+  const { overlayState } = useTransactionForm();
   const { transactionFormData, clearForm } = useTransactionForm();
   const { accounts } = useAccounts();
   const { categories, subcategories } = useCategories();
@@ -69,43 +78,45 @@ export const TransactionForm = () => {
   }, [subcategories, transactionFormData, accounts]);
 
   useEffect(() => {
-    if (!isOpen) {
+    if (!overlayState.isOpen) {
       restoreFormState();
     }
-  }, [isOpen, restoreFormState]);
+  }, [overlayState.isOpen, restoreFormState]);
 
   // execute when submit
   useEffect(() => {
     if (createdTransaction) {
-      addToast({ title: t('TransactionForm.createdSuccess', { id: createdTransaction.id }), color: 'success' });
+      toast.success(t('TransactionForm.createdSuccess', { id: createdTransaction.id }));
       setCreatedTransaction(null);
       clearForm();
       restoreFormState();
       revalidateTransactions();
     } else if (editedTransaction) {
-      addToast({ title: t('TransactionForm.editedSuccess', { id: editedTransaction.id }), color: 'success' });
+      toast.success(t('TransactionForm.editedSuccess', { id: editedTransaction.id }));
       setEditedTransaction(null);
       clearForm();
       restoreFormState();
       revalidateTransactions();
     }
-  }, [accounts, clearForm, createdTransaction, editedTransaction, restoreFormState, addToast, t]);
+  }, [accounts, clearForm, createdTransaction, editedTransaction, restoreFormState, t]);
 
-  const onSelectedCategory = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedCategory(Number(event.target.value));
-    const validSubcategories = subcategories.filter(
-      (subcategory) => subcategory.parentCategoryId === Number(event.target.value)
-    );
+  const onSelectedCategory = (key: React.Key | null) => {
+    if (key === null) return;
+    const categoryId = Number(key);
+    setSelectedCategory(categoryId);
+    const validSubcategories = subcategories.filter((subcategory) => subcategory.parentCategoryId === categoryId);
     setFilteredSubcategories(validSubcategories);
     setSelectedSubcategory(validSubcategories[0]?.id);
   };
 
-  const onSelectedSubcategory = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedSubcategory(Number(event.target.value));
+  const onSelectedSubcategory = (key: React.Key | null) => {
+    if (key === null) return;
+    setSelectedSubcategory(Number(key));
   };
 
-  const onAccountChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedAccount(Number(event.target.value));
+  const onAccountChange = (key: React.Key | null) => {
+    if (key === null) return;
+    setSelectedAccount(Number(key));
   };
 
   const onTypeChange = (type: TransactionType) => {
@@ -141,9 +152,9 @@ export const TransactionForm = () => {
       }
     } catch (error) {
       if (error instanceof Error) {
-        addToast({ title: error.message, color: 'danger' });
+        toast.danger(error.message);
       } else {
-        addToast({ title: t('TransactionForm.unexpectedError'), color: 'danger' });
+        toast.danger(t('TransactionForm.unexpectedError'));
       }
       setEditedTransaction(null);
       setCreatedTransaction(null);
@@ -153,200 +164,271 @@ export const TransactionForm = () => {
     }
   };
 
-  if (!isOpen) return null;
+  if (!overlayState.isOpen) return null;
 
   return (
-    <Modal backdrop="blur" isOpen={isOpen} onOpenChange={onOpenChange}>
-      <ModalContent>
-        {(onClose) => (
-          <form onSubmit={(e) => submitHandler(e, onClose)}>
-            <ModalHeader>
+    <Modal.Backdrop variant="blur" isOpen={overlayState.isOpen} onOpenChange={overlayState.setOpen}>
+      <Modal.Container scroll="outside">
+        <Modal.Dialog>
+          <Modal.CloseTrigger />
+          <Modal.Header>
+            <Modal.Heading>
               {transactionFormData ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.transaction.singular')}
-            </ModalHeader>
-            <ModalBody>
-              <div className="hidden">
-                <Input id="id" name="id" type="text" value={`${transactionFormData?.id}`} readOnly />
-              </div>
+            </Modal.Heading>
+          </Modal.Header>
+          <form onSubmit={(e) => submitHandler(e, () => overlayState.close())}>
+            <Modal.Body className="flex flex-col gap-4">
+              <input id="id" name="id" type="hidden" value={`${transactionFormData?.id}`} readOnly />
               <div>
                 <TransactionTypeSelector initialValue={selectedType} onSelect={onTypeChange} />
               </div>
-              <NumberInput
+              <NumberField
                 defaultValue={
                   transactionFormData?.amount ? Number(Math.abs(transactionFormData?.amount).toFixed(2)) : 0
                 }
-                formatOptions={
-                  accounts.find((acc) => acc.id === selectedAccount) && {
-                    style: 'currency',
-                    currency: accounts.find((acc) => acc.id === selectedAccount)?.currency || '',
-                  }
-                }
-                inputMode="decimal"
-                size="lg"
-                hideStepper
-                label={t('Generics.amount')}
-                id="amount"
                 name="amount"
-                labelPlacement="outside"
                 fullWidth
                 isRequired
-                min="0"
-                step={0.01}
-              />
+                variant="secondary"
+              >
+                <Label>{t('Generics.amount')}</Label>
+                <InputGroup variant="secondary" fullWidth>
+                  {accounts.find((acc) => acc.id === selectedAccount) && (
+                    <InputGroup.Prefix>
+                      {getCurrencySymbol(locale, accounts.find((acc) => acc.id === selectedAccount)!.currency)}
+                    </InputGroup.Prefix>
+                  )}
+                  <InputGroup.Input />
+                </InputGroup>
+              </NumberField>
               {selectedType !== TransactionType.TRANSFER && (
                 <Switch
                   size="sm"
-                  id="excludeFromTotals"
                   name="excludeFromTotals"
                   defaultSelected={transactionFormData?.excludeFromTotals ?? false}
                 >
-                  {t('TransactionForm.excludeFromTotals')}
+                  <Switch.Content>
+                    <Switch.Control>
+                      <Switch.Thumb />
+                    </Switch.Control>
+                    <span>{t('TransactionForm.excludeFromTotals')}</span>
+                  </Switch.Content>
                 </Switch>
               )}
               {selectedType !== TransactionType.TRANSFER && (
                 <>
                   <Select
-                    size="lg"
-                    label={t('Generics.account')}
                     id="account"
                     name="account"
-                    defaultSelectedKeys={transactionFormData?.accountId.toString() ?? accounts[0]?.id.toString()}
-                    value={transactionFormData?.accountId ?? accounts[0]?.id}
+                    defaultSelectedKey={transactionFormData?.accountId.toString() ?? accounts[0]?.id.toString()}
                     isRequired
-                    labelPlacement="outside"
-                    onChange={onAccountChange}
+                    onSelectionChange={onAccountChange}
+                    variant="secondary"
                   >
-                    {accounts.map((account) => (
-                      <SelectItem key={account.id}>{account.name}</SelectItem>
-                    ))}
+                    <Label>{t('Generics.account')}</Label>
+                    <Select.Trigger>
+                      <Select.Value />
+                      <Select.Indicator />
+                    </Select.Trigger>
+                    <Select.Popover>
+                      <ListBox>
+                        {accounts.map((account) => (
+                          <ListBox.Item key={account.id} id={account.id.toString()} textValue={account.name}>
+                            {account.name}
+                          </ListBox.Item>
+                        ))}
+                      </ListBox>
+                    </Select.Popover>
                   </Select>
-                  <Input
-                    size="lg"
-                    id="description"
-                    name="description"
-                    fullWidth
-                    isRequired
-                    labelPlacement="outside-top"
-                    label={t('Generics.description')}
-                    defaultValue={transactionFormData?.description}
-                  />
+                  <TextField name="description" isRequired defaultValue={transactionFormData?.description} fullWidth>
+                    <Label>{t('Generics.description')}</Label>
+                    <InputGroup variant="secondary">
+                      <InputGroup.Input id="description" type="text" />
+                    </InputGroup>
+                  </TextField>
                 </>
               )}
               {selectedType === TransactionType.TRANSFER && (
                 <>
                   <Select
-                    size="lg"
-                    label={t('Generics.account')}
                     id="account"
                     name="account"
-                    defaultSelectedKeys={transactionFormData?.accountId.toString() ?? accounts[0]?.id.toString()}
-                    value={
-                      (transactionFormData && transactionFormData.subcategory.name === 'TRANSFER.OUT.SUBCATEGORY'
-                        ? transactionFormData?.accountId
-                        : transactionFormData?.linkedTransaction?.accountId) ?? accounts[0]?.id
-                    }
+                    defaultSelectedKey={transactionFormData?.accountId.toString() ?? accounts[0]?.id.toString()}
                     isRequired
-                    labelPlacement="outside"
-                    onChange={onAccountChange}
+                    onSelectionChange={onAccountChange}
                     placeholder={t('TransactionForm.selectAccount')}
+                    variant="secondary"
                   >
-                    {accounts.map((account) => (
-                      <SelectItem key={account.id}>{account.name}</SelectItem>
-                    ))}
+                    <Label>{t('Generics.account')}</Label>
+                    <Select.Trigger>
+                      <Select.Value />
+                      <Select.Indicator />
+                    </Select.Trigger>
+                    <Select.Popover>
+                      <ListBox>
+                        {accounts.map((account) => (
+                          <ListBox.Item key={account.id} id={account.id.toString()} textValue={account.name}>
+                            {account.name}
+                          </ListBox.Item>
+                        ))}
+                      </ListBox>
+                    </Select.Popover>
                   </Select>
                   <Select
-                    size="lg"
-                    label={t('TransactionForm.destinationAccount')}
                     id="destinationAccount"
                     name="destinationAccount"
-                    defaultSelectedKeys={[
+                    defaultSelectedKey={
                       transactionFormData && transactionFormData.subcategory.name === 'TRANSFER.IN.SUBCATEGORY'
                         ? transactionFormData.accountId.toString()
-                        : (transactionFormData?.linkedTransaction?.accountId.toString() ?? ''),
-                    ]}
+                        : (transactionFormData?.linkedTransaction?.accountId.toString() ?? '')
+                    }
                     isRequired
-                    labelPlacement="outside"
                     placeholder={t('TransactionForm.selectAccount')}
+                    variant="secondary"
                   >
-                    {accounts.map((account) => (
-                      <SelectItem key={account.id}>{account.name}</SelectItem>
-                    ))}
+                    <Label>{t('TransactionForm.destinationAccount')}</Label>
+                    <Select.Trigger>
+                      <Select.Value />
+                      <Select.Indicator />
+                    </Select.Trigger>
+                    <Select.Popover>
+                      <ListBox>
+                        {accounts.map((account) => (
+                          <ListBox.Item key={account.id} id={account.id.toString()} textValue={account.name}>
+                            {account.name}
+                          </ListBox.Item>
+                        ))}
+                      </ListBox>
+                    </Select.Popover>
                   </Select>
                 </>
               )}
 
               <DatePicker
-                size="lg"
-                id="eventDate"
                 name="eventDate"
                 granularity="day"
-                label={t('Generics.date')}
                 defaultValue={fromDate(selectedDate, getLocalTimeZone())}
                 value={fromDate(selectedDate, getLocalTimeZone())}
-                onChange={(date) => {
+                onChange={(date: { toDate: () => Date } | null) => {
                   onDateChanged(date?.toDate());
                 }}
-                selectorButtonPlacement="start"
-                labelPlacement="outside"
                 isRequired
-              />
+              >
+                <Label>{t('Generics.date')}</Label>
+                <DateField.Group fullWidth variant="secondary">
+                  <DateField.Input>{(segment) => <DateField.Segment segment={segment} />}</DateField.Input>
+                  <DateField.Suffix>
+                    <DatePicker.Trigger>
+                      <DatePicker.TriggerIndicator />
+                    </DatePicker.Trigger>
+                  </DateField.Suffix>
+                </DateField.Group>
+                <DatePicker.Popover>
+                  <Calendar aria-label={t('Generics.date')}>
+                    <Calendar.Header>
+                      <Calendar.YearPickerTrigger>
+                        <Calendar.YearPickerTriggerHeading />
+                        <Calendar.YearPickerTriggerIndicator />
+                      </Calendar.YearPickerTrigger>
+                      <Calendar.NavButton slot="previous" />
+                      <Calendar.NavButton slot="next" />
+                    </Calendar.Header>
+                    <Calendar.Grid>
+                      <Calendar.GridHeader>
+                        {(day) => <Calendar.HeaderCell>{day}</Calendar.HeaderCell>}
+                      </Calendar.GridHeader>
+                      <Calendar.GridBody>{(date) => <Calendar.Cell date={date} />}</Calendar.GridBody>
+                    </Calendar.Grid>
+                    <Calendar.YearPickerGrid>
+                      <Calendar.YearPickerGridBody>
+                        {({ year }) => <Calendar.YearPickerCell year={year} />}
+                      </Calendar.YearPickerGridBody>
+                    </Calendar.YearPickerGrid>
+                  </Calendar>
+                </DatePicker.Popover>
+              </DatePicker>
               {selectedType !== TransactionType.TRANSFER && (
                 <>
                   <Select
-                    size="lg"
-                    label={t('Generics.category')}
                     id="category"
                     name="category"
-                    defaultSelectedKeys={transactionFormData ? [transactionFormData.category.id.toString()] : undefined}
+                    defaultSelectedKey={transactionFormData ? transactionFormData.category.id.toString() : undefined}
                     isRequired
-                    labelPlacement="outside"
-                    onChange={onSelectedCategory}
+                    onSelectionChange={onSelectedCategory}
                     placeholder={t('TransactionForm.selectCategory')}
+                    variant="secondary"
                   >
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} hidden={category.type !== selectedType}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
+                    <Label>{t('Generics.category')}</Label>
+                    <Select.Trigger>
+                      <Select.Value />
+                      <Select.Indicator />
+                    </Select.Trigger>
+                    <Select.Popover>
+                      <ListBox>
+                        {categories.map((category) => (
+                          <ListBox.Item
+                            key={category.id}
+                            id={category.id.toString()}
+                            textValue={category.name}
+                            hidden={category.type !== selectedType}
+                          >
+                            {category.name}
+                          </ListBox.Item>
+                        ))}
+                      </ListBox>
+                    </Select.Popover>
                   </Select>
 
                   <Select
-                    size="lg"
-                    label={t('Generics.subcategory')}
                     id="subcategory"
                     name="subcategory"
                     isRequired
-                    labelPlacement="outside"
-                    defaultSelectedKeys={
-                      transactionFormData?.subcategory.id ? [transactionFormData.subcategory.id.toString()] : undefined
+                    defaultSelectedKey={
+                      transactionFormData?.subcategory.id ? transactionFormData.subcategory.id.toString() : undefined
                     }
-                    disabled={!selectedCategory}
-                    onChange={onSelectedSubcategory}
-                    value={selectedSubcategory}
-                    items={filteredSubcategories}
+                    isDisabled={!selectedCategory}
+                    onSelectionChange={onSelectedSubcategory}
+                    selectedKey={selectedSubcategory?.toString()}
                     placeholder={t('TransactionForm.selectSubcategory')}
+                    variant="secondary"
                   >
-                    {filteredSubcategories.map((subcategory) => (
-                      <SelectItem key={subcategory.id}>{trySystemTranslations(subcategory.name)}</SelectItem>
-                    ))}
+                    <Label>{t('Generics.subcategory')}</Label>
+                    <Select.Trigger>
+                      <Select.Value />
+                      <Select.Indicator />
+                    </Select.Trigger>
+                    <Select.Popover>
+                      <ListBox>
+                        {filteredSubcategories.map((subcategory) => (
+                          <ListBox.Item
+                            key={subcategory.id}
+                            id={subcategory.id.toString()}
+                            textValue={trySystemTranslations(subcategory.name)}
+                          >
+                            {trySystemTranslations(subcategory.name)}
+                          </ListBox.Item>
+                        ))}
+                      </ListBox>
+                    </Select.Popover>
                   </Select>
                 </>
               )}
-            </ModalBody>
-            <ModalFooter>
+            </Modal.Body>
+            <Modal.Footer>
               {!processing && (
-                <Button type="submit" color="primary" fullWidth>
+                <Button type="submit" variant="primary" fullWidth>
                   {transactionFormData ? t('Generics.edit') : t('Generics.save')}
                 </Button>
               )}
               {processing && (
-                <Button type="button" isLoading disabled fullWidth>
+                <Button type="button" isDisabled fullWidth>
                   {transactionFormData ? t('Generics.editing') : t('Generics.saving')}...
                 </Button>
               )}
-            </ModalFooter>
+            </Modal.Footer>
           </form>
-        )}
-      </ModalContent>
-    </Modal>
+        </Modal.Dialog>
+      </Modal.Container>
+    </Modal.Backdrop>
   );
 };

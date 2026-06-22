@@ -5,7 +5,7 @@ import { DEFAULT_REDIRECT, HOME, PUBLIC_ROUTES } from '@/lib/routes';
 
 const { auth } = NextAuth(authConfig);
 
-export default auth((req) => {
+export const proxy = auth((req) => {
   const { nextUrl } = req;
 
   const isAuthenticated = !!req.auth;
@@ -15,18 +15,13 @@ export default auth((req) => {
 
   if (!isAuthenticated && !isPublicRoute) return NextResponse.redirect(new URL(HOME, nextUrl));
 
-  // Clone the request headers
-  // You can modify them with headers API: https://developer.mozilla.org/en-US/docs/Web/API/Headers
   const requestHeaders = new Headers(req.headers);
 
-  // Add new request headers
   requestHeaders.set('x-current-host', req.nextUrl.host);
   requestHeaders.set('x-protocol', req.nextUrl.protocol);
 
-  // You can also set request headers in NextResponse.rewrite
   return NextResponse.next({
     request: {
-      // New request headers
       headers: requestHeaders,
     },
   });
@@ -34,13 +29,6 @@ export default auth((req) => {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico, sitemap.xml, robots.txt (metadata files)
-     */
     '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\..*|static).*)',
   ],
 };

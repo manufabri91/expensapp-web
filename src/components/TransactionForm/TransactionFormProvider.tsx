@@ -1,13 +1,12 @@
 'use client';
 
-import { useDisclosure } from '@heroui/modal';
+import { useOverlayState, type UseOverlayStateReturn } from '@heroui/react';
 import React, { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 import { TransactionForm } from '@/components/TransactionForm';
 import { TransactionResponse } from '@/types/dto';
 
 interface TransactionFormContextProps {
-  isOpen: boolean;
-  onOpenChange: () => void;
+  overlayState: UseOverlayStateReturn;
   showTransactionForm: (transaction?: TransactionResponse) => void;
   clearForm: () => void;
   transactionFormData: TransactionResponse | undefined;
@@ -17,12 +16,12 @@ const TransactionFormContext = createContext<TransactionFormContextProps | undef
 
 export const TransactionFormProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [transactionFormData, setTransactionFormData] = useState<TransactionResponse | undefined>();
-  const { onOpen, isOpen, onOpenChange } = useDisclosure();
+  const overlayState = useOverlayState();
 
   const showTransactionForm = useMemo(
     () => (transaction?: TransactionResponse) => {
       setTransactionFormData(transaction);
-      onOpen();
+      overlayState.open();
     },
     [setTransactionFormData]
   );
@@ -35,9 +34,7 @@ export const TransactionFormProvider: React.FC<{ children: ReactNode }> = ({ chi
   );
 
   return (
-    <TransactionFormContext.Provider
-      value={{ showTransactionForm, clearForm, transactionFormData, isOpen, onOpenChange }}
-    >
+    <TransactionFormContext.Provider value={{ showTransactionForm, clearForm, transactionFormData, overlayState }}>
       {children}
       <TransactionForm />
     </TransactionFormContext.Provider>

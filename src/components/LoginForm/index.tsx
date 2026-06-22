@@ -1,10 +1,6 @@
 'use client';
 
-import { Alert } from '@heroui/alert';
-import { Checkbox } from '@heroui/checkbox';
-import { Form } from '@heroui/form';
-import { Input } from '@heroui/input';
-import { ModalBody, ModalFooter, ModalHeader } from '@heroui/modal';
+import { Alert, Checkbox, Form, InputGroup, Label, Modal, TextField } from '@heroui/react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useActionState, useEffect, useState } from 'react';
@@ -49,99 +45,101 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
   };
 
   return (
-    <Form action={action}>
-      <ModalHeader>{isLoginMode ? t('login.title') : t('register.title')}</ModalHeader>
-      <ModalBody className="w-full">
-        {error && <Alert color="danger">{error}.</Alert>}
+    <>
+      <Modal.Header>
+        <Modal.Heading>{isLoginMode ? t('login.title') : t('register.title')}</Modal.Heading>
+      </Modal.Header>
+      <Form action={action}>
+      <Modal.Body className="flex w-full flex-col gap-4">
+        {error && (
+          <Alert status="danger">
+            <Alert.Indicator />
+            <Alert.Content>
+              <Alert.Title>{error}.</Alert.Title>
+            </Alert.Content>
+          </Alert>
+        )}
         {!isLoginMode && (
           <>
-            <Input
-              labelPlacement="outside-top"
-              size="lg"
-              fullWidth
-              isRequired
-              errorMessage="Please your name"
-              label={t('form.name')}
+            <TextField
               name="firstName"
-              type="text"
+              isRequired
               defaultValue={(formData?.get('firstName') || '') as string}
-            />
-            <Input
-              labelPlacement="outside-top"
-              size="lg"
               fullWidth
-              isRequired
-              errorMessage="Please enter your last name"
-              label={t('form.surname')}
-              name="lastName"
-              defaultValue={(formData?.get('lastName') || '') as string}
-              type="text"
-            />
-            <Input
-              labelPlacement="outside-top"
-              size="lg"
-              fullWidth
-              isRequired
-              errorMessage="Please an username"
-              label={t('form.username')}
-              name="lastName"
-              defaultValue={(formData?.get('userName') || '') as string}
-              type="text"
-            />
+            >
+              <Label>{t('form.name')}</Label>
+              <InputGroup variant="secondary">
+                <InputGroup.Input type="text" />
+              </InputGroup>
+            </TextField>
+            <TextField name="lastName" isRequired defaultValue={(formData?.get('lastName') || '') as string} fullWidth>
+              <Label>{t('form.surname')}</Label>
+              <InputGroup variant="secondary">
+                <InputGroup.Input type="text" />
+              </InputGroup>
+            </TextField>
+            <TextField name="userName" isRequired defaultValue={(formData?.get('userName') || '') as string} fullWidth>
+              <Label>{t('form.username')}</Label>
+              <InputGroup variant="secondary">
+                <InputGroup.Input type="text" />
+              </InputGroup>
+            </TextField>
           </>
         )}
-        <Input
-          labelPlacement="outside-top"
-          size="lg"
-          fullWidth
-          isRequired
-          placeholder="john_doe@email.com"
-          startContent={isLoginMode ? <HiEnvelope /> : undefined}
-          errorMessage="Please a valid email"
-          label={t('form.email')}
-          name="email"
-          defaultValue={(formData?.get('email') || '') as string}
-          type="email"
-        />
-        <Input
-          labelPlacement="outside-top"
-          size="lg"
-          fullWidth
-          isRequired
-          startContent={isLoginMode ? <HiKey /> : undefined}
-          endContent={
-            <button
-              aria-label="toggle password visibility"
-              className="outline-transparent focus:outline-solid"
-              type="button"
-              onClick={toggleVisibility}
-            >
-              {isVisible ? <HiEyeSlash className="text-2xl" /> : <HiEye className="text-2xl" />}
-            </button>
-          }
-          errorMessage="Please a valid password"
-          label={t('form.password')}
-          name="password"
-          defaultValue={(formData?.get('password') || '') as string}
-          type={isVisible ? 'text' : 'password'}
-        />
+        <TextField name="email" isRequired defaultValue={(formData?.get('email') || '') as string} fullWidth>
+          <Label>{t('form.email')}</Label>
+          <InputGroup variant="secondary">
+            {isLoginMode && (
+              <InputGroup.Prefix>
+                <HiEnvelope />
+              </InputGroup.Prefix>
+            )}
+            <InputGroup.Input type="email" placeholder="john_doe@email.com" />
+          </InputGroup>
+        </TextField>
+        <TextField name="password" isRequired defaultValue={(formData?.get('password') || '') as string} fullWidth>
+          <Label>{t('form.password')}</Label>
+          <InputGroup variant="secondary">
+            {isLoginMode && (
+              <InputGroup.Prefix>
+                <HiKey />
+              </InputGroup.Prefix>
+            )}
+            <InputGroup.Input type={isVisible ? 'text' : 'password'} />
+            <InputGroup.Suffix>
+              <button
+                aria-label="toggle password visibility"
+                className="outline-transparent focus:outline-solid"
+                type="button"
+                onClick={toggleVisibility}
+              >
+                {isVisible ? <HiEyeSlash className="text-2xl" /> : <HiEye className="text-2xl" />}
+              </button>
+            </InputGroup.Suffix>
+          </InputGroup>
+        </TextField>
         {!isLoginMode && (
-          <Input
-            labelPlacement="outside-top"
-            size="lg"
-            fullWidth
-            isRequired
-            errorMessage="Please a valid password"
-            label={t('form.confirmPassword')}
+          <TextField
             name="passwordRepeat"
+            isRequired
             defaultValue={(formData?.get('passwordRepeat') || '') as string}
-            type="password"
-          />
+            fullWidth
+          >
+            <Label>{t('form.confirmPassword')}</Label>
+            <InputGroup variant="secondary">
+              <InputGroup.Input type="password" />
+            </InputGroup>
+          </TextField>
         )}
         {isLoginMode && (
           <div className="flex justify-between">
-            <Checkbox id="remember" name="remember" size="sm">
-              <span>{t('form.rememberMe')}</span>
+            <Checkbox name="remember" variant="secondary">
+              <Checkbox.Content>
+                <Checkbox.Control>
+                  <Checkbox.Indicator />
+                </Checkbox.Control>
+                <span>{t('form.rememberMe')}</span>
+              </Checkbox.Content>
             </Checkbox>
             <Link
               href="/auth/forgot-password"
@@ -152,8 +150,8 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
             </Link>
           </div>
         )}
-      </ModalBody>
-      <ModalFooter className="flex w-full flex-col gap-3">
+      </Modal.Body>
+      <Modal.Footer className="flex w-full flex-col gap-3">
         <CTAButton handleLoginClicked={handleLoginClicked} isLoginMode={isLoginMode} />
         <div className="flex text-sm">
           {isLoginMode && (
@@ -179,7 +177,8 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
             </>
           )}
         </div>
-      </ModalFooter>
-    </Form>
+      </Modal.Footer>
+      </Form>
+    </>
   );
 };

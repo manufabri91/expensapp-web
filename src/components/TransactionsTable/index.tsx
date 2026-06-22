@@ -1,13 +1,9 @@
 'use client';
 
-import { Pagination } from '@heroui/pagination';
-import { Spinner } from '@heroui/spinner';
-import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@heroui/table';
-import { addToast } from '@heroui/toast';
-import { Tooltip } from '@heroui/tooltip';
+import { Pagination, Spinner, Table, toast, Tooltip } from '@heroui/react';
 import { parseISO } from 'date-fns';
 import { useFormatter, useLocale, useTranslations } from 'next-intl';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { HiPencil, HiPlus, HiTrash } from 'react-icons/hi2';
 import useSWR from 'swr';
 import { Button } from '@/components/Button';
@@ -40,7 +36,8 @@ export const TransactionsTable = ({ showPagination = false, noTransactionsMessag
   const format = useFormatter();
   const locale = useLocale();
   const trySystemTranslations = useTrySystemTranslations();
-  const { showTransactionForm, isOpen: openedTransactionForm } = useTransactionForm();
+  const { showTransactionForm, overlayState } = useTransactionForm();
+  const openedTransactionForm = overlayState.isOpen;
   const [changedTransaction, setChangedTransaction] = useState<ActionResult | null>(null);
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
   const [isEditing, setIsEditing] = useState<number | null>(null);
@@ -57,9 +54,9 @@ export const TransactionsTable = ({ showPagination = false, noTransactionsMessag
 
   useEffect(() => {
     if (changedTransaction && !changedTransaction.success) {
-      addToast({ title: t('TransactionForm.unexpectedError'), color: 'danger' });
+      toast.danger(t('TransactionForm.unexpectedError'));
     }
-  }, [changedTransaction, addToast, t]);
+  }, [changedTransaction, t]);
 
   useEffect(() => {
     if (!openedTransactionForm) {
@@ -72,13 +69,13 @@ export const TransactionsTable = ({ showPagination = false, noTransactionsMessag
     try {
       const result = await deleteTransactionById(tx.id);
       setChangedTransaction(result);
-      addToast({ title: t('TransactionForm.deletedSuccess', { id: tx.id }), color: 'success' });
+      toast.success(t('TransactionForm.deletedSuccess', { id: tx.id }));
       mutate();
     } catch (error) {
       if (error instanceof Error) {
-        addToast({ title: error.message, color: 'danger' });
+        toast.danger(error.message);
       } else {
-        addToast({ title: t('TransactionForm.unexpectedError'), color: 'danger' });
+        toast.danger(t('TransactionForm.unexpectedError'));
       }
     } finally {
       setIsDeleting(null);
@@ -90,127 +87,151 @@ export const TransactionsTable = ({ showPagination = false, noTransactionsMessag
     showTransactionForm({ ...tx });
   };
 
-  const loadingState = isLoading ? 'loading' : 'idle';
-
-  // data?.content.length === 0
+  const pages = useMemo(() => Array.from({ length: filters.totalPages }, (_, i) => i + 1), [filters.totalPages]);
 
   return (
-    <Table
-      className="mt-4"
-      aria-label={t('Generics.transaction.plural')}
-      topContent={
-        <Button
-          size="sm"
-          color="primary"
-          className="w-min"
-          onPress={() => {
-            showTransactionForm();
-          }}
-        >
-          <HiPlus className="mr-1 size-5" />
-          <div className="hidden md:block">{t('Generics.new.female')}</div>
-        </Button>
-      }
-      bottomContent={
-        showPagination && filters && filters.totalPages > 0 ? (
-          <div className="flex w-full justify-center">
-            <Pagination
-              isCompact
-              showControls
-              showShadow
-              color="primary"
-              page={filters.currentPage}
-              total={filters.totalPages}
-              onChange={(page) => patchFilters({ currentPage: page })}
-            />
-          </div>
-        ) : null
-      }
-    >
-      <TableHeader>
-        <TableColumn>{t('Generics.description')}</TableColumn>
-        <TableColumn>{t('Generics.account')}</TableColumn>
-        <TableColumn>{t('Generics.category')}</TableColumn>
-        <TableColumn>{t('Generics.subcategory')}</TableColumn>
-        <TableColumn>{t('Generics.date')}</TableColumn>
-        <TableColumn className="text-end">{t('Generics.amount')}</TableColumn>
-        <TableColumn className="pr-7 text-end">{t('Generics.actions')}</TableColumn>
-      </TableHeader>
-      <TableBody
-        className="divide-y text-base"
-        items={data?.content ?? []}
-        loadingContent={<Spinner />}
-        loadingState={loadingState}
-        emptyContent={noTransactionsMessage ?? t('TransactionsTable.noTransactions')}
+    <div className="mt-4">
+      <Button
+        size="sm"
+        variant="primary"
+        className="mb-6 w-min"
+        onPress={() => {
+          showTransactionForm();
+        }}
       >
-        {(transaction) => (
-          <TableRow key={transaction.id}>
-            <TableCell>
-              <span className="flex items-center gap-2">
-                {AVAILABLE_ICONS.has(transaction.category.iconName) &&
-                  React.createElement(AVAILABLE_ICONS.get(transaction.category.iconName)!, {
-                    color: transaction.category.color ?? undefined,
-                    className: 'size-6 mr-1',
-                  })}
-                {trySystemTranslations(transaction.description)}
-              </span>
-            </TableCell>
+        <HiPlus className="mr-1 size-5" />
+        <div className="hidden md:block">{t('Generics.new.female')}</div>
+      </Button>
 
-            <TableCell>{transaction.accountName}</TableCell>
+      <Table>
+        <Table.ScrollContainer>
+          <Table.Content aria-label={t('Generics.transaction.plural')}>
+            <Table.Header>
+              <Table.Column id="description" isRowHeader>
+                {t('Generics.description')}
+              </Table.Column>
+              <Table.Column id="account">{t('Generics.account')}</Table.Column>
+              <Table.Column id="category">{t('Generics.category')}</Table.Column>
+              <Table.Column id="subcategory">{t('Generics.subcategory')}</Table.Column>
+              <Table.Column id="date">{t('Generics.date')}</Table.Column>
+              <Table.Column id="amount" className="text-end">
+                {t('Generics.amount')}
+              </Table.Column>
+              <Table.Column id="actions" className="pr-7 text-end">
+                {t('Generics.actions')}
+              </Table.Column>
+            </Table.Header>
+            <Table.Body
+              items={data?.content ?? []}
+              renderEmptyState={() =>
+                isLoading ? <Spinner /> : (noTransactionsMessage ?? t('TransactionsTable.noTransactions'))
+              }
+            >
+              {(transaction) => (
+                <Table.Row id={transaction.id}>
+                  <Table.Cell>
+                    <span className="flex items-center gap-2">
+                      {AVAILABLE_ICONS.has(transaction.category.iconName) &&
+                        React.createElement(AVAILABLE_ICONS.get(transaction.category.iconName)!, {
+                          color: transaction.category.color ?? undefined,
+                          className: 'size-6 mr-1',
+                        })}
+                      {trySystemTranslations(transaction.description)}
+                    </span>
+                  </Table.Cell>
 
-            <TableCell>{trySystemTranslations(transaction.category.name)}</TableCell>
+                  <Table.Cell>{transaction.accountName}</Table.Cell>
 
-            <TableCell>{trySystemTranslations(transaction.subcategory.name)}</TableCell>
+                  <Table.Cell>{trySystemTranslations(transaction.category.name)}</Table.Cell>
 
-            <TableCell>
-              {format.dateTime(parseISO(transaction.eventDate), {
-                year: '2-digit',
-                month: '2-digit',
-                day: '2-digit',
-              })}
-            </TableCell>
+                  <Table.Cell>{trySystemTranslations(transaction.subcategory.name)}</Table.Cell>
 
-            <TableCell className="text-right font-semibold">
-              <Money amount={transaction.amount} currency={transaction.currencyCode} locale={locale} />
-            </TableCell>
+                  <Table.Cell>
+                    {format.dateTime(parseISO(transaction.eventDate), {
+                      year: '2-digit',
+                      month: '2-digit',
+                      day: '2-digit',
+                    })}
+                  </Table.Cell>
 
-            <TableCell className="flex justify-end gap-1 md:gap-2">
-              <Tooltip
-                content={isEditing === transaction.id ? t('Generics.editing') : t('Generics.edit')}
-                color="secondary"
-              >
-                <Button
-                  isDisabled={isEditing === transaction.id}
-                  isLoading={isEditing === transaction.id}
-                  isIconOnly
-                  aria-label={isEditing === transaction.id ? t('Generics.editing') : t('Generics.edit')}
-                  onPress={() => editHandler(transaction)}
-                  color="secondary"
-                  variant="light"
-                >
-                  <HiPencil />
-                </Button>
-              </Tooltip>
-              <Tooltip
-                color="danger"
-                content={isDeleting === transaction.id ? t('Generics.deleting') : t('Generics.delete')}
-              >
-                <Button
-                  isIconOnly
-                  isDisabled={isDeleting === transaction.id}
-                  isLoading={isDeleting === transaction.id}
-                  aria-label={isDeleting === transaction.id ? t('Generics.deleting') : t('Generics.delete')}
-                  onPress={() => deleteHandler(transaction)}
-                  color="danger"
-                  variant="light"
-                >
-                  <HiTrash />
-                </Button>
-              </Tooltip>
-            </TableCell>
-          </TableRow>
+                  <Table.Cell className="text-right font-semibold">
+                    <Money amount={transaction.amount} currency={transaction.currencyCode} locale={locale} />
+                  </Table.Cell>
+
+                  <Table.Cell className="flex justify-end gap-1 md:gap-2">
+                    <Tooltip>
+                      <Tooltip.Trigger>
+                        <Button
+                          isDisabled={isEditing === transaction.id}
+                          isIconOnly
+                          aria-label={isEditing === transaction.id ? t('Generics.editing') : t('Generics.edit')}
+                          onPress={() => editHandler(transaction)}
+                          variant="ghost"
+                        >
+                          <HiPencil />
+                        </Button>
+                      </Tooltip.Trigger>
+                      <Tooltip.Content>
+                        {isEditing === transaction.id ? t('Generics.editing') : t('Generics.edit')}
+                      </Tooltip.Content>
+                    </Tooltip>
+                    <Tooltip>
+                      <Tooltip.Trigger>
+                        <Button
+                          isIconOnly
+                          isDisabled={isDeleting === transaction.id}
+                          aria-label={isDeleting === transaction.id ? t('Generics.deleting') : t('Generics.delete')}
+                          onPress={() => deleteHandler(transaction)}
+                          variant="danger"
+                        >
+                          <HiTrash />
+                        </Button>
+                      </Tooltip.Trigger>
+                      <Tooltip.Content>
+                        {isDeleting === transaction.id ? t('Generics.deleting') : t('Generics.delete')}
+                      </Tooltip.Content>
+                    </Tooltip>
+                  </Table.Cell>
+                </Table.Row>
+              )}
+            </Table.Body>
+          </Table.Content>
+        </Table.ScrollContainer>
+        {showPagination && filters && filters.totalPages > 1 && (
+          <Table.Footer>
+            <Pagination size="sm">
+              <Pagination.Content>
+                <Pagination.Item>
+                  <Pagination.Previous
+                    isDisabled={filters.currentPage === 1}
+                    onPress={() => patchFilters({ currentPage: Math.max(1, filters.currentPage - 1) })}
+                  >
+                    <Pagination.PreviousIcon />
+                  </Pagination.Previous>
+                </Pagination.Item>
+                {pages.map((p) => (
+                  <Pagination.Item key={p}>
+                    <Pagination.Link
+                      isActive={p === filters.currentPage}
+                      onPress={() => patchFilters({ currentPage: p })}
+                    >
+                      {p}
+                    </Pagination.Link>
+                  </Pagination.Item>
+                ))}
+                <Pagination.Item>
+                  <Pagination.Next
+                    isDisabled={filters.currentPage === filters.totalPages}
+                    onPress={() => patchFilters({ currentPage: Math.min(filters.totalPages, filters.currentPage + 1) })}
+                  >
+                    <Pagination.NextIcon />
+                  </Pagination.Next>
+                </Pagination.Item>
+              </Pagination.Content>
+            </Pagination>
+          </Table.Footer>
         )}
-      </TableBody>
-    </Table>
+      </Table>
+    </div>
   );
 };

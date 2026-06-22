@@ -1,11 +1,11 @@
 'use client';
 
-import { ButtonProps, Button as FlowbiteButton } from '@heroui/button';
+import { ButtonProps, Button as HeroUIButton } from '@heroui/react';
 
 export const Button = (props: ButtonProps) => {
   return (
-    <FlowbiteButton radius="full" {...props}>
+    <HeroUIButton {...props} className={`rounded-full ${props.className ?? ''}`}>
       {props.children}
-    </FlowbiteButton>
+    </HeroUIButton>
   );
 };

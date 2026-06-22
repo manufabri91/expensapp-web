@@ -15,9 +15,9 @@ export default function Error() {
         <p>It&apos;s likely to be our fault, don&apos;t worry</p>
       </div>
 
-      <Button color="primary" as={Link} href="/">
-        Go Back
-      </Button>
+      <Link href="/">
+        <Button variant="primary">Go Back</Button>
+      </Link>
     </main>
   );
 }

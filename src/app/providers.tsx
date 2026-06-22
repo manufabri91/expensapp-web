@@ -1,7 +1,6 @@
 'use client';
 
-import { HeroUIProvider } from '@heroui/system';
-import { ToastProvider } from '@heroui/toast';
+import { I18nProvider, RouterProvider, Toast } from '@heroui/react';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import type { ThemeProviderProps } from 'next-themes';
@@ -23,9 +22,11 @@ export function Providers({ children, themeProps }: ProvidersProps) {
   const locale = useLocale();
 
   return (
-    <HeroUIProvider navigate={router.push} locale={locale}>
-      <ToastProvider />
-      <NextThemesProvider {...themeProps}>{children}</NextThemesProvider>
-    </HeroUIProvider>
+    <I18nProvider locale={locale}>
+      <RouterProvider navigate={router.push}>
+        <Toast.Provider />
+        <NextThemesProvider {...themeProps}>{children}</NextThemesProvider>
+      </RouterProvider>
+    </I18nProvider>
   );
 }

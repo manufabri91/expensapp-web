@@ -1,5 +1,4 @@
-import { Card, CardBody } from '@heroui/card';
-import { Spinner } from '@heroui/spinner';
+import { Card, Spinner } from '@heroui/react';
 import { getTranslations } from 'next-intl/server';
 import React, { Suspense } from 'react';
 
@@ -21,10 +20,10 @@ export const Categories = async () => {
       <Suspense
         fallback={
           <Card>
-            <CardBody className="flex flex-col items-center justify-center gap-2">
+            <Card.Content className="flex flex-col items-center justify-center gap-2">
               <Spinner className="mr-2" />
               {t('loading')}
-            </CardBody>
+            </Card.Content>
           </Card>
         }
       >
