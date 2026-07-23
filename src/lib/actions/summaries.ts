@@ -1,7 +1,7 @@
 import { headers as nextHeaders } from 'next/headers';
 
 import { getBaseUrl } from '@/lib/utils/url';
-import { CategorySummaryResponse, CurrencySummaryResponse } from '@/types/dto';
+import { CategorySummaryResponse, CurrencySummaryResponse, MonthlyBalanceSummaryResponse } from '@/types/dto';
 import { AmountPerCurrencyDto } from '@/types/dto/amountPerCurrencyDto';
 
 const getSummaryBaseUrl = async () => {
@@ -152,6 +152,23 @@ export const getMonthlyExpenses = async (year: number, month: number): Promise<A
   });
   if (!response.ok) {
     throw new Error('Failed to fetch transactions');
+  }
+  return await response.json();
+};
+
+export const getMonthlyHistory = async (months = 6): Promise<MonthlyBalanceSummaryResponse[]> => {
+  const baseUrl = await getSummaryBaseUrl();
+  const cookie = (await nextHeaders()).get('cookie')!;
+  const response = await fetch(`${baseUrl}/monthly-history/${months}`, {
+    headers: {
+      cookie,
+    },
+    next: {
+      revalidate: 3600,
+    },
+  });
+  if (!response.ok) {
+    throw new Error('Failed to fetch Monthly history');
   }
   return await response.json();
 };
