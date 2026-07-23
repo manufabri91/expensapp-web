@@ -2,9 +2,16 @@ import { Card, Separator } from '@heroui/react';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { HiArrowTrendingDown, HiArrowTrendingUp, HiEquals } from 'react-icons/hi2';
 import { Money } from '@/components';
-import { SYSTEM_TRANSLATION_KEYS } from '@/constants';
-import { getMonthSummary, getTotalsByCategory } from '@/lib/actions/summaries';
-import { CategorySummaryResponse, CurrencySummaryResponse } from '@/types/dto';
+import { ALLOWED_CURRENCIES } from '@/constants';
+import { getMonthlyHistory, getMonthSummary, getTotalsByCategory } from '@/lib/actions/summaries';
+import { CategorySummaryResponse, CurrencySummaryResponse, MonthlyBalanceSummaryResponse } from '@/types/dto';
+import CategoriesSummaryPie from './CategoriesSummaryPie';
+import RecentMonthsBalanceChart from './RecentMonthsBalanceChart';
+
+const currenciesPresentIn = (currencies: Iterable<string>) => {
+  const present = new Set(currencies);
+  return ALLOWED_CURRENCIES.filter((currency) => present.has(currency));
+};
 
 const TrendIcon = ({ amount }: { amount: number }) => {
   if (amount < 0) {
@@ -24,17 +31,21 @@ export const Summary = async () => {
   const month = date.getMonth() + 1;
   const summaries: CurrencySummaryResponse[] = await getMonthSummary();
   const categorySummaries: CategorySummaryResponse[] = await getTotalsByCategory(year, month);
+  const monthlyHistory: MonthlyBalanceSummaryResponse[] = await getMonthlyHistory(6);
+
+  const categoryCurrencies = currenciesPresentIn(categorySummaries.flatMap((category) => Object.keys(category.totals)));
+  const historyCurrencies = currenciesPresentIn(monthlyHistory.map((entry) => entry.currency));
 
   return (
     <>
-      <div>
-        <div className="flex w-full flex-col justify-center gap-4 md:flex md:flex-row md:flex-wrap">
+      <div className="mb-4 flex flex-col justify-center gap-4 md:flex-row">
+        <div className="flex h-min flex-col justify-center gap-4 md:flex">
           {summaries.map((currencySummary) => (
             <Card key={currencySummary.currency} className="md:min-w-[300px]">
               <Card.Content>
                 <div className="flex h-fit w-fit flex-col items-center justify-between self-center">
                   <h3 className="text-lg font-semibold text-nowrap">
-                    {t('Dashboard.summary.balance.title', {
+                    {t('Dashboard.summary.balance.current.title', {
                       currencyCode: t(`Generics.currencies.${currencySummary.currency}.plural`),
                     })}
                   </h3>
@@ -84,68 +95,24 @@ export const Summary = async () => {
               </Card.Content>
             </Card>
           ))}
-        </div>
-      </div>
-      {categorySummaries.length > 0 && (
-        <div className="h-full">
-          <h3 className="mt-8 mb-4 text-xl font-semibold text-gray-800 md:mt-16 dark:text-gray-100">
-            {t('Dashboard.summary.totalsPerCategory.title')}
-          </h3>
-          <div>
-            <div className="col-auto grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-              {categorySummaries.map((categorySummary) => (
-                <Card key={categorySummary.id}>
-                  <Card.Content>
-                    <div className="flex h-full flex-col justify-start">
-                      <div className="flex items-baseline justify-between">
-                        <span className="text-lg font-semibold text-nowrap">{categorySummary.name}</span>
-
-                        <div className="flex flex-col items-end">
-                          {Object.entries(categorySummary.totals).map(([currency, total]) => (
-                            <Money
-                              locale={locale}
-                              key={currency}
-                              amount={total}
-                              currency={currency}
-                              className="overflow-hidden text-base font-semibold"
-                            />
-                          ))}
-                        </div>
-                      </div>
-                      <Separator className="my-3" />
-                      {categorySummary.subTotalsPerSubCategory.map((subCategory, idx) => (
-                        <div key={subCategory.id}>
-                          <div className="mb-1 flex items-start justify-between">
-                            <span>
-                              {SYSTEM_TRANSLATION_KEYS.includes(subCategory.name)
-                                ? t(`System.${subCategory.name}`)
-                                : subCategory.name}
-                            </span>
-                            <div className="flex flex-col items-end">
-                              {Object.entries(subCategory.subtotals).map(([currency, subtotal]) => (
-                                <Money
-                                  key={currency}
-                                  amount={subtotal}
-                                  currency={currency}
-                                  locale={locale}
-                                  className="overflow-hidden text-base"
-                                />
-                              ))}
-                            </div>
-                          </div>
-                          {idx < categorySummary.subTotalsPerSubCategory.length - 1 && (
-                            <Separator className="my-2 opacity-40" />
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </Card.Content>
-                </Card>
+          {historyCurrencies.length > 0 && (
+            <>
+              {historyCurrencies.map((currency) => (
+                <RecentMonthsBalanceChart key={currency} data={monthlyHistory} currency={currency} locale={locale} />
               ))}
-            </div>
-          </div>
+            </>
+          )}
         </div>
-      )}
+        {categoryCurrencies.length > 0 &&
+          categoryCurrencies.map((currency) => (
+            <CategoriesSummaryPie
+              key={currency}
+              categorySummaries={categorySummaries}
+              currency={currency}
+              locale={locale}
+            />
+          ))}
+      </div>
     </>
   );
 };

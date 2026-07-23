@@ -6,6 +6,7 @@ interface Props {
   warnIfZero?: boolean;
   className?: string;
   locale?: string;
+  hideNegativeSign?: boolean;
 }
 const getColor = (amount: number, warnIfZero = false) => {
   if (warnIfZero && amount === 0) {
@@ -14,13 +15,13 @@ const getColor = (amount: number, warnIfZero = false) => {
   return amount < 0 ? 'text-red-600' : 'text-emerald-600 dark:text-emerald-500';
 };
 
-export const Money = ({ amount, currency, locale, warnIfZero, className }: Props) => {
+export const Money = ({ amount, currency, locale, warnIfZero, className, hideNegativeSign }: Props) => {
   return (
     <div className={className}>
       <NumberFlow
         locales={locale}
         className={`${getColor(amount, warnIfZero)} ${className}`}
-        value={amount}
+        value={hideNegativeSign ? Math.abs(amount) : amount}
         format={
           currency
             ? { style: 'currency', currency, trailingZeroDisplay: 'stripIfInteger' }

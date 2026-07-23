@@ -77,10 +77,18 @@
     "latestTransactions": "Latest Transactions",
     "summary": {
       "balance": {
-        "title": "Balance in {currencyCode}"
+        "current": {
+          "title": "Current balance"
+        },
+        "lastMonths": {
+          "title": "Balance in {currencyCode} (last 6 months)"
+        }
       },
       "totalsPerCategory": {
         "title": "Expenses per Category"
+      },
+      "history": {
+        "title": "Income vs Expenses (Last 6 Months)"
       }
     }
   },

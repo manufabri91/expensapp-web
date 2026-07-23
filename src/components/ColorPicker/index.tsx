@@ -13,7 +13,7 @@ import {
 import type { Color } from '@heroui/react';
 import { useState } from 'react';
 
-const PRESET_COLORS = [
+export const PRESET_COLORS = [
   '#85bb65',
   '#8ea6d6',
   '#ffa600',
