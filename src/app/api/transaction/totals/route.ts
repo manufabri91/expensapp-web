@@ -1,0 +1,23 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import { UnauthorizedError } from '@/types/exceptions/unauthorized';
+
+export const GET = async (request: NextRequest) => {
+  try {
+    const session = await auth();
+    if (!session) {
+      throw new UnauthorizedError();
+    }
+    const queryParams = request.nextUrl.searchParams.size > 0 ? `?${request.nextUrl.searchParams.toString()}` : '';
+    const response = await fetch(`${process.env.API_URL}/transaction/totals${queryParams}`, {
+      headers: {
+        Authorization: session.user.token,
+      },
+    });
+    const totals = await response.json();
+    return NextResponse.json(totals);
+  } catch (error) {
+    console.log(error);
+    return NextResponse.error();
+  }
+};

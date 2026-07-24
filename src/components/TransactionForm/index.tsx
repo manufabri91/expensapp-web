@@ -21,12 +21,14 @@ import { useCallback, useEffect, useState } from 'react';
 import { useSWRConfig } from 'swr';
 import { Button } from '@/components';
 import { useTransactionForm } from '@/components/TransactionForm/TransactionFormProvider';
+import { isRecentTransactionsFirstPageKey } from '@/components/TransactionsTable/useInfiniteTransactions';
 import { TransactionTypeSelector } from '@/components/TransactionTypeSelector';
 import { useTrySystemTranslations } from '@/hooks/useTrySystemTranslations';
 import { createTransaction, editTransaction } from '@/lib/actions/transactions';
 import { useAccounts } from '@/lib/providers/AccountsProvider';
 import { useCategories } from '@/lib/providers/CategoriesProvider';
 import { SubCategoryResponse, TransactionResponse } from '@/types/dto';
+import { PagedResponse } from '@/types/dto/pageable';
 import { TransactionType } from '@/types/enums/transactionType';
 import { getCurrencySymbol } from '@/utils/currency';
 
@@ -51,6 +53,16 @@ export const TransactionForm = () => {
 
   const revalidateTransactions = () =>
     mutate((key) => typeof key === 'string' && key.startsWith('/api/transaction'), undefined, { revalidate: true });
+
+  const insertIntoRecentTransactions = (transaction: TransactionResponse) => {
+    mutate(
+      isRecentTransactionsFirstPageKey,
+      (page?: PagedResponse<TransactionResponse>) =>
+        page && { ...page, content: [transaction, ...page.content], totalElements: page.totalElements + 1 },
+      { revalidate: false }
+    );
+    mutate(isRecentTransactionsFirstPageKey, undefined, { revalidate: true });
+  };
 
   const restoreFormState = useCallback(() => {
     setProcessing(false);
@@ -91,6 +103,7 @@ export const TransactionForm = () => {
       clearForm();
       restoreFormState();
       revalidateTransactions();
+      insertIntoRecentTransactions(createdTransaction);
     } else if (editedTransaction) {
       toast.success(t('TransactionForm.editedSuccess', { id: editedTransaction.id }));
       setEditedTransaction(null);

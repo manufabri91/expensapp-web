@@ -2,7 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
 import { Summary } from '@/app/dashboard/components/Summary';
 import LoadingSummary from '@/app/dashboard/components/Summary/loading';
-import { TransactionsTable } from '@/components';
+import { InfiniteTransactionsTable } from '@/components';
 import { AccountFormProvider } from '@/components/AccountForm/AccountFormProvider';
 import { TransactionFormProvider } from '@/components/TransactionForm/TransactionFormProvider';
 import { TransactionsFiltersProvider } from '@/lib/providers/TransactionFiltersProvider';
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 const Dashboard = async () => {
   const t = await getTranslations('Dashboard');
   return (
-    <TransactionsFiltersProvider initialFilters={{ size: 20 }}>
+    <TransactionsFiltersProvider initialFilters={{ size: 10 }}>
       <TransactionFormProvider>
         <AccountFormProvider>
           <main className="max-w-[100vw] p-6">
@@ -33,7 +33,7 @@ const Dashboard = async () => {
             <h3 className="mt-8 text-xl font-semibold text-gray-800 md:mt-16 dark:text-gray-100">
               {t('latestTransactions')}
             </h3>
-            <TransactionsTable showPagination />
+            <InfiniteTransactionsTable />
           </main>
         </AccountFormProvider>
       </TransactionFormProvider>

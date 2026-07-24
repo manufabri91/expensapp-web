@@ -234,14 +234,14 @@
     },
     "ERRORS": {
       "PASSWORDS_NOT_MATCH": "Las contraseñas no coinciden",
-      "REGISTRATION_FAILED": "No se pudo crear el usuario. Por favor, intentá de nuevo",
+      "REGISTRATION_FAILED": "No se pudo crear el usuario. Intentá de nuevo",
       "USER_EXISTS": "El usuario ya existe",
       "INVALID_DATA_PROVIDED": "Datos inválidos proporcionados",
-      "UNHANDLED_EXCEPTION": "Algo salió mal. Por favor, intentá de nuevo",
-      "USER_CREATION_FAIL": "No se pudo crear el usuario. Por favor, intentá de nuevo",
-      "SERVICE_UNAVAILABLE": "Servicio no disponible. Por favor, intentá de nuevo",
+      "UNHANDLED_EXCEPTION": "Algo salió mal. Intentá de nuevo",
+      "USER_CREATION_FAIL": "No se pudo crear el usuario. Intentá de nuevo",
+      "SERVICE_UNAVAILABLE": "Servicio no disponible. Intentá de nuevo",
       "WRONG_CREDENTIALS": "Usuario o contraseña incorrecto",
-      "LOGIN_FAILED": "No se pudo iniciar sesión. Por favor, intentá de nuevo"
+      "LOGIN_FAILED": "No se pudo iniciar sesión. Intentá de nuevo"
     },
     "themeSelector": {
       "systemMode": "Igual al sistema",
@@ -255,6 +255,15 @@
   },
   "Transactions": {
     "title": "Transacciones",
-    "noTransactions": "No hay transacciones con los filtros actuales"
+    "noTransactions": "No hay transacciones con los filtros actuales",
+    "filters": {
+      "title": "Filtros",
+      "month": "Mes",
+      "categories": "Categorías",
+      "subcategories": "Subcategorías",
+      "selectCategoriesFirst": "Elegí primero una categoría",
+      "accounts": "Cuentas",
+      "dateRange": "Rango de fechas"
+    }
   }
 }

@@ -255,6 +255,15 @@
   },
   "Transactions": {
     "title": "Transactions",
-    "noTransactions": "No transactions with current filters"
+    "noTransactions": "No transactions with current filters",
+    "filters": {
+      "title": "Filters",
+      "month": "Month",
+      "categories": "Categories",
+      "subcategories": "Subcategories",
+      "selectCategoriesFirst": "Select a category first",
+      "accounts": "Accounts",
+      "dateRange": "Date range"
+    }
   }
 }
