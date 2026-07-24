@@ -28,11 +28,11 @@ export const TransactionTableRowMobile = ({ transaction, isEditing, isDeleting, 
       <Table.Cell>
         <span className="flex items-center gap-2 truncate">
           <Avatar color="accent" variant="soft">
-            <Avatar.Fallback className="from-brand-green-300/20 to-brand-purple-800/40 bg-linear-to-br">
+            <Avatar.Fallback>
               {AVAILABLE_ICONS.has(transaction.category.iconName) &&
                 React.createElement(AVAILABLE_ICONS.get(transaction.category.iconName)!, {
                   color: transaction.category.color ?? undefined,
-                  className: 'size-5',
+                  className: 'size-8',
                 })}
             </Avatar.Fallback>
           </Avatar>
@@ -55,7 +55,6 @@ export const TransactionTableRowMobile = ({ transaction, isEditing, isDeleting, 
       </Table.Cell>
 
       <Table.Cell>
-        <div></div>
         <Money
           amount={transaction.amount}
           currency={transaction.currencyCode}
