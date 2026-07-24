@@ -7,7 +7,9 @@ import { HiOutlineInbox, HiPlus } from 'react-icons/hi2';
 import { Button } from '@/components/Button';
 import { useTransactionForm } from '@/components/TransactionForm/TransactionFormProvider';
 import { TransactionTableColumns } from '@/components/TransactionsTable/TransactionTableColumns';
+import { TransactionTableColumnsMobile } from '@/components/TransactionsTable/TransactionTableColumnsMobile';
 import { TransactionTableRow } from '@/components/TransactionsTable/TransactionTableRow';
+import { TransactionTableRowMobile } from '@/components/TransactionsTable/TransactionTableRowMobile';
 import { useInfiniteTransactions } from '@/components/TransactionsTable/useInfiniteTransactions';
 import { useTransactionRowActions } from '@/components/TransactionsTable/useTransactionRowActions';
 import { useTransactionsFilters } from '@/lib/providers/TransactionFiltersProvider';
@@ -45,6 +47,26 @@ export const InfiniteTransactionsTable = ({ noTransactionsMessage }: Props) => {
     setSize(size + 1);
   };
 
+  const renderEmptyState = () => (
+    <EmptyState className="flex h-full w-full flex-col items-center justify-center gap-4 text-center">
+      {!isLoading && (
+        <>
+          <HiOutlineInbox />
+          <span className="text-muted text-sm">{noTransactionsMessage ?? t('TransactionsTable.noTransactions')}</span>
+        </>
+      )}
+      {isLoading && <Spinner size="md" />}
+    </EmptyState>
+  );
+
+  const loadMoreSentinel = hasMore && (
+    <Table.LoadMore isLoading={isLoadingMore} onLoadMore={loadMore}>
+      <Table.LoadMoreContent>
+        <Spinner size="md" />
+      </Table.LoadMoreContent>
+    </Table.LoadMore>
+  );
+
   return (
     <div className="mt-4">
       <Button
@@ -59,25 +81,11 @@ export const InfiniteTransactionsTable = ({ noTransactionsMessage }: Props) => {
         <div className="hidden md:block">{t('Generics.new.female')}</div>
       </Button>
 
-      <Table>
+      <Table className="hidden md:block">
         <Table.ScrollContainer className="max-h-120 overflow-y-auto">
           <Table.Content aria-label={t('Generics.transaction.plural')}>
             <TransactionTableColumns />
-            <Table.Body
-              renderEmptyState={() => (
-                <EmptyState className="flex h-full w-full flex-col items-center justify-center gap-4 text-center">
-                  {!isLoading && (
-                    <>
-                      <HiOutlineInbox />
-                      <span className="text-muted text-sm">
-                        {noTransactionsMessage ?? t('TransactionsTable.noTransactions')}
-                      </span>
-                    </>
-                  )}
-                  {isLoading && <Spinner size="md" />}
-                </EmptyState>
-              )}
-            >
+            <Table.Body renderEmptyState={renderEmptyState}>
               <Table.Collection items={rows}>
                 {(transaction) => (
                   <TransactionTableRow
@@ -89,13 +97,29 @@ export const InfiniteTransactionsTable = ({ noTransactionsMessage }: Props) => {
                   />
                 )}
               </Table.Collection>
-              {hasMore && (
-                <Table.LoadMore isLoading={isLoadingMore} onLoadMore={loadMore}>
-                  <Table.LoadMoreContent>
-                    <Spinner size="md" />
-                  </Table.LoadMoreContent>
-                </Table.LoadMore>
-              )}
+              {loadMoreSentinel}
+            </Table.Body>
+          </Table.Content>
+        </Table.ScrollContainer>
+      </Table>
+
+      <Table className="md:hidden">
+        <Table.ScrollContainer className="max-h-120 overflow-y-auto">
+          <Table.Content aria-label={t('Generics.transaction.plural')}>
+            <TransactionTableColumnsMobile />
+            <Table.Body renderEmptyState={renderEmptyState}>
+              <Table.Collection items={rows}>
+                {(transaction) => (
+                  <TransactionTableRowMobile
+                    transaction={transaction}
+                    isEditing={isEditing === transaction.id}
+                    isDeleting={isDeleting === transaction.id}
+                    onEdit={editHandler}
+                    onDelete={deleteHandler}
+                  />
+                )}
+              </Table.Collection>
+              {loadMoreSentinel}
             </Table.Body>
           </Table.Content>
         </Table.ScrollContainer>
