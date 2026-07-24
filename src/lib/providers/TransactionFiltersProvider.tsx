@@ -38,7 +38,7 @@ const TransactionsFiltersProvider: React.FC<{
   children: ReactNode;
   initialFilters?: Partial<TransactionFilters>;
 }> = ({ children, initialFilters }) => {
-  const [filters, setFilters] = useState<TransactionFilters>({ ...initialFilters, ...defaultFilters });
+  const [filters, setFilters] = useState<TransactionFilters>({ ...defaultFilters, ...initialFilters });
 
   const patchFilters = useMemo(
     () => (filters: Partial<TransactionFilters>) => {

@@ -29,7 +29,7 @@ export const ButtonSelector = ({ options, value, onChange, fieldName }: RadioSel
               checked={value === option.id}
               onChange={handleChange}
             />
-            <span className="peer-checked:border-brand-green-600 peer-checked:dark:border-brand-green-500 relative inline-flex size-full items-center justify-center space-x-2 py-2 pr-3 pl-7 text-sm text-foreground peer-checked:border-b-2 peer-checked:bg-slate-300 hover:bg-slate-200 peer-checked:dark:bg-slate-800 hover:dark:bg-slate-600">
+            <span className="peer-checked:border-brand-green-600 peer-checked:dark:border-brand-green-500 text-foreground relative inline-flex size-full items-center justify-center space-x-2 py-2 pr-3 pl-7 text-sm peer-checked:border-b-2 peer-checked:bg-slate-300 hover:bg-slate-200 peer-checked:dark:bg-slate-800 hover:dark:bg-slate-600">
               <span
                 className={`before:absolute before:top-3.5 before:left-3 before:size-2 before:rounded-full ${option.colorClass ?? 'before:bg-blue-500'}`}
               >
