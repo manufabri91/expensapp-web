@@ -13,7 +13,7 @@ export const LoginButton = ({ className }: { className?: string }) => {
       <Modal>
         <Button variant="primary">{t('button')}</Button>
         <Modal.Backdrop variant="blur">
-          <Modal.Container>
+          <Modal.Container size="lg">
             <Modal.Dialog>
               <Modal.CloseTrigger />
               <LoginForm mode="login" />

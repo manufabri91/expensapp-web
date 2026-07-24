@@ -1,3 +1,5 @@
+'use server';
+
 import { headers as nextHeaders } from 'next/headers';
 
 import { getBaseUrl } from '@/lib/utils/url';

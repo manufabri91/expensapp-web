@@ -110,61 +110,6 @@ export const TransactionFiltersBar = () => {
       <Popover.Content className="w-96">
         <Popover.Dialog>
           <div className="flex flex-col gap-4">
-            <TagGroup
-              selectionMode="multiple"
-              selectedKeys={new Set(selectedCategories)}
-              onSelectionChange={(keys) => onCategoriesChange(Array.from(keys as Set<Key>))}
-            >
-              <Label>{t('Transactions.filters.categories')}</Label>
-              <TagGroup.List items={categories} renderEmptyState={() => null}>
-                {(category) => (
-                  <Tag id={category.id.toString()} textValue={category.name}>
-                    {AVAILABLE_ICONS.has(category.iconName) &&
-                      React.createElement(AVAILABLE_ICONS.get(category.iconName)!, {
-                        className: 'size-4 mr-1',
-                        color: category.color ?? undefined,
-                      })}
-                    {category.name}
-                  </Tag>
-                )}
-              </TagGroup.List>
-            </TagGroup>
-
-            <TagGroup
-              selectionMode="multiple"
-              selectedKeys={new Set(selectedSubcategories)}
-              onSelectionChange={(keys) => onSubcategoriesChange(Array.from(keys as Set<Key>))}
-            >
-              <Label>{t('Transactions.filters.subcategories')}</Label>
-              <TagGroup.List
-                items={availableSubcategories}
-                renderEmptyState={() => (
-                  <span className="text-tiny text-default-400">{t('Transactions.filters.selectCategoriesFirst')}</span>
-                )}
-              >
-                {(subcategory) => (
-                  <Tag id={subcategory.id.toString()} textValue={trySystemTranslations(subcategory.name)}>
-                    {trySystemTranslations(subcategory.name)}
-                  </Tag>
-                )}
-              </TagGroup.List>
-            </TagGroup>
-
-            <TagGroup
-              selectionMode="multiple"
-              selectedKeys={new Set(selectedAccounts)}
-              onSelectionChange={(keys) => onAccountsChange(Array.from(keys as Set<Key>))}
-            >
-              <Label>{t('Transactions.filters.accounts')}</Label>
-              <TagGroup.List items={accounts} renderEmptyState={() => null}>
-                {(account) => (
-                  <Tag id={account.id.toString()} textValue={account.name}>
-                    {account.name}
-                  </Tag>
-                )}
-              </TagGroup.List>
-            </TagGroup>
-
             <div className="flex flex-col items-center gap-2">
               <ToggleButtonGroup
                 selectionMode="single"
@@ -220,6 +165,56 @@ export const TransactionFiltersBar = () => {
                 </DateRangePicker>
               )}
             </div>
+            <TagGroup
+              selectionMode="multiple"
+              selectedKeys={new Set(selectedAccounts)}
+              onSelectionChange={(keys) => onAccountsChange(Array.from(keys as Set<Key>))}
+            >
+              <Label>{t('Transactions.filters.accounts')}</Label>
+              <TagGroup.List items={accounts} renderEmptyState={() => null}>
+                {(account) => (
+                  <Tag id={account.id.toString()} textValue={account.name}>
+                    {account.name}
+                  </Tag>
+                )}
+              </TagGroup.List>
+            </TagGroup>
+            <TagGroup
+              selectionMode="multiple"
+              selectedKeys={new Set(selectedCategories)}
+              onSelectionChange={(keys) => onCategoriesChange(Array.from(keys as Set<Key>))}
+            >
+              <Label>{t('Transactions.filters.categories')}</Label>
+              <TagGroup.List items={categories} renderEmptyState={() => null}>
+                {(category) => (
+                  <Tag id={category.id.toString()} textValue={category.name}>
+                    {AVAILABLE_ICONS.has(category.iconName) &&
+                      React.createElement(AVAILABLE_ICONS.get(category.iconName)!, {
+                        className: 'size-4 mr-1',
+                        color: category.color ?? undefined,
+                      })}
+                    {trySystemTranslations(category.name)}
+                  </Tag>
+                )}
+              </TagGroup.List>
+            </TagGroup>
+
+            {availableSubcategories.length > 0 && (
+              <TagGroup
+                selectionMode="multiple"
+                selectedKeys={new Set(selectedSubcategories)}
+                onSelectionChange={(keys) => onSubcategoriesChange(Array.from(keys as Set<Key>))}
+              >
+                <Label>{t('Transactions.filters.subcategories')}</Label>
+                <TagGroup.List items={availableSubcategories}>
+                  {(subcategory) => (
+                    <Tag id={subcategory.id.toString()} textValue={trySystemTranslations(subcategory.name)}>
+                      {trySystemTranslations(subcategory.name)}
+                    </Tag>
+                  )}
+                </TagGroup.List>
+              </TagGroup>
+            )}
           </div>
         </Popover.Dialog>
       </Popover.Content>

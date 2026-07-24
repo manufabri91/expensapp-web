@@ -44,23 +44,21 @@ export const BalanceAreaChart = ({ chartData, currency, locale, renderTooltip }:
             </linearGradient>
           </defs>
 
-          <CartesianGrid strokeDasharray="3 3" className="stroke-divider" vertical={false} />
+          <CartesianGrid vertical={false} className="stroke-default-soft-hover" />
 
           <XAxis
             dataKey="label"
-            tickLine={false}
             axisLine={false}
-            padding={{ left: 12, right: 12 }}
-            className="text-tiny fill-default-400 font-medium"
-            dy={10}
+            tickLine={false}
+            dy={5}
+            tick={{ className: 'fill-foreground-soft font-sans text-sm' }}
           />
 
           <YAxis
-            tickLine={false}
             axisLine={false}
-            width={72}
-            className="text-tiny fill-default-400 font-medium"
+            tickLine={false}
             tickFormatter={(value: number) => currencyTickFormatter.format(value)}
+            tick={{ className: 'fill-foreground-soft font-sans text-sm' }}
           />
 
           <Tooltip

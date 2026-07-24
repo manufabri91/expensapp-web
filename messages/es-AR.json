@@ -81,7 +81,7 @@
           "title": "Balance actual"
         },
         "lastMonths": {
-          "title": "Últimos 6 meses ({currencyCode})"
+          "title": "Rendimiento ({currencyCode})"
         }
       },
       "totalsPerCategory": {

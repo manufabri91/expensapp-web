@@ -28,10 +28,9 @@ export const CategoryPieChart = ({ data, renderTooltip }: Props) => {
   const renderShape = ({ isActive, outerRadius, index, ...rest }: PieSectorShapeProps) => (
     <Sector
       {...rest}
-      outerRadius={isActive ? outerRadius + 4 : outerRadius}
+      outerRadius={isActive ? outerRadius + 10 : outerRadius}
       fill={data[index].color}
-      stroke="currentColor"
-      className="stroke-content1 focus:outline-hidden cursor-pointer transition-all duration-300 ease-in-out"
+      className="stroke-accent-foreground cursor-pointer stroke-2 transition-all duration-300 ease-in-out focus:outline-hidden"
     />
   );
 
@@ -48,16 +47,7 @@ export const CategoryPieChart = ({ data, renderTooltip }: Props) => {
               return null;
             }}
           />
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            innerRadius={68}
-            outerRadius={85}
-            paddingAngle={3}
-            dataKey="value"
-            shape={renderShape}
-          />
+          <Pie data={data} innerRadius={60} outerRadius={90} cornerRadius={4} dataKey="value" shape={renderShape} />
         </PieChart>
       </ResponsiveContainer>
     </div>

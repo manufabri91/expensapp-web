@@ -1,5 +1,6 @@
 'use client';
 
+import { ButtonGroup } from '@heroui/react';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useFormatter } from 'next-intl';
@@ -56,16 +57,20 @@ export const MonthPicker = () => {
   };
 
   return (
-    <div className="flex items-center justify-center gap-4">
-      <Button variant="ghost" onPress={onPrevMonthHandler} size="sm">
-        <HiChevronLeft />
-      </Button>
-      <Button variant="ghost" onPress={onResetToFullMonth} size="sm">
-        {format.dateTime(new Date(year, month - 1), { year: 'numeric', month: 'long' })}
-      </Button>
-      <Button variant="ghost" onPress={onNextMonthHandler} size="sm">
-        <HiChevronRight />
-      </Button>
+    <div className="flex flex-col gap-2">
+      <ButtonGroup variant="tertiary">
+        <Button onPress={onPrevMonthHandler}>
+          <HiChevronLeft />
+        </Button>
+        <Button onPress={onResetToFullMonth}>
+          <ButtonGroup.Separator />
+          {format.dateTime(new Date(year, month - 1), { year: 'numeric', month: 'long' })}
+        </Button>
+        <Button onPress={onNextMonthHandler}>
+          <ButtonGroup.Separator />
+          <HiChevronRight />
+        </Button>
+      </ButtonGroup>
     </div>
   );
 };
