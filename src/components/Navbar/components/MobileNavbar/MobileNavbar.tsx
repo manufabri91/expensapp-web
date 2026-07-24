@@ -16,7 +16,7 @@ export const MobileNavbar = ({ links }: Props) => {
   const t = useTranslations('Navbar');
   const pathname = usePathname();
   return (
-    <div className="sm:shadow-base-500/30 bg-background/90 border-divider sm:border-default dark:bg-background fixed inset-x-0 bottom-0 left-0 z-50 mx-auto h-24 w-full overflow-hidden border-t duration-300 hover:shadow-md sm:bottom-5 sm:h-16 sm:max-w-md sm:rounded-xl sm:border sm:shadow-lg lg:hidden">
+    <div className="sm:shadow-base-500/30 bg-background border-divider sm:border-default dark:bg-background fixed inset-x-0 bottom-0 left-0 z-50 mx-auto h-20 w-full overflow-hidden border-t duration-300 hover:shadow-md sm:bottom-5 sm:h-16 sm:max-w-md sm:rounded-xl sm:border sm:shadow-lg lg:hidden">
       <div className="flex w-full items-center justify-evenly p-4 sm:p-2">
         {links.map((link) => (
           <NextLink
