@@ -2,7 +2,7 @@
 
 import { Card } from '@heroui/react';
 import { useTranslations } from 'next-intl';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { CategoryPieChart, CategorySlice, Money, PRESET_COLORS } from '@/components';
 import { useTrySystemTranslations } from '@/hooks/useTrySystemTranslations';
 import { CategorySummaryResponse } from '@/types/dto';
@@ -39,6 +39,29 @@ export default function CategoriesSummaryPie({ categorySummaries, currency, loca
       .sort((a, b) => b.value - a.value);
   }, [categorySummaries, currency, translateSystemName]);
 
+  const renderTooltip = useCallback(
+    (slice: CategorySlice) => (
+      <div className="bg-background border-divider rounded-medium shadow-medium text-tiny flex min-w-40 flex-col gap-2 border px-3 py-2">
+        <div className="border-divider flex items-center justify-between gap-4 border-b pb-1 text-sm">
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: slice.color }} />
+            <span className="font-semibold tracking-wider capitalize">{slice.name}</span>
+          </div>
+          <Money amount={slice.rawAmount} currency={currency} locale={locale} className="font-semibold" />
+        </div>
+        <div className="flex flex-col gap-1 text-xs">
+          {slice.subCategories.map((subCategory) => (
+            <div key={subCategory.id} className="flex justify-between gap-4">
+              <span className="font-sm">{subCategory.name}</span>
+              <Money amount={subCategory.amount} currency={currency} locale={locale} className="font-semibold" />
+            </div>
+          ))}
+        </div>
+      </div>
+    ),
+    [currency, locale]
+  );
+
   if (data.length === 0) {
     return null;
   }
@@ -51,28 +74,7 @@ export default function CategoriesSummaryPie({ categorySummaries, currency, loca
         <Card.Title>{t('Dashboard.summary.totalsPerCategory.title', { currencyCode: currency })}</Card.Title>
       </Card.Header>
       <Card.Content>
-        <CategoryPieChart
-          data={data}
-          renderTooltip={(slice) => (
-            <div className="bg-background border-divider rounded-medium shadow-medium text-tiny flex min-w-40 flex-col gap-2 border px-3 py-2">
-              <div className="border-divider flex items-center justify-between gap-4 border-b pb-1 text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: slice.color }} />
-                  <span className="font-semibold tracking-wider capitalize">{slice.name}</span>
-                </div>
-                <Money amount={slice.rawAmount} currency={currency} locale={locale} className="font-semibold" />
-              </div>
-              <div className="flex flex-col gap-1 text-xs">
-                {slice.subCategories.map((subCategory) => (
-                  <div key={subCategory.id} className="flex justify-between gap-4">
-                    <span className="font-sm">{subCategory.name}</span>
-                    <Money amount={subCategory.amount} currency={currency} locale={locale} className="font-semibold" />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        />
+        <CategoryPieChart data={data} renderTooltip={renderTooltip} />
 
         <div className="border-divider mt-4 grid w-full gap-x-4 gap-y-2 border-t pt-4">
           {data.map((entry) => (

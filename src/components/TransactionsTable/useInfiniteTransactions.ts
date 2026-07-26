@@ -1,4 +1,4 @@
-import useSWRInfinite from 'swr/infinite';
+import useSWRInfinite, { unstable_serialize } from 'swr/infinite';
 import { getTransactions } from '@/lib/actions/transactions';
 import { TransactionResponse } from '@/types/dto';
 import { PagedResponse } from '@/types/dto/pageable';
@@ -8,17 +8,21 @@ export const RECENT_TRANSACTIONS_KEY = 'recent-transactions';
 
 type InfinitePageKey = readonly [typeof RECENT_TRANSACTIONS_KEY, number, string];
 
-export const isRecentTransactionsFirstPageKey = (key: unknown): key is InfinitePageKey =>
-  Array.isArray(key) && key[0] === RECENT_TRANSACTIONS_KEY && key[1] === 0;
-
-export const useInfiniteTransactions = (baseFilters: TransactionFilters) => {
-  const getKey = (pageIndex: number, previousPage: PagedResponse<TransactionResponse> | null): InfinitePageKey | null => {
+const buildGetKey =
+  (baseFilters: TransactionFilters) =>
+  (pageIndex: number, previousPage: PagedResponse<TransactionResponse> | null): InfinitePageKey | null => {
     if (previousPage && previousPage.last) return null;
     const params = transactionFiltersToQueryParams({ ...baseFilters, currentPage: pageIndex + 1 });
     return [RECENT_TRANSACTIONS_KEY, pageIndex, params] as const;
   };
 
-  return useSWRInfinite<PagedResponse<TransactionResponse>>(getKey, ([, , params]) =>
+export const useInfiniteTransactions = (baseFilters: TransactionFilters) =>
+  useSWRInfinite<PagedResponse<TransactionResponse>>(buildGetKey(baseFilters), ([, , params]) =>
     getTransactions(`/api/transaction${params}`)
   );
-};
+
+// The real `$inf$`-prefixed cache key useSWRInfinite subscribes to for these filters.
+// A filter-function mutate() can't reach it (SWR skips `/^\$(inf|sub)\$/` keys there),
+// so callers outside this hook must target it directly via this key.
+export const getRecentTransactionsCacheKey = (baseFilters: TransactionFilters) =>
+  unstable_serialize(buildGetKey(baseFilters));
