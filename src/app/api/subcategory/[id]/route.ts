@@ -1,77 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { UnauthorizedError } from '@/types/exceptions/unauthorized';
+import { authenticatedBackendFetch } from '@/lib/api/authenticatedBackendFetch';
 
 type tParams = Promise<{ id: string }>;
 
 export const GET = async (_: NextRequest, { params }: { params: tParams }) => {
   const { id } = await params;
 
-  try {
-    const session = await auth();
-    if (!session) {
-      throw new UnauthorizedError();
-    }
-    const response = await fetch(`${process.env.API_URL}/subcategory/${id}`, {
-      method: 'GET',
-      headers: {
-        Authorization: session.user.token,
-      },
-    });
-    const subcategory = await response.json();
-    return NextResponse.json(subcategory);
-  } catch (error) {
-    console.log(error);
-    return NextResponse.error();
+  const result = await authenticatedBackendFetch(`/subcategory/${id}`);
+  if (!result.ok) {
+    return result.response;
   }
+  return NextResponse.json(result.data);
 };
 
 export const PUT = async (req: NextRequest, { params }: { params: tParams }) => {
   const payload = await req.json();
   const { id } = await params;
-  try {
-    const session = await auth();
-    if (!session) {
-      throw new UnauthorizedError();
-    }
-    const response = await fetch(`${process.env.API_URL}/subcategory/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(payload),
-      headers: {
-        Authorization: session.user.token,
-        ['Content-Type']: 'application/json',
-      },
-    });
 
-    if (!response.ok) {
-      throw new Error('Failed to update subcategory');
-    }
-
-    const subcategory = await response.json();
-    return NextResponse.json(subcategory);
-  } catch (error) {
-    console.log(error);
-    return NextResponse.error();
+  const result = await authenticatedBackendFetch(`/subcategory/${id}`, {
+    method: 'PUT',
+    body: payload,
+  });
+  if (!result.ok) {
+    return result.response;
   }
+  return NextResponse.json(result.data);
 };
 
 export const DELETE = async (_: NextRequest, { params }: { params: tParams }) => {
   const { id } = await params;
-  try {
-    const session = await auth();
-    if (!session) {
-      throw new UnauthorizedError();
-    }
-    const response = await fetch(`${process.env.API_URL}/subcategory/${id}`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: session.user.token,
-      },
-    });
 
-    return response.status === 200 ? NextResponse.json({ deleted: true }) : NextResponse.error();
-  } catch (error) {
-    console.log(error);
-    return NextResponse.error();
+  const result = await authenticatedBackendFetch(`/subcategory/${id}`, { method: 'DELETE' });
+  if (!result.ok) {
+    return result.response;
   }
+  return NextResponse.json({ deleted: true });
 };

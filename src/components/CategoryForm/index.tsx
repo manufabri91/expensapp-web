@@ -120,7 +120,7 @@ export const CategoryForm = () => {
                   </TextField>
                 </div>
                 <ColorPicker color={color} onChange={setColor} />
-                <input id="color" name="color" type="hidden" value={color} onChange={(e) => setColor(e.target.value)} />
+                <input id="color" name="color" type="hidden" value={color} readOnly />
               </div>
             </Modal.Body>
             <Modal.Footer>

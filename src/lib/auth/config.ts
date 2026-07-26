@@ -2,6 +2,7 @@ import { jwtDecode } from 'jwt-decode';
 import {
   type Account,
   type AuthValidity,
+  type BackendAccessJWT,
   type BackendJWT,
   type DecodedJWT,
   type NextAuthConfig,
@@ -15,6 +16,35 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { login, refresh } from '@/lib/auth/handlers';
 import { InvalidLoginError } from '@/types/exceptions/invalidLogin';
 import { UnreachableLoginError } from '@/types/exceptions/unreachableLogin';
+
+const refreshAccessToken = async (token: JWT): Promise<JWT> => {
+  try {
+    const response = await refresh(token.data.tokens.refreshToken);
+
+    if (!response.ok) {
+      // The backend rejected the refresh token itself (e.g. expired/invalidated),
+      // so the user needs to sign in again.
+      return { ...token, error: 'RefreshTokenExpired' };
+    }
+
+    const newTokens: BackendAccessJWT = await response.json();
+    const access: DecodedJWT = jwtDecode(newTokens.token);
+
+    return {
+      ...token,
+      data: {
+        ...token.data,
+        tokens: { ...token.data.tokens, ...newTokens },
+        user: { ...token.data.user, token: newTokens.token },
+        validity: { valid_until: access.exp },
+      },
+    };
+  } catch (error) {
+    // Network/timeout failure while calling the refresh endpoint
+    console.error(error);
+    return { ...token, error: 'RefreshAccessTokenError' };
+  }
+};
 
 export const authConfig: NextAuthConfig = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -36,7 +66,13 @@ export const authConfig: NextAuthConfig = {
 
           if (!res?.ok) {
             console.error(res);
-            if (res.status === 404 || res.status === 422) {
+            // The backend's GlobalExceptionHandler maps InvalidLoginException (bad
+            // credentials) to 401. 422 is returned for request validation failures on
+            // the login payload, which is also invalid-login-shaped. 404 is the
+            // generic "resource not found" status used across the whole API and isn't
+            // login-specific, so it's intentionally left out here and falls through to
+            // UnreachableLoginError below.
+            if (res.status === 401 || res.status === 422) {
               throw new InvalidLoginError();
             }
             throw new UnreachableLoginError();
@@ -92,30 +128,29 @@ export const authConfig: NextAuthConfig = {
       return baseUrl;
     },
     async jwt({ token, user, account }: { token: JWT; user?: User | AdapterUser; account?: Account | null }) {
-      // Initial signin contains a 'User' object from authorize method
+      // Initial signin contains a 'User' object from authorize method. Explicitly clear any
+      // `error` carried over from a previous (failed-refresh) session on this same browser -
+      // otherwise a successful re-login would still be treated as errored/unauthenticated by
+      // proxy.ts's isAuthenticated check until some later request happened to overwrite it.
       if (user && account) {
-        console.debug('Initial signin');
-        return { ...token, data: user };
+        return { ...token, data: user, error: undefined };
       }
 
-      // The current access token is still valid
+      // The current access token is still valid, nothing to do
       if (token.data && Date.now() < token.data.validity.valid_until * 1000) {
-        console.debug('Access token is still valid');
         return token;
       }
 
-      // The refresh token is still valid
-      if (token.data && user && user.tokens && Date.now() < token.data.validity.valid_until * 1000) {
-        console.debug('Access token is being refreshed');
-        return (await refresh(user.tokens.refreshToken)).json();
+      // Already flagged as unrecoverable on a previous request: don't retry the refresh
+      // endpoint again on every subsequent request with a refresh token we already know is
+      // dead. proxy.ts's isAuthenticated check reads this error and forces the user back to
+      // login; a fresh sign-in produces a new token with no `error` field.
+      if (token.error) {
+        return token;
       }
 
-      // The current access token and refresh token have both expired
-      // This should not really happen unless you get really unlucky with
-      // the timing of the token expiration because the middleware should
-      // have caught this case before the callback is called
-      console.debug('Both tokens have expired');
-      return null;
+      // The access token has expired: use the stored refresh token to get a new one
+      return refreshAccessToken(token);
     },
     async session({ session, token, user }) {
       session.user = { ...token.data.user, ...user };
@@ -123,22 +158,10 @@ export const authConfig: NextAuthConfig = {
       session.error = token.error;
       return session;
     },
-    authorized({ auth, request }) {
-      const user = auth?.user;
-      const isOnLoginPages = request.nextUrl?.pathname.startsWith('/auth/');
-      const isOnHome = request.nextUrl?.pathname === '/';
-
-      // ONLY USERS CAN ACCESS BLOGS PAGE
-      if (!isOnHome && !user) {
-        return false;
-      }
-
-      // ONLY UNAUTHORIZED USERS CAN ACCESS LOGIN PAGES
-      if (isOnLoginPages && user) {
-        return Response.redirect(new URL('/', request.nextUrl));
-      }
-
-      return true;
-    },
+    // Route protection for this app lives in `src/proxy.ts` (an `authorized`
+    // callback here would be dead code: NextAuth only enforces a boolean
+    // `authorized` return value when `auth()` is used directly as middleware,
+    // but proxy.ts calls `auth((req) => { ... })` with its own function, which
+    // makes proxy.ts's own isAuthenticated/isPublicRoute checks the real gate).
   },
 };

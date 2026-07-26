@@ -96,7 +96,14 @@ const config: Config = {
   // ],
 
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
-  // moduleNameMapper: {},
+  //
+  // Next's SWC transform resolves the `@/*` tsconfig path alias at compile time by rewriting
+  // import specifiers directly, so plain `import ... from '@/...'` works without this. But
+  // `jest.mock('@/...', factory)` passes the alias as a runtime string argument, which the
+  // transform never sees/rewrites -- Jest's own resolver needs this mapping to resolve it.
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
   // modulePathIgnorePatterns: [],

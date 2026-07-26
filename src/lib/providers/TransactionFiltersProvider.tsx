@@ -10,18 +10,21 @@ interface TransactionsFiltersContextProps {
   patchFilters: (filters: Partial<TransactionFilters>) => void;
 }
 
-const date = new Date();
-const defaultFilters: TransactionFilters = {
-  fromDate: startOfMonth(new Date(date.getFullYear(), date.getMonth())),
-  toDate: endOfMonth(new Date(date.getFullYear(), date.getMonth())),
-  currentPage: 1,
-  totalPages: 1,
-  size: 10,
-  sortBy: 'eventDate',
-  ascending: false,
+const getDefaultFilters = (): TransactionFilters => {
+  const date = new Date();
+  return {
+    fromDate: startOfMonth(date),
+    toDate: endOfMonth(date),
+    currentPage: 1,
+    totalPages: 1,
+    size: 10,
+    sortBy: 'eventDate',
+    ascending: false,
+  };
 };
+
 const TransactionsFiltersContext = createContext<TransactionsFiltersContextProps>({
-  filters: defaultFilters,
+  filters: getDefaultFilters(),
   setFilters: () => {},
   patchFilters: () => {},
 });
@@ -38,7 +41,10 @@ const TransactionsFiltersProvider: React.FC<{
   children: ReactNode;
   initialFilters?: Partial<TransactionFilters>;
 }> = ({ children, initialFilters }) => {
-  const [filters, setFilters] = useState<TransactionFilters>({ ...defaultFilters, ...initialFilters });
+  const [filters, setFilters] = useState<TransactionFilters>(() => ({
+    ...getDefaultFilters(),
+    ...initialFilters,
+  }));
 
   const patchFilters = useMemo(
     () => (filters: Partial<TransactionFilters>) => {

@@ -27,7 +27,6 @@ export const AccountForm = () => {
   }));
 
   useEffect(() => {
-    console.log(createdAccount);
     if (createdAccount) {
       toast.success(t('AccountForm.createdSuccess', { id: createdAccount.id }));
       setCreatedAccount(null);

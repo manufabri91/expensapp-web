@@ -99,7 +99,6 @@ export const TransactionForm = () => {
     if (transactionFormData) {
       setSelectedType(transactionFormData.type);
       setSelectedCategory(transactionFormData.category.id);
-      setSelectedCategory(transactionFormData.category.id);
       const validSubcategories = subcategories.filter(
         (subcategory) => subcategory.parentCategoryId === transactionFormData.category.id
       );

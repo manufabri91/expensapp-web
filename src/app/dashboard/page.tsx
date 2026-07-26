@@ -1,3 +1,4 @@
+import { endOfMonth, startOfMonth } from 'date-fns';
 import { getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
 import { Summary } from '@/app/dashboard/components/Summary';
@@ -21,8 +22,11 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 const Dashboard = async () => {
   const t = await getTranslations('Dashboard');
+  const now = new Date();
+  const fromDate = startOfMonth(now);
+  const toDate = endOfMonth(now);
   return (
-    <TransactionsFiltersProvider initialFilters={{ size: 10 }}>
+    <TransactionsFiltersProvider initialFilters={{ size: 10, fromDate, toDate }}>
       <TransactionFormProvider>
         <AccountFormProvider>
           <main className="max-w-[100vw] p-6">

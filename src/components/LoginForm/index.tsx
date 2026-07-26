@@ -109,7 +109,7 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
               <InputGroup.Input type="email" placeholder="john_doe@email.com" />
             </InputGroup>
           </TextField>
-          <TextField name="password" isRequired defaultValue={(formData?.get('password') || '') as string} fullWidth>
+          <TextField name="password" isRequired fullWidth>
             <Label>{t('form.password')}</Label>
             <InputGroup variant="secondary">
               {isLoginMode && (
@@ -131,12 +131,7 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
             </InputGroup>
           </TextField>
           {!isLoginMode && (
-            <TextField
-              name="passwordRepeat"
-              isRequired
-              defaultValue={(formData?.get('passwordRepeat') || '') as string}
-              fullWidth
-            >
+            <TextField name="passwordRepeat" isRequired fullWidth>
               <Label>{t('form.confirmPassword')}</Label>
               <InputGroup variant="secondary">
                 <InputGroup.Input type="password" />

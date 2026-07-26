@@ -1,31 +1,22 @@
 'use server';
 
-import { headers as nextHeaders } from 'next/headers';
-
-import { getBaseUrl } from '@/lib/utils/url';
+import { backendFetch } from '@/lib/api/backendFetch';
 import { CategorySummaryResponse, CurrencySummaryResponse, MonthlyBalanceSummaryResponse } from '@/types/dto';
 import { AmountPerCurrencyDto } from '@/types/dto/amountPerCurrencyDto';
 
-const getSummaryBaseUrl = async () => {
-  const baseUrl = await getBaseUrl();
-  return `${baseUrl}/api/summary`;
-};
+// Cache invariant: every read below uses `next: { revalidate: 3600 }` (1h). These are all
+// read-only summary endpoints with no dedicated mutation here, but any action elsewhere that
+// mutates transactions/accounts/categories MUST call revalidatePath for the pages that render
+// these summaries, or reads will keep serving stale data for up to an hour.
+
+const SUMMARY_PATH = '/summary';
 
 export const getMonthSummary = async (year?: number, month?: number): Promise<CurrencySummaryResponse[]> => {
-  const baseUrl = await getSummaryBaseUrl();
-  const cookie = (await nextHeaders()).get('cookie')!;
   const params = new URLSearchParams();
   if (year) params.append('year', year.toString());
   if (month) params.append('month', month.toString());
   const queryString = params.toString() ? `?${params.toString()}` : '';
-  const response = await fetch(`${baseUrl}${queryString}`, {
-    headers: {
-      cookie,
-    },
-    next: {
-      revalidate: 3600,
-    },
-  });
+  const response = await backendFetch(`${SUMMARY_PATH}${queryString}`, { revalidate: 3600 });
   if (!response.ok) {
     throw new Error('Failed to fetch transactions');
   }
@@ -33,16 +24,7 @@ export const getMonthSummary = async (year?: number, month?: number): Promise<Cu
 };
 
 export const getYearSummary = async (year: number): Promise<CurrencySummaryResponse[]> => {
-  const baseUrl = await getSummaryBaseUrl();
-  const cookie = (await nextHeaders()).get('cookie')!;
-  const response = await fetch(`${baseUrl}/${year}`, {
-    headers: {
-      cookie,
-    },
-    next: {
-      revalidate: 3600,
-    },
-  });
+  const response = await backendFetch(`${SUMMARY_PATH}/${year}`, { revalidate: 3600 });
   if (!response.ok) {
     throw new Error('Failed to fetch transactions');
   }
@@ -50,16 +32,7 @@ export const getYearSummary = async (year: number): Promise<CurrencySummaryRespo
 };
 
 export const getHistorySummary = async (): Promise<CurrencySummaryResponse[]> => {
-  const baseUrl = await getSummaryBaseUrl();
-  const cookie = (await nextHeaders()).get('cookie')!;
-  const response = await fetch(`${baseUrl}/historic`, {
-    headers: {
-      cookie,
-    },
-    next: {
-      revalidate: 3600,
-    },
-  });
+  const response = await backendFetch(`${SUMMARY_PATH}/historic`, { revalidate: 3600 });
   if (!response.ok) {
     throw new Error('Failed to fetch transactions');
   }
@@ -67,20 +40,11 @@ export const getHistorySummary = async (): Promise<CurrencySummaryResponse[]> =>
 };
 
 export const getTotalsByCurrency = async (year?: number, month?: number): Promise<CurrencySummaryResponse[]> => {
-  const baseUrl = await getSummaryBaseUrl();
-  const cookie = (await nextHeaders()).get('cookie')!;
   const params = new URLSearchParams();
   if (year) params.append('year', year.toString());
   if (month) params.append('month', month.toString());
   const queryString = params.toString() ? `?${params.toString()}` : '';
-  const response = await fetch(`${baseUrl}/totals-by-currency${queryString}`, {
-    headers: {
-      cookie,
-    },
-    next: {
-      revalidate: 3600,
-    },
-  });
+  const response = await backendFetch(`${SUMMARY_PATH}/totals-by-currency${queryString}`, { revalidate: 3600 });
   if (!response.ok) {
     throw new Error('Failed to fetch transactions');
   }
@@ -88,19 +52,10 @@ export const getTotalsByCurrency = async (year?: number, month?: number): Promis
 };
 
 export const getTotalsByCategory = async (year?: number, month?: number): Promise<CategorySummaryResponse[]> => {
-  const baseUrl = await getSummaryBaseUrl();
-  const cookie = (await nextHeaders()).get('cookie')!;
   let filter = '';
   if (year) filter += `/${year}/`;
   if (month) filter += `/${month}/`;
-  const response = await fetch(`${baseUrl}/totals-by-category${filter}`, {
-    headers: {
-      cookie,
-    },
-    next: {
-      revalidate: 3600,
-    },
-  });
+  const response = await backendFetch(`${SUMMARY_PATH}/totals-by-category${filter}`, { revalidate: 3600 });
   if (!response.ok) {
     throw new Error('Failed to fetch transactions');
   }
@@ -108,16 +63,7 @@ export const getTotalsByCategory = async (year?: number, month?: number): Promis
 };
 
 export const getYearlyTotalsByCategory = async (year: number): Promise<CategorySummaryResponse[]> => {
-  const baseUrl = await getSummaryBaseUrl();
-  const cookie = (await nextHeaders()).get('cookie')!;
-  const response = await fetch(`${baseUrl}/totals-by-category/${year}`, {
-    headers: {
-      cookie,
-    },
-    next: {
-      revalidate: 3600,
-    },
-  });
+  const response = await backendFetch(`${SUMMARY_PATH}/totals-by-category/${year}`, { revalidate: 3600 });
   if (!response.ok) {
     throw new Error('Failed to fetch transactions');
   }
@@ -125,16 +71,7 @@ export const getYearlyTotalsByCategory = async (year: number): Promise<CategoryS
 };
 
 export const getMonthlyTotalsByCategory = async (year: number, month: number): Promise<CategorySummaryResponse[]> => {
-  const baseUrl = await getSummaryBaseUrl();
-  const cookie = (await nextHeaders()).get('cookie')!;
-  const response = await fetch(`${baseUrl}/totals-by-category/${year}/${month}`, {
-    headers: {
-      cookie,
-    },
-    next: {
-      revalidate: 3600,
-    },
-  });
+  const response = await backendFetch(`${SUMMARY_PATH}/totals-by-category/${year}/${month}`, { revalidate: 3600 });
   if (!response.ok) {
     throw new Error('Failed to fetch transactions');
   }
@@ -142,15 +79,11 @@ export const getMonthlyTotalsByCategory = async (year: number, month: number): P
 };
 
 export const getMonthlyExpenses = async (year: number, month: number): Promise<AmountPerCurrencyDto[]> => {
-  const baseUrl = await getSummaryBaseUrl();
-  const cookie = (await nextHeaders()).get('cookie')!;
-  const response = await fetch(`${baseUrl}/incomes/${year}/${month}/totals-by-currency`, {
-    headers: {
-      cookie,
-    },
-    next: {
-      revalidate: 3600,
-    },
+  // Fix: this used to call the /incomes endpoint (a copy-paste of getMonthlyIncomes below).
+  // The backend's real expenses route is /summary/expenses/{year}/{month}/totals-by-currency
+  // (see expensapp-api SummaryController#getExpensesTotalsByYearAndMonth).
+  const response = await backendFetch(`${SUMMARY_PATH}/expenses/${year}/${month}/totals-by-currency`, {
+    revalidate: 3600,
   });
   if (!response.ok) {
     throw new Error('Failed to fetch transactions');
@@ -159,16 +92,7 @@ export const getMonthlyExpenses = async (year: number, month: number): Promise<A
 };
 
 export const getMonthlyHistory = async (months = 6): Promise<MonthlyBalanceSummaryResponse[]> => {
-  const baseUrl = await getSummaryBaseUrl();
-  const cookie = (await nextHeaders()).get('cookie')!;
-  const response = await fetch(`${baseUrl}/monthly-history/${months}`, {
-    headers: {
-      cookie,
-    },
-    next: {
-      revalidate: 3600,
-    },
-  });
+  const response = await backendFetch(`${SUMMARY_PATH}/monthly-history/${months}`, { revalidate: 3600 });
   if (!response.ok) {
     throw new Error('Failed to fetch Monthly history');
   }
@@ -176,15 +100,8 @@ export const getMonthlyHistory = async (months = 6): Promise<MonthlyBalanceSumma
 };
 
 export const getMonthlyIncomes = async (year: number, month: number): Promise<AmountPerCurrencyDto[]> => {
-  const baseUrl = await getSummaryBaseUrl();
-  const cookie = (await nextHeaders()).get('cookie')!;
-  const response = await fetch(`${baseUrl}/incomes/${year}/${month}/totals-by-currency`, {
-    headers: {
-      cookie,
-    },
-    next: {
-      revalidate: 3600,
-    },
+  const response = await backendFetch(`${SUMMARY_PATH}/incomes/${year}/${month}/totals-by-currency`, {
+    revalidate: 3600,
   });
   if (!response.ok) {
     throw new Error('Failed to fetch transactions');
