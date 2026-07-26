@@ -2,7 +2,7 @@
 
 import { Card, Tag, TagGroup } from '@heroui/react';
 import { useTranslations } from 'next-intl';
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import useSWR from 'swr';
 import { BalanceAreaChart, EXPENSE_COLOR, INCOME_COLOR, Money, MonthPoint } from '@/components';
 import { getMonthlyHistory } from '@/lib/actions/summaries';
@@ -25,10 +25,16 @@ export default function RecentMonthsBalanceChart({ data, currency, locale }: Pro
   const t = useTranslations();
   const [months, setMonths] = useState(DEFAULT_MONTHS);
 
-  const { data: history, isValidating } = useSWR(['monthly-history', months], () => getMonthlyHistory(months), {
+  const { data: history, isValidating, mutate } = useSWR(['monthly-history', months], () => getMonthlyHistory(months), {
     fallbackData: months === DEFAULT_MONTHS ? data : undefined,
     keepPreviousData: true,
   });
+
+  useEffect(() => {
+    if (months === DEFAULT_MONTHS) {
+      mutate(data, { revalidate: false });
+    }
+  }, [data, months, mutate]);
 
   const buildChartData = (source: MonthlyBalanceSummaryResponse[], monthsToShow: number): MonthPoint[] => {
     const now = new Date();
@@ -56,6 +62,29 @@ export default function RecentMonthsBalanceChart({ data, currency, locale }: Pro
     () => buildChartData(data, DEFAULT_MONTHS).some((point) => point.incomes !== 0 || point.expenses !== 0),
     [data, currency, locale]
   );
+
+  const renderTooltip = useCallback(
+    (point: MonthPoint) => (
+      <div className="bg-background border-divider rounded-medium shadow-medium text-tiny flex min-w-40 flex-col gap-2 border px-3 py-2">
+        <div className="border-divider flex items-center justify-between gap-4 border-b pb-1 text-sm">
+          <span className="font-semibold tracking-wider capitalize">{point.label}</span>
+          <Money amount={point.incomes - point.expenses} currency={currency} locale={locale} className="font-semibold" />
+        </div>
+        <div className="flex flex-col gap-1 text-xs">
+          <div className="flex justify-between gap-4">
+            <span className="font-sm">{t('Generics.income.plural')}:</span>
+            <Money amount={point.incomes} currency={currency} locale={locale} className="font-semibold" />
+          </div>
+          <div className="flex justify-between gap-4">
+            <span className="font-sm">{t('Generics.expense.plural')}:</span>
+            <Money amount={-point.expenses} currency={currency} locale={locale} className="font-semibold" />
+          </div>
+        </div>
+      </div>
+    ),
+    [currency, locale, t]
+  );
+
   if (!hasData) {
     return null;
   }
@@ -97,34 +126,7 @@ export default function RecentMonthsBalanceChart({ data, currency, locale }: Pro
           <Money amount={total} currency={currency} locale={locale} className="text-md font-semibold" />
         </div>
         <div className={`transition-opacity ${isValidating ? 'opacity-50' : 'opacity-100'}`}>
-          <BalanceAreaChart
-            chartData={chartData}
-            currency={currency}
-            locale={locale}
-            renderTooltip={(point) => (
-              <div className="bg-background border-divider rounded-medium shadow-medium text-tiny flex min-w-40 flex-col gap-2 border px-3 py-2">
-                <div className="border-divider flex items-center justify-between gap-4 border-b pb-1 text-sm">
-                  <span className="font-semibold tracking-wider capitalize">{point.label}</span>
-                  <Money
-                    amount={point.incomes - point.expenses}
-                    currency={currency}
-                    locale={locale}
-                    className="font-semibold"
-                  />
-                </div>
-                <div className="flex flex-col gap-1 text-xs">
-                  <div className="flex justify-between gap-4">
-                    <span className="font-sm">{t('Generics.income.plural')}:</span>
-                    <Money amount={point.incomes} currency={currency} locale={locale} className="font-semibold" />
-                  </div>
-                  <div className="flex justify-between gap-4">
-                    <span className="font-sm">{t('Generics.expense.plural')}:</span>
-                    <Money amount={-point.expenses} currency={currency} locale={locale} className="font-semibold" />
-                  </div>
-                </div>
-              </div>
-            )}
-          />
+          <BalanceAreaChart chartData={chartData} currency={currency} locale={locale} renderTooltip={renderTooltip} />
         </div>
       </Card.Content>
       <Card.Footer>

@@ -16,17 +16,19 @@ import {
 } from '@heroui/react';
 import { fromDate, getLocalTimeZone } from '@internationalized/date';
 import { formatISO, parseISO } from 'date-fns';
+import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { useSWRConfig } from 'swr';
 import { Button } from '@/components';
 import { useTransactionForm } from '@/components/TransactionForm/TransactionFormProvider';
-import { isRecentTransactionsFirstPageKey } from '@/components/TransactionsTable/useInfiniteTransactions';
+import { getRecentTransactionsCacheKey } from '@/components/TransactionsTable/useInfiniteTransactions';
 import { TransactionTypeSelector } from '@/components/TransactionTypeSelector';
 import { useTrySystemTranslations } from '@/hooks/useTrySystemTranslations';
 import { createTransaction, editTransaction } from '@/lib/actions/transactions';
 import { useAccounts } from '@/lib/providers/AccountsProvider';
 import { useCategories } from '@/lib/providers/CategoriesProvider';
+import { useTransactionsFilters } from '@/lib/providers/TransactionFiltersProvider';
 import { SubCategoryResponse, TransactionResponse } from '@/types/dto';
 import { PagedResponse } from '@/types/dto/pageable';
 import { TransactionType } from '@/types/enums/transactionType';
@@ -36,11 +38,13 @@ export const TransactionForm = () => {
   const { mutate } = useSWRConfig();
   const t = useTranslations();
   const locale = useLocale();
+  const router = useRouter();
   const trySystemTranslations = useTrySystemTranslations();
   const { overlayState } = useTransactionForm();
   const { transactionFormData, clearForm } = useTransactionForm();
   const { accounts } = useAccounts();
   const { categories, subcategories } = useCategories();
+  const { filters } = useTransactionsFilters();
   const [createdTransaction, setCreatedTransaction] = useState<TransactionResponse | null>(null);
   const [editedTransaction, setEditedTransaction] = useState<TransactionResponse | null>(null);
   const [processing, setProcessing] = useState<boolean>(false);
@@ -55,13 +59,30 @@ export const TransactionForm = () => {
     mutate((key) => typeof key === 'string' && key.startsWith('/api/transaction'), undefined, { revalidate: true });
 
   const insertIntoRecentTransactions = (transaction: TransactionResponse) => {
-    mutate(
-      isRecentTransactionsFirstPageKey,
-      (page?: PagedResponse<TransactionResponse>) =>
-        page && { ...page, content: [transaction, ...page.content], totalElements: page.totalElements + 1 },
-      { revalidate: false }
+    mutate<PagedResponse<TransactionResponse>[]>(
+      getRecentTransactionsCacheKey(filters),
+      (pages) => {
+        if (!pages || pages.length === 0) return pages;
+        const [firstPage, ...rest] = pages;
+        return [
+          { ...firstPage, content: [transaction, ...firstPage.content], totalElements: firstPage.totalElements + 1 },
+          ...rest,
+        ];
+      },
+      { revalidate: true }
     );
-    mutate(isRecentTransactionsFirstPageKey, undefined, { revalidate: true });
+  };
+
+  const updateRecentTransactions = (transaction: TransactionResponse) => {
+    mutate<PagedResponse<TransactionResponse>[]>(
+      getRecentTransactionsCacheKey(filters),
+      (pages) =>
+        pages?.map((page) => ({
+          ...page,
+          content: page.content.map((item) => (item.id === transaction.id ? transaction : item)),
+        })),
+      { revalidate: true }
+    );
   };
 
   const restoreFormState = useCallback(() => {
@@ -104,14 +125,17 @@ export const TransactionForm = () => {
       restoreFormState();
       revalidateTransactions();
       insertIntoRecentTransactions(createdTransaction);
+      router.refresh();
     } else if (editedTransaction) {
       toast.success(t('TransactionForm.editedSuccess', { id: editedTransaction.id }));
       setEditedTransaction(null);
       clearForm();
       restoreFormState();
       revalidateTransactions();
+      updateRecentTransactions(editedTransaction);
+      router.refresh();
     }
-  }, [accounts, clearForm, createdTransaction, editedTransaction, restoreFormState, t]);
+  }, [accounts, clearForm, createdTransaction, editedTransaction, restoreFormState, router, t]);
 
   const onSelectedCategory = (key: React.Key | null) => {
     if (key === null) return;

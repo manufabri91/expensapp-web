@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { memo, ReactNode } from 'react';
 import { Pie, PieChart, ResponsiveContainer, Sector, Tooltip } from 'recharts';
 import type { PieSectorShapeProps } from 'recharts/types/polar/Pie';
 
@@ -24,7 +24,7 @@ interface Props {
   renderTooltip: (slice: CategorySlice) => ReactNode;
 }
 
-export const CategoryPieChart = ({ data, renderTooltip }: Props) => {
+export const CategoryPieChart = memo(({ data, renderTooltip }: Props) => {
   const renderShape = ({ isActive, outerRadius, index, ...rest }: PieSectorShapeProps) => (
     <Sector
       {...rest}
@@ -52,4 +52,6 @@ export const CategoryPieChart = ({ data, renderTooltip }: Props) => {
       </ResponsiveContainer>
     </div>
   );
-};
+});
+
+CategoryPieChart.displayName = 'CategoryPieChart';

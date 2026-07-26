@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { memo, ReactNode, useMemo } from 'react';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 export interface MonthPoint {
@@ -19,15 +19,19 @@ interface Props {
 export const INCOME_COLOR = 'var(--success)';
 export const EXPENSE_COLOR = 'var(--danger)';
 
-export const BalanceAreaChart = ({ chartData, currency, locale, renderTooltip }: Props) => {
+export const BalanceAreaChart = memo(({ chartData, currency, locale, renderTooltip }: Props) => {
   const incomeGradientId = `incomeGradient-${currency}`;
   const expenseGradientId = `expenseGradient-${currency}`;
-  const currencyTickFormatter = new Intl.NumberFormat(locale, {
-    style: 'currency',
-    currency,
-    notation: 'compact',
-    maximumFractionDigits: 1,
-  });
+  const currencyTickFormatter = useMemo(
+    () =>
+      new Intl.NumberFormat(locale, {
+        style: 'currency',
+        currency,
+        notation: 'compact',
+        maximumFractionDigits: 1,
+      }),
+    [locale, currency]
+  );
 
   return (
     <div className="h-64 w-full">
@@ -93,4 +97,6 @@ export const BalanceAreaChart = ({ chartData, currency, locale, renderTooltip }:
       </ResponsiveContainer>
     </div>
   );
-};
+});
+
+BalanceAreaChart.displayName = 'BalanceAreaChart';
