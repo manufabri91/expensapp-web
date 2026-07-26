@@ -52,9 +52,8 @@ export const getTotalsByCurrency = async (year?: number, month?: number): Promis
 };
 
 export const getTotalsByCategory = async (year?: number, month?: number): Promise<CategorySummaryResponse[]> => {
-  let filter = '';
-  if (year) filter += `/${year}/`;
-  if (month) filter += `/${month}/`;
+  const segments = [year, month].filter((value): value is number => value !== undefined);
+  const filter = segments.length > 0 ? `/${segments.join('/')}` : '';
   const response = await backendFetch(`${SUMMARY_PATH}/totals-by-category${filter}`, { revalidate: 3600 });
   if (!response.ok) {
     throw new Error('Failed to fetch transactions');
