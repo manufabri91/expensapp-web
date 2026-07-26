@@ -73,6 +73,18 @@ export const TransactionForm = () => {
     );
   };
 
+  const updateRecentTransactions = (transaction: TransactionResponse) => {
+    mutate<PagedResponse<TransactionResponse>[]>(
+      getRecentTransactionsCacheKey(filters),
+      (pages) =>
+        pages?.map((page) => ({
+          ...page,
+          content: page.content.map((item) => (item.id === transaction.id ? transaction : item)),
+        })),
+      { revalidate: true }
+    );
+  };
+
   const restoreFormState = useCallback(() => {
     setProcessing(false);
     setSelectedCategory(undefined);
@@ -120,6 +132,7 @@ export const TransactionForm = () => {
       clearForm();
       restoreFormState();
       revalidateTransactions();
+      updateRecentTransactions(editedTransaction);
       router.refresh();
     }
   }, [accounts, clearForm, createdTransaction, editedTransaction, restoreFormState, router, t]);
