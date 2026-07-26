@@ -1,33 +1,38 @@
 'use server';
 
-import { formatISO, parseISO } from 'date-fns';
+import { parseISO } from 'date-fns';
 import { revalidatePath, unstable_noStore } from 'next/cache';
-import { headers as nextHeaders } from 'next/headers';
-import { getBaseUrl } from '@/lib/utils/url';
+import { backendFetch } from '@/lib/api/backendFetch';
 import { CurrencySummaryResponse, TransactionRequest, TransactionResponse } from '@/types/dto';
 import { PagedResponse } from '@/types/dto/pageable';
 import { TransactionType } from '@/types/enums/transactionType';
 import { ActionResult } from '@/types/viewModel/actionResult';
 
+// Cache invariant: every read below uses `next: { revalidate: 3600 }` (1h). Any mutation that
+// touches transactions MUST call revalidatePath for every affected page (dashboard/transactions
+// /manage) below, or reads will keep serving stale data for up to an hour.
+
 // TODO: remove this once BE ignores time (TX will care only about date)
 const parseEventDate = (eventDate: string | null): string | null => {
   if (!eventDate) return null;
 
-  return formatISO(parseISO(eventDate));
+  // `eventDate` arrives as a plain YYYY-MM-DD calendar date with no time/timezone info.
+  // parseISO() treats a date-only string as midnight in the SERVER's local timezone, and the
+  // previous implementation re-serialized it with formatISO(), which renders using that same
+  // local offset - so the exact same date string could shift by a day depending on the
+  // server's timezone relative to UTC. Anchor the date explicitly at UTC midnight and
+  // serialize with toISOString() (always UTC, always 'Z') so the round trip is
+  // timezone-independent and always represents the exact calendar date the user picked. The
+  // backend deserializes this into an OffsetDateTime, which accepts this format fine.
+  return parseISO(`${eventDate}T00:00:00.000Z`).toISOString();
 };
 
-export const getTransactions = async (url: string): Promise<PagedResponse<TransactionResponse>> => {
-  const baseUrl = await getBaseUrl();
-  const cookie = (await nextHeaders()).get('cookie')!;
+// `url` historically referred to this app's own `/api/...` route handlers; the backend exposes
+// the same paths without the `/api` prefix.
+const toBackendPath = (url: string): string => url.replace(/^\/api/, '');
 
-  const response = await fetch(`${baseUrl}${url}`, {
-    headers: {
-      cookie,
-    },
-    next: {
-      revalidate: 3600,
-    },
-  });
+export const getTransactions = async (url: string): Promise<PagedResponse<TransactionResponse>> => {
+  const response = await backendFetch(toBackendPath(url), { revalidate: 3600 });
 
   if (!response.ok) {
     throw new Error('Failed to fetch transactions');
@@ -37,17 +42,7 @@ export const getTransactions = async (url: string): Promise<PagedResponse<Transa
 };
 
 export const getFilteredTotals = async (url: string): Promise<CurrencySummaryResponse[]> => {
-  const baseUrl = await getBaseUrl();
-  const cookie = (await nextHeaders()).get('cookie')!;
-
-  const response = await fetch(`${baseUrl}${url}`, {
-    headers: {
-      cookie,
-    },
-    next: {
-      revalidate: 3600,
-    },
-  });
+  const response = await backendFetch(toBackendPath(url), { revalidate: 3600 });
 
   if (!response.ok) {
     throw new Error('Failed to fetch filtered totals');
@@ -57,16 +52,7 @@ export const getFilteredTotals = async (url: string): Promise<CurrencySummaryRes
 };
 
 export const getTransactionsByMonthAndYear = async (month: number, year: number): Promise<TransactionResponse[]> => {
-  const baseUrl = await getBaseUrl();
-  const cookie = (await nextHeaders()).get('cookie')!;
-  const response = await fetch(`${baseUrl}/api/transaction/monthly/${year}/${month}`, {
-    headers: {
-      cookie,
-    },
-    next: {
-      revalidate: 3600,
-    },
-  });
+  const response = await backendFetch(`/transaction/monthly/${year}/${month}`, { revalidate: 3600 });
 
   if (!response.ok) {
     throw new Error('Failed to fetch transactions');
@@ -89,15 +75,7 @@ export const createTransaction = async (formData: FormData): Promise<Transaction
     destinationAccountId: data.destinationAccount ? Number(data.destinationAccount) : undefined,
     excludeFromTotals: data.excludeFromTotals === 'on',
   };
-  const baseUrl = await getBaseUrl();
-  const cookie = (await nextHeaders()).get('cookie')!;
-  const response = await fetch(`${baseUrl}/api/transaction`, {
-    method: 'POST',
-    headers: {
-      cookie,
-    },
-    body: JSON.stringify(payload),
-  });
+  const response = await backendFetch('/transaction', { method: 'POST', body: payload });
 
   if (!response.ok) {
     throw new Error(`Failed to create transaction `);
@@ -124,15 +102,7 @@ export const editTransaction = async (formData: FormData): Promise<TransactionRe
     destinationAccountId: data.destinationAccount ? Number(data.destinationAccount) : undefined,
     excludeFromTotals: data.excludeFromTotals === 'on',
   };
-  const baseUrl = await getBaseUrl();
-  const cookie = (await nextHeaders()).get('cookie')!;
-  const response = await fetch(`${baseUrl}/api/transaction/${data.id}`, {
-    method: 'PUT',
-    headers: {
-      cookie,
-    },
-    body: JSON.stringify(payload),
-  });
+  const response = await backendFetch(`/transaction/${data.id}`, { method: 'PUT', body: payload });
 
   if (!response.ok) {
     throw new Error(`Failed to edit transaction ${data.id}. Please try again later.`);
@@ -146,12 +116,7 @@ export const editTransaction = async (formData: FormData): Promise<TransactionRe
 
 export const deleteTransactionById = async (id: number): Promise<ActionResult> => {
   unstable_noStore();
-  const baseUrl = await getBaseUrl();
-  const cookie = (await nextHeaders()).get('cookie')!;
-  const response = await fetch(`${baseUrl}/api/transaction/${id}`, {
-    method: 'DELETE',
-    headers: { cookie },
-  });
+  const response = await backendFetch(`/transaction/${id}`, { method: 'DELETE' });
 
   revalidatePath('/dashboard');
   revalidatePath('/transactions');

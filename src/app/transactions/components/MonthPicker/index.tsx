@@ -8,16 +8,21 @@ import { useEffect } from 'react';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi2';
 import { Button } from '@/components';
 import { useTransactionsFilters } from '@/lib/providers/TransactionFiltersProvider';
-import { getYearMonthFromParams } from '@/lib/utils/date';
 
 export const MonthPicker = () => {
-  const { patchFilters } = useTransactionsFilters();
+  const { filters, patchFilters } = useTransactionsFilters();
   const format = useFormatter();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const { year, month } = getYearMonthFromParams(searchParams.get('year'), searchParams.get('month'));
+  // Fall back to the server-derived filters.fromDate (set by transactions/page.tsx) rather than
+  // independently recomputing "today" on the client, so the picker never disagrees with the
+  // month the server already resolved and rendered (e.g. MonthSummary).
+  const yearParam = searchParams.get('year');
+  const monthParam = searchParams.get('month');
+  const year = yearParam ? Number(yearParam) : filters.fromDate.getFullYear();
+  const month = monthParam ? Number(monthParam) : filters.fromDate.getMonth() + 1;
 
   const navigateToMonth = (nextYear: number, nextMonth: number) => {
     const params = new URLSearchParams(searchParams);

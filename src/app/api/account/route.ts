@@ -1,50 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { UnauthorizedError } from '@/types/exceptions/unauthorized';
+import { authenticatedBackendFetch } from '@/lib/api/authenticatedBackendFetch';
 
 export const GET = async () => {
-  try {
-    const session = await auth();
-    if (!session) {
-      throw new UnauthorizedError();
-    }
-    const response = await fetch(`${process.env.API_URL}/account`, {
-      headers: {
-        Authorization: session.user.token,
-      },
-    });
-    const accounts = await response.json();
-    return NextResponse.json(accounts);
-  } catch (error) {
-    console.log(error);
-    return NextResponse.error();
+  const result = await authenticatedBackendFetch('/account');
+  if (!result.ok) {
+    return result.response;
   }
+  return NextResponse.json(result.data);
 };
 
 export const POST = async (req: NextRequest) => {
   const payload = await req.json();
-  try {
-    const session = await auth();
-    if (!session) {
-      throw new UnauthorizedError();
-    }
-    const response = await fetch(`${process.env.API_URL}/account`, {
-      method: 'POST',
-      body: JSON.stringify(payload),
-      headers: {
-        Authorization: session.user.token,
-        ['Content-Type']: 'application/json',
-      },
-    });
-    const newAccount = await response.json();
-
-    if (!response.ok) {
-      console.error('Failed to create Account:', newAccount);
-      throw new Error(newAccount.message || 'UNEXPECTED_ERROR');
-    }
-    return NextResponse.json(newAccount);
-  } catch (error) {
-    console.log(error);
-    return NextResponse.error();
+  const result = await authenticatedBackendFetch('/account', {
+    method: 'POST',
+    body: payload,
+  });
+  if (!result.ok) {
+    return result.response;
   }
+  return NextResponse.json(result.data);
 };

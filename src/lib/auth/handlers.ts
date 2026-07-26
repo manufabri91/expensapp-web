@@ -10,8 +10,6 @@ import { RegisterError } from '@/types/exceptions/RegisterError';
  * @returns A BackendJWT response from the backend.
  */
 export async function login(email: string, password: string): Promise<Response> {
-  console.debug('Logging in');
-
   return fetch(`${process.env.API_URL}/auth/login`, {
     signal: AbortSignal.timeout(2000),
     method: 'POST',
@@ -29,13 +27,12 @@ export async function login(email: string, password: string): Promise<Response> 
  * @returns A BackendAccessJWT response from the backend.
  */
 export async function refresh(token: string): Promise<Response> {
-  console.debug('Refreshing token');
-
   if (!token) {
     throw new Error('Token is required');
   }
   // Verify that the token is valid and not expired
   return fetch(`${process.env.API_URL}/auth/refresh`, {
+    signal: AbortSignal.timeout(2000),
     headers: {
       ['X-Refresh-Token']: token,
     },
@@ -83,6 +80,5 @@ export async function register(
     throw new RegisterError('System.ERRORS.USER_CREATION_FAIL');
   }
 
-  console.log(`New user: ${email} created`);
   return await response.json();
 }

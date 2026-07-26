@@ -1,20 +1,16 @@
 'use server';
 
 import { revalidatePath, unstable_noStore } from 'next/cache';
-import { headers as nextHeaders } from 'next/headers';
-import { getBaseUrl } from '@/lib/utils/url';
+import { backendFetch } from '@/lib/api/backendFetch';
 import { CategoryRequest, CategoryResponse } from '@/types/dto';
 import { ActionResult } from '@/types/viewModel/actionResult';
 
+// Cache invariant: every read below uses `next: { revalidate: 3600 }` (1h). Any mutation that
+// touches categories MUST call revalidatePath for every affected page (dashboard/manage) below,
+// or reads will keep serving stale data for up to an hour.
+
 export const getCategories = async (): Promise<CategoryResponse[]> => {
-  const baseUrl = await getBaseUrl();
-  const cookie = (await nextHeaders()).get('cookie')!;
-  const response = await fetch(`${baseUrl}/api/category`, {
-    headers: { cookie },
-    next: {
-      revalidate: 3600,
-    },
-  });
+  const response = await backendFetch('/category', { revalidate: 3600 });
   if (!response.ok) {
     throw new Error('Failed to fetch accounts');
   }
@@ -32,15 +28,7 @@ export const createCategory = async (formData: FormData): Promise<CategoryRespon
     type: String(data.type),
   };
 
-  const baseUrl = await getBaseUrl();
-  const cookie = (await nextHeaders()).get('cookie')!;
-  const response = await fetch(`${baseUrl}/api/category`, {
-    method: 'POST',
-    headers: {
-      cookie,
-    },
-    body: JSON.stringify(payload),
-  });
+  const response = await backendFetch('/category', { method: 'POST', body: payload });
 
   if (!response.ok) {
     throw new Error(`Failed to create category`);
@@ -62,15 +50,7 @@ export const editCategory = async (formData: FormData): Promise<CategoryResponse
     iconName: String(data.iconName),
     type: String(data.type),
   };
-  const baseUrl = await getBaseUrl();
-  const cookie = (await nextHeaders()).get('cookie')!;
-  const response = await fetch(`${baseUrl}/api/category/${data.id}`, {
-    method: 'PUT',
-    headers: {
-      cookie,
-    },
-    body: JSON.stringify(payload),
-  });
+  const response = await backendFetch(`/category/${data.id}`, { method: 'PUT', body: payload });
 
   if (!response.ok) {
     throw new Error(`Failed to edit category`);
@@ -83,12 +63,7 @@ export const editCategory = async (formData: FormData): Promise<CategoryResponse
 
 export const deleteCategoryById = async (id: number): Promise<ActionResult> => {
   unstable_noStore();
-  const baseUrl = await getBaseUrl();
-  const cookie = (await nextHeaders()).get('cookie')!;
-  const response = await fetch(`${baseUrl}/api/category/${id}`, {
-    method: 'DELETE',
-    headers: { cookie },
-  });
+  const response = await backendFetch(`/category/${id}`, { method: 'DELETE' });
 
   if (!response.ok) {
     return { success: false, message: `Failed to delete Category: ${id}` };

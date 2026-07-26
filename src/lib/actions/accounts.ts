@@ -1,20 +1,16 @@
 'use server';
 
 import { revalidatePath, unstable_noStore } from 'next/cache';
-import { headers as nextHeaders } from 'next/headers';
-import { getBaseUrl } from '@/lib/utils/url';
+import { backendFetch } from '@/lib/api/backendFetch';
 import { AccountRequest, AccountResponse } from '@/types/dto';
 import { ActionResult } from '@/types/viewModel/actionResult';
 
+// Cache invariant: every read below uses `next: { revalidate: 3600 }` (1h). Any mutation that
+// touches accounts MUST call revalidatePath for every affected page (dashboard/manage) below,
+// or reads will keep serving stale data for up to an hour.
+
 export const getAccounts = async (): Promise<AccountResponse[]> => {
-  const baseUrl = await getBaseUrl();
-  const cookie = (await nextHeaders()).get('cookie')!;
-  const response = await fetch(`${baseUrl}/api/account`, {
-    headers: { cookie },
-    next: {
-      revalidate: 3600,
-    },
-  });
+  const response = await backendFetch('/account', { revalidate: 3600 });
   if (!response.ok) {
     throw new Error('Failed to fetch accounts');
   }
@@ -25,22 +21,12 @@ export const createAccount = async (formData: FormData): Promise<AccountResponse
   unstable_noStore();
   const data = Object.fromEntries(formData);
 
-  console.log('data', data);
   const payload: AccountRequest = {
     name: String(data.name),
     currency: String(data.currency),
     initialBalance: Number(data.initialBalance),
   };
-  console.log(payload);
-  const baseUrl = await getBaseUrl();
-  const cookie = (await nextHeaders()).get('cookie')!;
-  const response = await fetch(`${baseUrl}/api/account`, {
-    method: 'POST',
-    headers: {
-      cookie,
-    },
-    body: JSON.stringify(payload),
-  });
+  const response = await backendFetch('/account', { method: 'POST', body: payload });
 
   if (!response.ok) {
     throw new Error(`Failed to create account`);
@@ -61,15 +47,7 @@ export const editAccount = async (formData: FormData): Promise<AccountResponse> 
     currency: String(data.currency),
     initialBalance: Number(data.initialBalance),
   };
-  const baseUrl = await getBaseUrl();
-  const cookie = (await nextHeaders()).get('cookie')!;
-  const response = await fetch(`${baseUrl}/api/account/${data.id}`, {
-    method: 'PUT',
-    headers: {
-      cookie,
-    },
-    body: JSON.stringify(payload),
-  });
+  const response = await backendFetch(`/account/${data.id}`, { method: 'PUT', body: payload });
 
   if (!response.ok) {
     throw new Error(`Failed to edit account`);
@@ -82,12 +60,7 @@ export const editAccount = async (formData: FormData): Promise<AccountResponse> 
 
 export const deleteAccountById = async (id: number): Promise<ActionResult> => {
   unstable_noStore();
-  const baseUrl = await getBaseUrl();
-  const cookie = (await nextHeaders()).get('cookie')!;
-  const response = await fetch(`${baseUrl}/api/account/${id}`, {
-    method: 'DELETE',
-    headers: { cookie },
-  });
+  const response = await backendFetch(`/account/${id}`, { method: 'DELETE' });
 
   revalidatePath('/dashboard');
   revalidatePath('/manage');

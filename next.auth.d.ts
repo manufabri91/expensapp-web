@@ -56,7 +56,7 @@ declare module 'next-auth' {
     roles: string[];
     iss: string;
     aud: string;
-    auth_time: nubmer;
+    auth_time: number;
     user_id: string;
     sub: string;
     email: string;
@@ -91,7 +91,7 @@ declare module 'next-auth' {
   export interface Session {
     user: UserObject;
     validity: AuthValidity;
-    error: 'RefreshTokenExpired' | 'RefreshAccessTokenError';
+    error?: 'RefreshTokenExpired' | 'RefreshAccessTokenError';
   }
 }
 
@@ -101,6 +101,6 @@ declare module 'next-auth/jwt' {
    */
   export interface JWT {
     data: User;
-    error: 'RefreshTokenExpired' | 'RefreshAccessTokenError';
+    error?: 'RefreshTokenExpired' | 'RefreshAccessTokenError';
   }
 }

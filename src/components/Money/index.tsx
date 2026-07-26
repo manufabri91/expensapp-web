@@ -20,7 +20,7 @@ export const Money = ({ amount, currency, locale, warnIfZero, className, hideNeg
     <div className={className}>
       <NumberFlow
         locales={locale}
-        className={`${getColor(amount, warnIfZero)} ${className}`}
+        className={getColor(amount, warnIfZero)}
         value={hideNegativeSign ? Math.abs(amount) : amount}
         format={
           currency
