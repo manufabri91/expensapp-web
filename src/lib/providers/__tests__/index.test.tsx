@@ -6,21 +6,11 @@ import { getCategories } from '@/lib/actions/categories';
 import { getSubcategories } from '@/lib/actions/subcategories';
 import { auth } from '@/lib/auth';
 import { AppProviders } from '@/lib/providers';
-import { HOME } from '@/lib/routes';
 
 jest.mock('@/lib/auth', () => ({ auth: jest.fn() }));
 jest.mock('@/lib/actions/accounts', () => ({ getAccounts: jest.fn() }));
 jest.mock('@/lib/actions/categories', () => ({ getCategories: jest.fn() }));
 jest.mock('@/lib/actions/subcategories', () => ({ getSubcategories: jest.fn() }));
-
-const mockedRedirect = jest.fn((path: string) => {
-  // next/navigation's real redirect() interrupts rendering by throwing a special digest
-  // error that Next.js's router catches upstream - mimic "throws and stops execution" here.
-  throw new Error(`NEXT_REDIRECT:${path}`);
-});
-jest.mock('next/navigation', () => ({
-  redirect: (path: string) => mockedRedirect(path),
-}));
 
 const mockedAuth = auth as unknown as jest.Mock;
 const mockedGetAccounts = getAccounts as unknown as jest.Mock;
@@ -37,28 +27,29 @@ describe('AppProviders', () => {
 
     await AppProviders({ children: null });
 
-    expect(mockedRedirect).not.toHaveBeenCalled();
     expect(mockedGetAccounts).not.toHaveBeenCalled();
   });
 
   // A session with `error` set (the jwt() callback in src/lib/auth/config.ts failed to refresh
-  // the access token) still has a stale bearer token in session.user.token. Previously this fell
-  // through to Promise.all, where backendFetch would throw deep inside a server action -
-  // uncaught, surfacing as a crash instead of a clean sign-in redirect. Matches the pattern
-  // NextAuth's own docs recommend: check session.error and force re-auth from the Server
-  // Component, rather than letting the stale token reach a backend call.
-  it('redirects to sign-in without fetching any data when the session has a refresh error', async () => {
+  // the access token) still has a stale bearer token in session.user.token. AppProviders lives in
+  // the root layout, so it renders on *every* route, including whichever public route a redirect
+  // would target - redirecting from here therefore loops (ERR_TOO_MANY_REDIRECTS), since nothing
+  // can clear the errored session cookie from a Server Component (cookies can only be mutated in
+  // a Server Action/Route Handler/Middleware). Instead, degrade like the no-session case: skip
+  // the data fetch and render children as-is. proxy.ts's own isAuthenticated check already
+  // treats session.error as unauthenticated and owns the actual redirect-away for protected
+  // routes, without looping.
+  it('skips the data fetch (without redirecting) when the session has a refresh error', async () => {
     mockedAuth.mockResolvedValue({ user: { token: 'stale-token' }, error: 'RefreshAccessTokenError' });
 
-    await expect(AppProviders({ children: null })).rejects.toThrow(`NEXT_REDIRECT:${HOME}`);
+    await AppProviders({ children: null });
 
-    expect(mockedRedirect).toHaveBeenCalledWith(HOME);
     expect(mockedGetAccounts).not.toHaveBeenCalled();
     expect(mockedGetCategories).not.toHaveBeenCalled();
     expect(mockedGetSubcategories).not.toHaveBeenCalled();
   });
 
-  it('fetches data and does not redirect when the session is valid', async () => {
+  it('fetches data when the session is valid', async () => {
     mockedAuth.mockResolvedValue({ user: { token: 'valid-token' } });
     mockedGetCategories.mockResolvedValue([]);
     mockedGetSubcategories.mockResolvedValue([]);
@@ -66,7 +57,6 @@ describe('AppProviders', () => {
 
     await AppProviders({ children: null });
 
-    expect(mockedRedirect).not.toHaveBeenCalled();
     expect(mockedGetAccounts).toHaveBeenCalledTimes(1);
     expect(mockedGetCategories).toHaveBeenCalledTimes(1);
     expect(mockedGetSubcategories).toHaveBeenCalledTimes(1);
