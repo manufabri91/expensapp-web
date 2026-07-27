@@ -25,6 +25,14 @@ export const backendFetch = async (path: string, options: BackendFetchOptions = 
 
   const session = await auth();
   if (!session) throw new UnauthorizedError();
+  if (session.error) {
+    // The jwt() callback in src/lib/auth/config.ts already tried and failed to refresh this
+    // session's access token, so session.user.token is known-stale. Fail fast instead of
+    // sending a doomed request the backend will 401 anyway - that would otherwise surface here
+    // as a generic "Failed to reach backend" instead of the real, more actionable cause.
+    console.error(`[backendFetch] refusing to call ${path}: session has error "${session.error}"`);
+    throw new UnauthorizedError();
+  }
 
   try {
     return await fetch(`${process.env.API_URL}${path}`, {

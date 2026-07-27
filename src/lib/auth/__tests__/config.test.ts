@@ -120,4 +120,65 @@ describe('authConfig.callbacks.jwt', () => {
     expect(result.error).toBeUndefined();
     expect(mockedRefresh).not.toHaveBeenCalled();
   });
+
+  // AppProviders (src/lib/providers/index.tsx) calls auth() directly and then Promise.all's
+  // three server actions, each of which independently calls auth() again via backendFetch.
+  // next-auth's auth() has no request-level memoization (verified directly in
+  // node_modules/next-auth/lib/index.js), so a single page load fires several concurrent jwt()
+  // invocations. Without dedup, each one independently calls refresh() with the same
+  // refreshToken, racing the backend's token-rotation and wasting calls.
+  it('dedupes concurrent refresh attempts for the same refresh token into a single backend call', async () => {
+    const newValidUntil = Math.floor(Date.now() / 1000) + 3600;
+    let resolveRefresh: (value: unknown) => void = () => {};
+    mockedRefresh.mockReturnValue(
+      new Promise((resolve) => {
+        resolveRefresh = resolve;
+      })
+    );
+    mockedJwtDecode.mockReturnValue({ exp: newValidUntil });
+
+    // Two separate concurrent invocations (as AppProviders' Promise.all would produce), both
+    // carrying the same refreshToken.
+    const callA = call({ token: expiredToken() });
+    const callB = call({ token: expiredToken() });
+
+    resolveRefresh({
+      ok: true,
+      json: async () => ({ token: 'new-access-token', refreshToken: 'new-refresh-token' }),
+    });
+    const [resultA, resultB] = await Promise.all([callA, callB]);
+
+    expect(mockedRefresh).toHaveBeenCalledTimes(1);
+    expect(resultA.data.user.token).toBe('new-access-token');
+    expect(resultB.data.user.token).toBe('new-access-token');
+  });
+
+  it('treats a refresh response missing a usable token string as a failure instead of throwing', async () => {
+    const token = expiredToken();
+    mockedRefresh.mockResolvedValue({
+      ok: true,
+      json: async () => ({ refreshToken: 'new-refresh-token' }), // no `token` field
+    });
+
+    const result = await call({ token });
+
+    expect(result.error).toBe('RefreshAccessTokenError');
+    expect(mockedJwtDecode).not.toHaveBeenCalled();
+  });
+
+  it('allows a later refresh for the same refresh token once a prior in-flight attempt has settled', async () => {
+    mockedRefresh.mockResolvedValueOnce({ ok: false });
+    const first = await call({ token: expiredToken() });
+    expect(first.error).toBe('RefreshTokenExpired');
+
+    mockedRefresh.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ token: 'new-access-token', refreshToken: 'new-refresh-token' }),
+    });
+    mockedJwtDecode.mockReturnValue({ exp: Math.floor(Date.now() / 1000) + 3600 });
+    const second = await call({ token: expiredToken() });
+
+    expect(mockedRefresh).toHaveBeenCalledTimes(2);
+    expect(second.data.user.token).toBe('new-access-token');
+  });
 });

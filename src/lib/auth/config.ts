@@ -17,17 +17,26 @@ import { login, refresh } from '@/lib/auth/handlers';
 import { InvalidLoginError } from '@/types/exceptions/invalidLogin';
 import { UnreachableLoginError } from '@/types/exceptions/unreachableLogin';
 
-const refreshAccessToken = async (token: JWT): Promise<JWT> => {
+const doRefresh = async (token: JWT): Promise<JWT> => {
   try {
     const response = await refresh(token.data.tokens.refreshToken);
 
     if (!response.ok) {
       // The backend rejected the refresh token itself (e.g. expired/invalidated),
       // so the user needs to sign in again.
+      console.error(`[auth:refresh] backend rejected refresh token (status ${response.status})`);
       return { ...token, error: 'RefreshTokenExpired' };
     }
 
     const newTokens: BackendAccessJWT = await response.json();
+    // The backend can 200 a shape without a usable token during a refresh-token-rotation race
+    // (see the dedup in refreshAccessToken below for the common cause). jwtDecode throws on
+    // anything that isn't a string, which is indistinguishable from other failures here - check
+    // explicitly so this reads as the specific case it is, both in behavior and in logs.
+    if (typeof newTokens?.token !== 'string') {
+      console.error('[auth:refresh] backend response was ok but had no usable token string', newTokens);
+      return { ...token, error: 'RefreshAccessTokenError' };
+    }
     const access: DecodedJWT = jwtDecode(newTokens.token);
 
     return {
@@ -41,9 +50,30 @@ const refreshAccessToken = async (token: JWT): Promise<JWT> => {
     };
   } catch (error) {
     // Network/timeout failure while calling the refresh endpoint
-    console.error(error);
+    console.error('[auth:refresh] refresh() threw (network/timeout failure):', error);
     return { ...token, error: 'RefreshAccessTokenError' };
   }
+};
+
+// AppProviders renders auth() directly and then Promise.all's three server actions, each of
+// which calls auth() again via backendFetch - next-auth's auth() has no request-level
+// memoization, so a single page load can fire several concurrent jwt() invocations. Without
+// this, each one would independently call refresh() with the same refreshToken, racing the
+// backend's token rotation and occasionally getting back a response for a token another
+// concurrent call already consumed. Keying on the refresh token (rather than a single global
+// in-flight slot) lets unrelated sessions refresh independently.
+const inFlightRefreshes = new Map<string, Promise<JWT>>();
+
+const refreshAccessToken = (token: JWT): Promise<JWT> => {
+  const refreshToken = token.data.tokens.refreshToken;
+  const inFlight = inFlightRefreshes.get(refreshToken);
+  if (inFlight) return inFlight;
+
+  const attempt = doRefresh(token).finally(() => {
+    inFlightRefreshes.delete(refreshToken);
+  });
+  inFlightRefreshes.set(refreshToken, attempt);
+  return attempt;
 };
 
 export const authConfig: NextAuthConfig = {
