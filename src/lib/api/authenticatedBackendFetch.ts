@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
+import { hasValidSession, logSessionRefusal } from '@/lib/auth/session';
 
 type BackendMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
@@ -117,7 +118,8 @@ export const authenticatedBackendFetch = async <T = unknown>(
   const { method = 'GET', body, searchParams } = options;
 
   const session = await auth();
-  if (!session) {
+  if (!hasValidSession(session)) {
+    logSessionRefusal('authenticatedBackendFetch', path, session);
     return unauthorized();
   }
 

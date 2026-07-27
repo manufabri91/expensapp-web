@@ -1,8 +1,8 @@
 /**
  * @jest-environment node
  */
-import { auth } from '@/lib/auth';
 import { authenticatedBackendFetch } from '@/lib/api/authenticatedBackendFetch';
+import { auth } from '@/lib/auth';
 
 jest.mock('@/lib/auth', () => ({
   auth: jest.fn(),
@@ -34,6 +34,22 @@ describe('authenticatedBackendFetch', () => {
     expect(global.fetch).not.toHaveBeenCalled();
   });
 
+  // A session with `error` set (the jwt() callback in src/lib/auth/config.ts failed to refresh
+  // the access token) still has a stale bearer token in session.user.token - sending it anyway
+  // wastes a request the backend will 401 regardless. Same guard as backendFetch.ts (used by
+  // server actions); this is the equivalent for the API-route helper.
+  it('returns a 401 failure without calling the backend when the session has a refresh error', async () => {
+    mockedAuth.mockResolvedValue({ error: 'RefreshAccessTokenError', user: { token: 'stale-token' } });
+
+    const result = await authenticatedBackendFetch('/account');
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.response.status).toBe(401);
+    }
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
   it('returns a 502 failure when the backend fetch itself throws (network/timeout failure)', async () => {
     mockedAuth.mockResolvedValue({ user: { token: 'token-123' } });
     (global.fetch as jest.Mock).mockRejectedValue(new Error('network down'));
@@ -49,7 +65,7 @@ describe('authenticatedBackendFetch', () => {
   it('passes through the backend status and error message when the response is not ok', async () => {
     mockedAuth.mockResolvedValue({ user: { token: 'token-123' } });
     (global.fetch as jest.Mock).mockResolvedValue(
-      new Response(JSON.stringify({ message: 'Account not found' }), { status: 404 }),
+      new Response(JSON.stringify({ message: 'Account not found' }), { status: 404 })
     );
 
     const result = await authenticatedBackendFetch('/account/1');
@@ -64,7 +80,9 @@ describe('authenticatedBackendFetch', () => {
 
   it('returns parsed JSON data on success', async () => {
     mockedAuth.mockResolvedValue({ user: { token: 'token-123' } });
-    (global.fetch as jest.Mock).mockResolvedValue(new Response(JSON.stringify({ id: 1, name: 'Checking' }), { status: 200 }));
+    (global.fetch as jest.Mock).mockResolvedValue(
+      new Response(JSON.stringify({ id: 1, name: 'Checking' }), { status: 200 })
+    );
 
     const result = await authenticatedBackendFetch<{ id: number; name: string }>('/account/1');
 
