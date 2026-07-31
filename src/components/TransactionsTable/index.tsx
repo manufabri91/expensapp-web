@@ -20,7 +20,7 @@ import { TransactionFilters, transactionFiltersToQueryParams } from '@/types/vie
 const useTransactions = (filters: TransactionFilters) => {
   const queryParams = transactionFiltersToQueryParams(filters);
 
-  return useSWR(`/api/transaction${queryParams}`, getTransactions);
+  return useSWR(`/api/transaction${queryParams}`, getTransactions, { refreshInterval: 5 * 60 * 1000 });
 };
 
 interface Props {

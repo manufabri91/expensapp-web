@@ -1,8 +1,8 @@
 'use server';
 
-import { parseISO } from 'date-fns';
 import { revalidatePath, unstable_noStore } from 'next/cache';
 import { backendFetch } from '@/lib/api/backendFetch';
+import { parseCalendarDateOnly, toBackendPath } from '@/lib/utils/date';
 import { CurrencySummaryResponse, TransactionRequest, TransactionResponse } from '@/types/dto';
 import { PagedResponse } from '@/types/dto/pageable';
 import { TransactionType } from '@/types/enums/transactionType';
@@ -13,23 +13,7 @@ import { ActionResult } from '@/types/viewModel/actionResult';
 // /manage) below, or reads will keep serving stale data for up to an hour.
 
 // TODO: remove this once BE ignores time (TX will care only about date)
-const parseEventDate = (eventDate: string | null): string | null => {
-  if (!eventDate) return null;
-
-  // `eventDate` arrives as a plain YYYY-MM-DD calendar date with no time/timezone info.
-  // parseISO() treats a date-only string as midnight in the SERVER's local timezone, and the
-  // previous implementation re-serialized it with formatISO(), which renders using that same
-  // local offset - so the exact same date string could shift by a day depending on the
-  // server's timezone relative to UTC. Anchor the date explicitly at UTC midnight and
-  // serialize with toISOString() (always UTC, always 'Z') so the round trip is
-  // timezone-independent and always represents the exact calendar date the user picked. The
-  // backend deserializes this into an OffsetDateTime, which accepts this format fine.
-  return parseISO(`${eventDate}T00:00:00.000Z`).toISOString();
-};
-
-// `url` historically referred to this app's own `/api/...` route handlers; the backend exposes
-// the same paths without the `/api` prefix.
-const toBackendPath = (url: string): string => url.replace(/^\/api/, '');
+const parseEventDate = parseCalendarDateOnly;
 
 export const getTransactions = async (url: string): Promise<PagedResponse<TransactionResponse>> => {
   const response = await backendFetch(toBackendPath(url), { revalidate: 3600 });

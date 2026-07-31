@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
 import LoadingSummary from '@/app/dashboard/components/Summary/loading';
 import { MonthSummary } from '@/app/transactions/components/MonthSummary';
+import { RecurringTransactionsSection } from '@/app/transactions/components/RecurringTransactionsSection';
 import { TransactionsTable } from '@/components';
 import { TransactionFormProvider } from '@/components/TransactionForm/TransactionFormProvider';
 import { TransactionsFiltersProvider } from '@/lib/providers/TransactionFiltersProvider';
@@ -42,6 +43,7 @@ export default async function Transactions({ searchParams }: Props) {
             <MonthSummary year={year} month={month} />
           </Suspense>
           <TransactionsTable noTransactionsMessage={t('noTransactions')} showPagination />
+          <RecurringTransactionsSection />
         </main>
       </TransactionFormProvider>
     </TransactionsFiltersProvider>
