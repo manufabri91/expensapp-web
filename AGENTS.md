@@ -14,6 +14,26 @@ Run /simplify before presenting code to the user.
 
 <!-- END:code-review-standards -->
 
+<!-- BEGIN:testing-standards -->
+
+## Testing Standards
+
+- Every new component should have a unit test.
+- Structure each test using the Arrange-Act-Assert pattern.
+- Tests must be human-readable: use descriptive `describe`/`it` blocks and clear, non-abbreviated variable names.
+
+<!-- END:testing-standards -->
+
+<!-- BEGIN:naming-conventions -->
+
+## Naming Conventions
+
+- Never abbreviate a name down to initials (e.g. `const u = getUserById(1)` is forbidden). Use the full word instead
+  (`const user = getUserById(1)`), or a qualifying suffix when the plain name is already taken in scope (`userOne`,
+  `userTwo`).
+
+<!-- END:naming-conventions -->
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 # Next.js: ALWAYS read docs before coding
