@@ -49,8 +49,43 @@ const config: Config = {
   //   "clover"
   // ],
 
-  // An object that configures minimum threshold enforcement for coverage results
-  // coverageThreshold: undefined,
+  // An object that configures minimum threshold enforcement for coverage results.
+  //
+  // Scoped to the new files added by the recurring-transactions feature only - no `global` entry,
+  // so this doesn't gate on pre-existing, largely-untested legacy code (that gap is being closed
+  // separately, see AGENTS.md's Testing section). Files with no runtime output (plain `interface`
+  // DTOs) and files this feature only modified in passing (TransactionForm/index.tsx,
+  // TransactionFormProvider.tsx, TransactionsTable/index.tsx) are intentionally excluded from the
+  // numeric gate for the same reason as their backend counterparts.
+  coverageThreshold: {
+    // No blanket requirement across the whole (largely pre-existing, untested) codebase.
+    global: {},
+    './src/utils/recurrenceSchedule.ts': { statements: 80, branches: 80, functions: 80, lines: 80 },
+    './src/lib/actions/recurringTransactions.ts': { statements: 80, branches: 80, functions: 80, lines: 80 },
+    './src/types/enums/recurrenceFrequency.ts': { statements: 80, branches: 80, functions: 80, lines: 80 },
+    './src/types/enums/recurrenceStatus.ts': { statements: 80, branches: 80, functions: 80, lines: 80 },
+    './src/components/TransactionModeSelector/index.tsx': { statements: 80, branches: 80, functions: 80, lines: 80 },
+    './src/app/transactions/components/RecurringTransactionsSection/index.tsx': {
+      statements: 80,
+      branches: 80,
+      functions: 80,
+      lines: 80,
+    },
+    './src/app/transactions/components/RecurringTransactionsSection/RecurringTransactionActions.tsx': {
+      statements: 80,
+      branches: 80,
+      functions: 80,
+      lines: 80,
+    },
+    './src/app/api/recurring-transaction/route.ts': { statements: 80, branches: 80, functions: 80, lines: 80 },
+    './src/app/api/recurring-transaction/[id]/route.ts': { statements: 80, branches: 80, functions: 80, lines: 80 },
+    './src/app/api/recurring-transaction/[id]/[action]/route.ts': {
+      statements: 80,
+      branches: 80,
+      functions: 80,
+      lines: 80,
+    },
+  },
 
   // A path to a custom dependency extractor
   // dependencyExtractor: undefined,
@@ -103,6 +138,13 @@ const config: Config = {
   // transform never sees/rewrites -- Jest's own resolver needs this mapping to resolve it.
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    // @heroui/react and @heroui/styles are ESM-only with no `default`/`require` condition in their
+    // exports map (unlike e.g. next-auth, which falls back to `default`), so Jest's CJS-style
+    // resolver can't locate them at all ("Cannot find module") even with transpilePackages set in
+    // next.config.ts (that only fixes the syntax transform, not resolution). Point straight at the
+    // dist entry files instead.
+    '^@heroui/react$': '<rootDir>/node_modules/@heroui/react/dist/index.js',
+    '^@heroui/styles$': '<rootDir>/node_modules/@heroui/styles/dist/index.js',
   },
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
@@ -161,8 +203,16 @@ const config: Config = {
   // The test environment that will be used for testing
   testEnvironment: 'jsdom',
 
-  // Options that will be passed to the testEnvironment
-  // testEnvironmentOptions: {},
+  // jest-environment-jsdom defaults `customExportConditions` to ['browser'], which makes Jest's
+  // resolver prefer a package's `browser`/`import` export condition over `require`/`default` even
+  // though Jest itself runs on Node and evaluates CJS. Several deps (next-intl, among others) ship
+  // an ESM build behind that `browser` condition that Jest can't parse without an explicit
+  // transformIgnorePatterns entry, surfacing as "Unexpected token 'export'". Clearing this back to
+  // plain Node-style resolution (matching jest-environment-node's default) fixes that for every
+  // such package at once, instead of chasing each one individually via transpilePackages.
+  testEnvironmentOptions: {
+    customExportConditions: [''],
+  },
 
   // Adds a location field to test results
   // testLocationInResults: false,
