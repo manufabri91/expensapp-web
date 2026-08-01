@@ -48,7 +48,8 @@
         "singular": "Dollar",
         "plural": "Dollars"
       }
-    }
+    },
+    "unexpectedError": "Unexpected Error"
   },
   "HomePage": {
     "hero": {

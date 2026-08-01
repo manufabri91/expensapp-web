@@ -48,7 +48,8 @@
         "singular": "Dólar",
         "plural": "Dólares"
       }
-    }
+    },
+    "unexpectedError": "Error inesperado"
   },
   "HomePage": {
     "hero": {
@@ -292,7 +293,7 @@
     },
     "schedule": {
       "everyNDays": "Cada {n} días",
-      "monthlyOn": "Mensual el {days}"
+      "monthlyOn": "Mensual - Día {days} del mes"
     },
     "nextOccurrence": "Próxima: {date}",
     "endsOn": "Finaliza {date}",

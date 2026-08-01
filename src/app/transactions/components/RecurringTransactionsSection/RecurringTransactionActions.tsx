@@ -25,7 +25,7 @@ export const EditRecurringTransactionButton = ({ recurrence }: Pick<RecurrenceAc
 
   return (
     <Button size="sm" variant="secondary" onPress={() => showRecurringTransactionForm(recurrence)}>
-      <HiPencil className="mr-1 size-5" />
+      <HiPencil className="size-5" />
       <span className="hidden md:block">{t('edit')}</span>
     </Button>
   );
@@ -56,11 +56,11 @@ export const PauseResumeRecurringTransactionButton = ({ recurrence, onChanged }:
   return (
     <Button size="sm" variant="secondary" onPress={handlePress} isDisabled={isSubmitting}>
       {isSubmitting ? (
-        <Spinner className="mr-1 size-5" />
+        <Spinner className="size-5" />
       ) : isPaused ? (
-        <HiPlay className="mr-1 size-5" />
+        <HiPlay className="size-5" />
       ) : (
-        <HiPause className="mr-1 size-5" />
+        <HiPause className="size-5" />
       )}
       <span className="hidden md:block">{isPaused ? t('resume') : t('pause')}</span>
     </Button>
@@ -96,7 +96,7 @@ const ConfirmActionButton = ({ label, icon: Icon, titleKey, bodyKey, onConfirm }
   return (
     <>
       <Button size="sm" variant="danger" onPress={() => setIsOpen(true)}>
-        <Icon className="mr-1 size-5" />
+        <Icon className="size-5" />
         <span className="hidden md:block">{label}</span>
       </Button>
       <AlertDialog.Backdrop isOpen={isOpen} onOpenChange={setIsOpen}>

@@ -45,7 +45,7 @@ export const EditSubcategoryButton = ({ subcategory }: { subcategory: SubCategor
         showSubcategoryEditForm(subcategory);
       }}
     >
-      {!isOpen && <HiPencil className="mr-1 size-5" />}
+      {!isOpen && <HiPencil className="mr-0 size-5 md:mr-1" />}
       <span className="hidden md:block">{isOpen ? `${t('editing')}...` : t('edit')}</span>
     </Button>
   );
@@ -80,7 +80,7 @@ export const DeleteSubcategoryButton = ({ subcategoryId }: { subcategoryId: numb
       }}
       isDisabled={isDeleting}
     >
-      {!isDeleting && <HiTrash className="mr-1 size-5" />}
+      {!isDeleting && <HiTrash className="mr-0 size-5 md:mr-1" />}
       <span className="hidden md:block">{isDeleting ? `${t('Generics.deleting')}...` : t('Generics.delete')}</span>
     </Button>
   );
