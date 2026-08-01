@@ -1,7 +1,7 @@
 'use client';
 
 import { Accordion, Chip, EmptyState, Spinner } from '@heroui/react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import useSWR from 'swr';
 import { Money, TypeBadge } from '@/components';
@@ -26,6 +26,7 @@ const useRecurringTransactions = () => useSWR('/api/recurring-transaction', getR
 
 export const RecurringTransactionsSection = () => {
   const t = useTranslations('RecurringTransactions');
+  const locale = useLocale();
   const { accounts } = useAccounts();
   const accountsById = useMemo(() => new Map(accounts.map((account) => [account.id, account])), [accounts]);
   const { data: recurrences, isLoading, mutate } = useRecurringTransactions();
@@ -58,7 +59,7 @@ export const RecurringTransactionsSection = () => {
                         <Money amount={recurrence.amount} currency={account?.currency} hideNegativeSign />
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-muted text-sm">{formatScheduleDescription(recurrence, t)}</span>
+                        <span className="text-muted text-sm">{formatScheduleDescription(recurrence, t, locale)}</span>
                         <Chip size="sm" color={statusChipColor(recurrence.status)}>
                           <Chip.Label>{t(`status.${recurrence.status}`)}</Chip.Label>
                         </Chip>

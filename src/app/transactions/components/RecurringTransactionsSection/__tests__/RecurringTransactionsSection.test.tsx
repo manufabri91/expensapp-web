@@ -13,6 +13,7 @@ import { TransactionType } from '@/types/enums/transactionType';
 
 jest.mock('next-intl', () => ({
   useTranslations: () => (key: string) => key,
+  useLocale: () => 'en',
 }));
 
 // TypeBadge imports useTranslations from 'use-intl' directly (next-intl's own re-export), which

@@ -7,7 +7,7 @@ describe('formatScheduleDescription', () => {
   it('describes an interval recurrence using the configured interval days', () => {
     const intervalRecurrence = { frequency: RecurrenceFrequency.INTERVAL_DAYS, intervalDays: 14, daysOfMonth: [] };
 
-    const description = formatScheduleDescription(intervalRecurrence, fakeTranslator);
+    const description = formatScheduleDescription(intervalRecurrence, fakeTranslator, 'en');
 
     expect(description).toBe('schedule.everyNDays::{"n":14}');
   });
@@ -19,7 +19,7 @@ describe('formatScheduleDescription', () => {
       daysOfMonth: [],
     };
 
-    const description = formatScheduleDescription(intervalRecurrenceWithoutDays, fakeTranslator);
+    const description = formatScheduleDescription(intervalRecurrenceWithoutDays, fakeTranslator, 'en');
 
     expect(description).toBe('schedule.everyNDays::{"n":0}');
   });
@@ -31,7 +31,7 @@ describe('formatScheduleDescription', () => {
       daysOfMonth: [15, 1],
     };
 
-    const description = formatScheduleDescription(monthlyRecurrence, fakeTranslator);
+    const description = formatScheduleDescription(monthlyRecurrence, fakeTranslator, 'en');
 
     expect(description).toBe('schedule.monthlyOn::{"days":"1st, 15th"}');
   });
@@ -48,11 +48,23 @@ describe('formatScheduleDescription', () => {
     [22, '22nd'],
     [23, '23rd'],
     [31, '31st'],
-  ])('formats day %i as the ordinal %s', (day, expectedOrdinal) => {
+  ])('formats day %i as the English ordinal %s', (day, expectedOrdinal) => {
     const monthlyRecurrence = { frequency: RecurrenceFrequency.MONTHLY_DAYS, intervalDays: null, daysOfMonth: [day] };
 
-    const description = formatScheduleDescription(monthlyRecurrence, fakeTranslator);
+    const description = formatScheduleDescription(monthlyRecurrence, fakeTranslator, 'en');
 
     expect(description).toBe(`schedule.monthlyOn::{"days":"${expectedOrdinal}"}`);
+  });
+
+  it.each(['es', 'es-AR'])('formats every day the same way in Spanish (%s): a plain "º" suffix', (locale) => {
+    const monthlyRecurrence = {
+      frequency: RecurrenceFrequency.MONTHLY_DAYS,
+      intervalDays: null,
+      daysOfMonth: [1, 11, 21, 31],
+    };
+
+    const description = formatScheduleDescription(monthlyRecurrence, fakeTranslator, locale);
+
+    expect(description).toBe('schedule.monthlyOn::{"days":"1º, 11º, 21º, 31º"}');
   });
 });
