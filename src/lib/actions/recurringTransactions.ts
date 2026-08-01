@@ -2,7 +2,7 @@
 
 import { revalidatePath, unstable_noStore } from 'next/cache';
 import { backendFetch } from '@/lib/api/backendFetch';
-import { parseCalendarDateOnly as parseDateOnly, toBackendPath } from '@/lib/utils/date';
+import { parseCalendarDateOnly as parseDateOnly } from '@/lib/utils/date';
 import { RecurringTransactionRequest, RecurringTransactionResponse } from '@/types/dto';
 import { RecurrenceFrequency } from '@/types/enums/recurrenceFrequency';
 import { TransactionType } from '@/types/enums/transactionType';
@@ -26,8 +26,13 @@ const buildPayload = (data: Record<string, FormDataEntryValue>, daysOfMonth: num
   };
 };
 
-export const getRecurringTransactions = async (url: string): Promise<RecurringTransactionResponse[]> => {
-  const response = await backendFetch(toBackendPath(url), { revalidate: 3600 });
+// Unlike the other actions in this file, this one is never called with a dynamic path (its SWR
+// key is always the literal '/api/recurring-transaction'), so it hardcodes the backend path
+// directly rather than deriving it with toBackendPath - that helper assumes the frontend and
+// backend path segments match, which isn't true here: the backend route is `/recurrent-transaction`
+// (not `/recurring-transaction`).
+export const getRecurringTransactions = async (): Promise<RecurringTransactionResponse[]> => {
+  const response = await backendFetch('/recurrent-transaction', { revalidate: 3600 });
 
   if (!response.ok) {
     throw new Error('Failed to fetch recurring transactions');

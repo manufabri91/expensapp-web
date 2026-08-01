@@ -46,22 +46,20 @@ describe('recurringTransactions actions', () => {
   });
 
   describe('getRecurringTransactions', () => {
-    it('fetches the given url with the /api prefix stripped', async () => {
+    it('fetches from the backend recurrent-transaction endpoint', async () => {
       (global.fetch as jest.Mock).mockResolvedValue(new Response('[]', { status: 200 }));
 
-      const result = await getRecurringTransactions('/api/recurring-transaction');
+      const result = await getRecurringTransactions();
 
       expect(result).toEqual([]);
       const { url } = lastFetchRequest();
-      expect(url).toBe('https://backend.test/recurring-transaction');
+      expect(url).toBe('https://backend.test/recurrent-transaction');
     });
 
     it('throws when the backend response is not ok', async () => {
       (global.fetch as jest.Mock).mockResolvedValue(new Response('', { status: 500 }));
 
-      await expect(getRecurringTransactions('/api/recurring-transaction')).rejects.toThrow(
-        'Failed to fetch recurring transactions'
-      );
+      await expect(getRecurringTransactions()).rejects.toThrow('Failed to fetch recurring transactions');
     });
   });
 
