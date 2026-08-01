@@ -1,7 +1,8 @@
 'use client';
 
 import { Accordion, Chip, EmptyState, Spinner } from '@heroui/react';
-import { useLocale, useTranslations } from 'next-intl';
+import { parseISO } from 'date-fns';
+import { useFormatter, useLocale, useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import useSWR from 'swr';
 import { Money, TypeBadge } from '@/components';
@@ -9,12 +10,12 @@ import { getRecurringTransactions } from '@/lib/actions/recurringTransactions';
 import { useAccounts } from '@/lib/providers/AccountsProvider';
 import { RecurrenceStatus } from '@/types/enums/recurrenceStatus';
 import { formatScheduleDescription } from '@/utils/recurrenceSchedule';
-import {
-  CancelRecurringTransactionButton,
-  DeleteRecurringTransactionButton,
-  EditRecurringTransactionButton,
-  PauseResumeRecurringTransactionButton,
-} from './RecurringTransactionActions';
+import { CancelRecurringTransactionButton } from './components/CancelRecurringTransactionButton';
+import { DeleteRecurringTransactionButton } from './components/DeleteRecurringTransactionButton';
+import { EditRecurringTransactionButton } from './components/EditRecurringTransactionButton';
+import { PauseResumeRecurringTransactionButton } from './components/PauseResumeRecurringTransactionButton';
+
+const DATE_FORMAT_OPTIONS = { year: '2-digit', month: '2-digit', day: '2-digit' } as const;
 
 const statusChipColor = (status: RecurrenceStatus): 'success' | 'warning' | 'default' => {
   if (status === RecurrenceStatus.ACTIVE) return 'success';
@@ -26,6 +27,7 @@ const useRecurringTransactions = () => useSWR('/api/recurring-transaction', getR
 
 export const RecurringTransactionsSection = () => {
   const t = useTranslations('RecurringTransactions');
+  const format = useFormatter();
   const locale = useLocale();
   const { accounts } = useAccounts();
   const accountsById = useMemo(() => new Map(accounts.map((account) => [account.id, account])), [accounts]);
@@ -72,17 +74,23 @@ export const RecurringTransactionsSection = () => {
                   <Accordion.Body>
                     <div className="text-muted mb-4 flex flex-wrap gap-4 text-sm">
                       {recurrence.nextDueDate && (
-                        <span>{t('nextOccurrence', { date: recurrence.nextDueDate.slice(0, 10) })}</span>
+                        <span>
+                          {t('nextOccurrence', { date: format.dateTime(parseISO(recurrence.nextDueDate), DATE_FORMAT_OPTIONS) })}
+                        </span>
                       )}
-                      <span>{recurrence.endDate ? t('endsOn', { date: recurrence.endDate.slice(0, 10) }) : t('noEndDate')}</span>
+                      <span>
+                        {recurrence.endDate
+                          ? t('endsOn', { date: format.dateTime(parseISO(recurrence.endDate), DATE_FORMAT_OPTIONS) })
+                          : t('noEndDate')}
+                      </span>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                       <EditRecurringTransactionButton recurrence={recurrence} />
                       {recurrence.status !== RecurrenceStatus.CANCELLED && (
-                        <PauseResumeRecurringTransactionButton recurrence={recurrence} onChanged={() => mutate()} />
-                      )}
-                      {recurrence.status !== RecurrenceStatus.CANCELLED && (
-                        <CancelRecurringTransactionButton recurrence={recurrence} onChanged={() => mutate()} />
+                        <>
+                          <PauseResumeRecurringTransactionButton recurrence={recurrence} onChanged={() => mutate()} />
+                          <CancelRecurringTransactionButton recurrence={recurrence} onChanged={() => mutate()} />
+                        </>
                       )}
                       <DeleteRecurringTransactionButton recurrence={recurrence} onChanged={() => mutate()} />
                     </div>

@@ -71,7 +71,27 @@ const config: Config = {
       functions: 80,
       lines: 80,
     },
-    './src/app/transactions/components/RecurringTransactionsSection/RecurringTransactionActions.tsx': {
+    './src/app/transactions/components/RecurringTransactionsSection/components/ConfirmActionButton.tsx': {
+      statements: 80,
+      branches: 80,
+      functions: 80,
+      lines: 80,
+    },
+    './src/app/transactions/components/RecurringTransactionsSection/components/EditRecurringTransactionButton.tsx': {
+      statements: 80,
+      branches: 80,
+      functions: 80,
+      lines: 80,
+    },
+    './src/app/transactions/components/RecurringTransactionsSection/components/PauseResumeRecurringTransactionButton.tsx':
+      { statements: 80, branches: 80, functions: 80, lines: 80 },
+    './src/app/transactions/components/RecurringTransactionsSection/components/CancelRecurringTransactionButton.tsx': {
+      statements: 80,
+      branches: 80,
+      functions: 80,
+      lines: 80,
+    },
+    './src/app/transactions/components/RecurringTransactionsSection/components/DeleteRecurringTransactionButton.tsx': {
       statements: 80,
       branches: 80,
       functions: 80,
