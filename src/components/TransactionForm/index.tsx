@@ -241,10 +241,13 @@ export const TransactionForm = () => {
       updateRecentTransactions(editedTransaction);
       setEditedTransaction(null);
     } else if (createdRecurring) {
-      finishSuccessfully(
-        t('TransactionForm.recurringCreatedSuccess', { id: createdRecurring.id }),
-        revalidateRecurringTransactions
-      );
+      // A recurrence due today (interval starting today, or a monthly day matching today) has its
+      // first transaction generated synchronously by the backend as part of this same request, so
+      // the transactions table's own cache needs revalidating too, not just the recurring list's.
+      finishSuccessfully(t('TransactionForm.recurringCreatedSuccess', { id: createdRecurring.id }), () => {
+        revalidateRecurringTransactions();
+        revalidateTransactions();
+      });
       setCreatedRecurring(null);
     } else if (editedRecurring) {
       finishSuccessfully(
