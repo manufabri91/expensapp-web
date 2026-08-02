@@ -41,78 +41,11 @@ const config: Config = {
   // Indicates which provider should be used to instrument code for coverage
   coverageProvider: 'v8',
 
-  // A list of reporter names that Jest uses when writing coverage reports
-  // coverageReporters: [
-  //   "json",
-  //   "text",
-  //   "lcov",
-  //   "clover"
-  // ],
-
-  // An object that configures minimum threshold enforcement for coverage results.
-  //
-  // Scoped to the new files added by the recurring-transactions feature only - no `global` entry,
-  // so this doesn't gate on pre-existing, largely-untested legacy code (that gap is being closed
-  // separately, see AGENTS.md's Testing section). Files with no runtime output (plain `interface`
-  // DTOs) and files this feature only modified in passing (TransactionForm/index.tsx,
-  // TransactionFormProvider.tsx, TransactionsTable/index.tsx) are intentionally excluded from the
-  // numeric gate for the same reason as their backend counterparts.
-  coverageThreshold: {
-    // No blanket requirement across the whole (largely pre-existing, untested) codebase.
-    global: {},
-    './src/utils/recurrenceSchedule.ts': { statements: 80, branches: 80, functions: 80, lines: 80 },
-    './src/utils/upcomingRecurringTransactions.ts': { statements: 80, branches: 80, functions: 80, lines: 80 },
-    './src/app/dashboard/components/Summary/UpcomingRecurringCard/index.tsx': {
-      statements: 80,
-      branches: 80,
-      functions: 80,
-      lines: 80,
-    },
-    './src/lib/actions/recurringTransactions.ts': { statements: 80, branches: 80, functions: 80, lines: 80 },
-    './src/types/enums/recurrenceFrequency.ts': { statements: 80, branches: 80, functions: 80, lines: 80 },
-    './src/types/enums/recurrenceStatus.ts': { statements: 80, branches: 80, functions: 80, lines: 80 },
-    './src/components/TransactionModeSelector/index.tsx': { statements: 80, branches: 80, functions: 80, lines: 80 },
-    './src/app/transactions/components/RecurringTransactionsSection/index.tsx': {
-      statements: 80,
-      branches: 80,
-      functions: 80,
-      lines: 80,
-    },
-    './src/app/transactions/components/RecurringTransactionsSection/components/ConfirmActionButton.tsx': {
-      statements: 80,
-      branches: 80,
-      functions: 80,
-      lines: 80,
-    },
-    './src/app/transactions/components/RecurringTransactionsSection/components/EditRecurringTransactionButton.tsx': {
-      statements: 80,
-      branches: 80,
-      functions: 80,
-      lines: 80,
-    },
-    './src/app/transactions/components/RecurringTransactionsSection/components/PauseResumeRecurringTransactionButton.tsx':
-      { statements: 80, branches: 80, functions: 80, lines: 80 },
-    './src/app/transactions/components/RecurringTransactionsSection/components/CancelRecurringTransactionButton.tsx': {
-      statements: 80,
-      branches: 80,
-      functions: 80,
-      lines: 80,
-    },
-    './src/app/transactions/components/RecurringTransactionsSection/components/DeleteRecurringTransactionButton.tsx': {
-      statements: 80,
-      branches: 80,
-      functions: 80,
-      lines: 80,
-    },
-    './src/app/api/recurring-transaction/route.ts': { statements: 80, branches: 80, functions: 80, lines: 80 },
-    './src/app/api/recurring-transaction/[id]/route.ts': { statements: 80, branches: 80, functions: 80, lines: 80 },
-    './src/app/api/recurring-transaction/[id]/[action]/route.ts': {
-      statements: 80,
-      branches: 80,
-      functions: 80,
-      lines: 80,
-    },
-  },
+  // lcov is what Codecov's GitHub Action consumes (see .github/workflows/ci-build-test.yml) to
+  // enforce coverage on a per-PR basis - patch (changed lines) and project (must not regress)
+  // targets are configured in codecov.yml, replacing the old hand-maintained per-file
+  // coverageThreshold list here. See AGENTS.md's Testing section.
+  coverageReporters: ['text', 'lcov'],
 
   // A path to a custom dependency extractor
   // dependencyExtractor: undefined,

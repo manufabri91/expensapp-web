@@ -25,6 +25,7 @@ jest.mock('use-intl', () => ({
 // only what RecurringTransactionsSection and its children actually use.
 jest.mock('@/components', () => ({
   Button: jest.requireActual('@/components/Button').Button,
+  Icon: jest.requireActual('@/components/Icon').Icon,
   Money: jest.requireActual('@/components/Money').Money,
   TypeBadge: jest.requireActual('@/components/TypeBadge').TypeBadge,
 }));
@@ -135,7 +136,20 @@ describe('RecurringTransactionsSection', () => {
     expect(mutate).toHaveBeenCalled();
   });
 
-  it('shows the next occurrence date when present, and a "no end date" label when there is none', () => {
+  it('shows "due today" when the next occurrence is today', () => {
+    mockedUseSWR.mockReturnValue({
+      data: [buildRecurrence({ nextDueDate: new Date().toISOString(), endDate: null })],
+      isLoading: false,
+      mutate: jest.fn(),
+    });
+
+    render(<RecurringTransactionsSection />);
+
+    expect(screen.getByText('dueToday')).toBeInTheDocument();
+    expect(screen.getByText('noEndDate')).toBeInTheDocument();
+  });
+
+  it('shows the formatted due date when the next occurrence is not today', () => {
     mockedUseSWR.mockReturnValue({
       data: [buildRecurrence({ nextDueDate: '2024-02-01T00:00:00.000Z', endDate: null })],
       isLoading: false,
@@ -144,7 +158,21 @@ describe('RecurringTransactionsSection', () => {
 
     render(<RecurringTransactionsSection />);
 
-    expect(screen.getByText(/nextOccurrence/)).toBeInTheDocument();
-    expect(screen.getByText('noEndDate')).toBeInTheDocument();
+    expect(screen.getByText(/dueOn/)).toBeInTheDocument();
+  });
+
+  it('renders without crashing and shows "ended" when a recurrence has no next due date', () => {
+    mockedUseSWR.mockReturnValue({
+      // nextDueDate is null once a recurrence's endDate has already passed - it stays visible
+      // here (only CANCELLED/deleted recurrences are hidden), so this must not crash.
+      data: [buildRecurrence({ nextDueDate: null, endDate: '2024-01-31T00:00:00.000Z' })],
+      isLoading: false,
+      mutate: jest.fn(),
+    });
+
+    render(<RecurringTransactionsSection />);
+
+    expect(screen.getByText('ended')).toBeInTheDocument();
+    expect(screen.getByText(/endsOn/)).toBeInTheDocument();
   });
 });

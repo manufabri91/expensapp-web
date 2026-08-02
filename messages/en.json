@@ -304,6 +304,7 @@
     "noRecurring": "No recurring transactions yet",
     "dueToday": "Due today",
     "dueOn": "Due {date}",
+    "ended": "Ended",
     "status": {
       "ACTIVE": "Active",
       "PAUSED": "Paused",

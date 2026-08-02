@@ -304,6 +304,7 @@
     "noRecurring": "Todavía no hay transacciones programadas",
     "dueToday": "Programado para hoy",
     "dueOn": "Programado para {date}",
+    "ended": "Finalizada",
     "status": {
       "ACTIVE": "Activa",
       "PAUSED": "Pausada",

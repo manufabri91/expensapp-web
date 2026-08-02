@@ -54,7 +54,10 @@ export const RecurringTransactionsSection = () => {
           <Accordion variant="surface">
             {recurrences.map((recurrence) => {
               const account = accountsById.get(recurrence.accountId);
-              const dueDate = parseISO(recurrence.nextDueDate!);
+              // Null once a recurrence's endDate has already passed and it has no more future
+              // occurrences left to generate - it still shows up here (only CANCELLED/deleted
+              // recurrences are hidden), so this can't assume a value is always present.
+              const dueDate = recurrence.nextDueDate ? parseISO(recurrence.nextDueDate) : null;
               const signedAmount = recurrence.type === TransactionType.INCOME ? recurrence.amount : -recurrence.amount;
               return (
                 <Accordion.Item id={recurrence.id} key={recurrence.id}>
@@ -88,9 +91,11 @@ export const RecurringTransactionsSection = () => {
                             className="text-md font-bold"
                           />
                           <span className="text-muted text-xs">
-                            {isToday(dueDate)
-                              ? t('dueToday')
-                              : t('dueOn', { date: format.dateTime(dueDate, { month: 'short', day: 'numeric' }) })}
+                            {dueDate === null
+                              ? t('ended')
+                              : isToday(dueDate)
+                                ? t('dueToday')
+                                : t('dueOn', { date: format.dateTime(dueDate, { month: 'short', day: 'numeric' }) })}
                           </span>
                           <span className="text-muted text-xs">
                             {recurrence.endDate
