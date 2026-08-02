@@ -16,11 +16,11 @@ import { getLocalTimeZone, fromDate as toCalendarDate } from '@internationalized
 import type { DateValue } from '@internationalized/date';
 import { endOfDay, startOfDay } from 'date-fns';
 import { useTranslations } from 'next-intl';
-import React, { Suspense, useMemo, useState } from 'react';
+import { Suspense, useMemo, useState } from 'react';
 import { HiOutlineFunnel } from 'react-icons/hi2';
 import { MonthPicker } from '@/app/transactions/components/MonthPicker';
 import { Button } from '@/components/Button';
-import { AVAILABLE_ICONS } from '@/components/IconPicker/constants';
+import { Icon } from '@/components/Icon';
 import { useTrySystemTranslations } from '@/hooks/useTrySystemTranslations';
 import { useAccounts } from '@/lib/providers/AccountsProvider';
 import { useCategories } from '@/lib/providers/CategoriesProvider';
@@ -188,11 +188,7 @@ export const TransactionFiltersBar = () => {
               <TagGroup.List items={categories} renderEmptyState={() => null}>
                 {(category) => (
                   <Tag id={category.id.toString()} textValue={category.name}>
-                    {AVAILABLE_ICONS.has(category.iconName) &&
-                      React.createElement(AVAILABLE_ICONS.get(category.iconName)!, {
-                        className: 'size-4 mr-1',
-                        color: category.color ?? undefined,
-                      })}
+                    <Icon iconName={category.iconName} className="size-4 mr-1" color={category.color ?? undefined} />
                     {trySystemTranslations(category.name)}
                   </Tag>
                 )}

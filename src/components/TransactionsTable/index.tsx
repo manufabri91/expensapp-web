@@ -20,7 +20,7 @@ import { TransactionFilters, transactionFiltersToQueryParams } from '@/types/vie
 const useTransactions = (filters: TransactionFilters) => {
   const queryParams = transactionFiltersToQueryParams(filters);
 
-  return useSWR(`/api/transaction${queryParams}`, getTransactions);
+  return useSWR(`/api/transaction${queryParams}`, getTransactions, { refreshInterval: 5 * 60 * 1000 });
 };
 
 interface Props {
@@ -102,7 +102,7 @@ export const TransactionsTable = ({ showPagination = false, noTransactionsMessag
             showTransactionForm();
           }}
         >
-          <HiPlus className="mr-1 size-5" />
+          <HiPlus className="size-5 md:mr-1" />
           <div className="hidden md:block">{t('Generics.new.female')}</div>
         </Button>
         <TransactionFiltersBar />

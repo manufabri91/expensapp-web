@@ -1,45 +1,43 @@
 import { Card, Chip, Separator } from '@heroui/react';
-import clsx from 'clsx';
 import type { useTranslations } from 'next-intl';
-import { HiArrowDown, HiArrowRight, HiArrowUp } from 'react-icons/hi2';
 import { Money } from '@/components/Money';
+import { TrendIcon } from '@/components/TrendIcon';
 import { CurrencySummaryResponse } from '@/types/dto';
+
+type Variant = 'accountBalance' | 'periodTotal';
 
 interface Props {
   currencySummary: CurrencySummaryResponse;
   locale: string;
   t: ReturnType<typeof useTranslations>;
+  variant?: Variant;
 }
 
-const TrendIcon = ({ amount, className }: { amount: number; className?: string }) => {
-  const classes = clsx('text-xl font-bold', className);
-  if (amount < 0) {
-    return <HiArrowDown className={classes + ' text-red-600'} />;
-  }
-  if (amount > 0) {
-    return <HiArrowUp className={classes + ' text-emerald-600 dark:text-emerald-500'} />;
-  }
-  return <HiArrowRight className={classes + ' text-amber-600 dark:text-amber-300'} />;
+const TITLE_KEY: Record<Variant, string> = {
+  accountBalance: 'Dashboard.summary.balance.current.title',
+  periodTotal: 'Transactions.summary.total.title',
 };
 
-export const CurrencySummaryCardView = ({ currencySummary, locale, t }: Props) => {
+export const CurrencySummaryCardView = ({ currencySummary, locale, t, variant = 'accountBalance' }: Props) => {
   return (
-    <Card className="md:min-w-75">
+    <Card className="h-min w-full min-w-100 md:max-w-md">
       <Card.Header>
         <Card.Title>
-          {t('Dashboard.summary.balance.current.title', {
+          {t(TITLE_KEY[variant], {
             currencyCode: currencySummary.currency,
           })}
         </Card.Title>
       </Card.Header>
       <Card.Content>
         <div className="flex h-fit w-fit flex-col items-center justify-between self-center">
-          <Chip variant="secondary">
-            <Chip.Label>
-              <Money locale={locale} amount={currencySummary.incomes + currencySummary.expenses} warnIfZero />
-            </Chip.Label>
-            <TrendIcon amount={currencySummary.incomes + currencySummary.expenses} className="size-4" />
-          </Chip>
+          {variant === 'accountBalance' && (
+            <Chip variant="secondary">
+              <Chip.Label>
+                <Money locale={locale} amount={currencySummary.incomes + currencySummary.expenses} warnIfZero />
+              </Chip.Label>
+              <TrendIcon amount={currencySummary.incomes + currencySummary.expenses} className="size-4" />
+            </Chip>
+          )}
           <Money
             locale={locale}
             amount={currencySummary.totalBalance}

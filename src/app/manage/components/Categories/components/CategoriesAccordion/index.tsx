@@ -1,14 +1,13 @@
 'use client';
 
 import { Accordion } from '@heroui/react';
-import { FC, Fragment } from 'react';
+import { FC } from 'react';
 import {
   DeleteCategoryButton,
   EditCategoryButton,
 } from '@/app/manage/components/Categories/components/CategoryActions';
 import { SubcategoriesList } from '@/app/manage/components/Categories/components/SubcategoriesList';
-import { TypeBadge } from '@/components';
-import { AVAILABLE_ICONS } from '@/components/IconPicker/constants';
+import { Icon, TypeBadge } from '@/components';
 import { CategoryResponse } from '@/types/dto';
 
 type CategoriesAccordionProps = {
@@ -21,12 +20,11 @@ export const CategoriesAccordion: FC<CategoriesAccordionProps> = ({ categories }
       {categories
         .filter(({ readOnly }) => !readOnly)
         .map((category) => {
-          const Icon = AVAILABLE_ICONS.get(category.iconName) ?? Fragment;
           return (
             <Accordion.Item id={category.id} key={category.id}>
               <Accordion.Heading>
                 <Accordion.Trigger aria-label={category.name}>
-                  <Icon className="mr-1 size-6" color={category.color ?? undefined} />
+                  <Icon iconName={category.iconName} className="mr-1 size-6" color={category.color ?? undefined} />
                   <div className="flex justify-between">
                     <div className="flex items-center gap-3">
                       <h3 className="font-medium">{category.name}</h3>

@@ -14,6 +14,55 @@ Run /simplify before presenting code to the user.
 
 <!-- END:code-review-standards -->
 
+<!-- BEGIN:testing-standards -->
+
+## Testing Standards
+
+- Every new component should have a unit test.
+- Structure each test using the Arrange-Act-Assert pattern.
+- Tests must be human-readable: use descriptive `describe`/`it` blocks and clear, non-abbreviated variable names.
+
+### Coverage
+
+- Coverage is enforced via [Codecov](https://codecov.io), not a hand-maintained per-file `coverageThreshold` in
+  `jest.config.ts`. `codecov.yml` defines two checks: `patch` (80% of lines you added/changed in a PR must be
+  covered) and `project` (`target: auto` — total coverage must not regress from the base branch). This ratchets
+  coverage upward over time without anyone maintaining a per-file allowlist.
+- `jest.config.ts` collects coverage and emits `lcov` (among other reporters) purely for Codecov to consume — it
+  no longer fails the test run on a coverage shortfall itself.
+- A `pre-push` git hook (`scripts/check-diff-coverage.mjs`, wired via Husky's `.husky/pre-push`) mirrors Codecov's
+  `patch` check locally: it runs `jest --coverage`, diffs `src/` against `origin/develop`, and fails the push if
+  the *added* lines fall under 80% covered — so a coverage regression is caught before you even open a PR. Runs
+  automatically after `npm install` (Husky's `prepare` script wires it up).
+
+<!-- END:testing-standards -->
+
+<!-- BEGIN:naming-conventions -->
+
+## Naming Conventions
+
+- Never abbreviate a name down to initials (e.g. `const u = getUserById(1)` is forbidden). Use the full word instead
+  (`const user = getUserById(1)`), or a qualifying suffix when the plain name is already taken in scope (`userOne`,
+  `userTwo`).
+
+<!-- END:naming-conventions -->
+
+<!-- BEGIN:component-organization -->
+
+## Component Organization
+
+- One component per file. A folder with multiple related components (e.g. a set of action buttons for a
+  particular section) should have its own `components/` subfolder with one file per component, so it's clear
+  each one belongs to that parent feature.
+- Don't repeat the same condition across sibling branches, in JSX or in plain logic. If two adjacent blocks
+  guard on the same condition, wrap them in a single check (a `<>...</>` fragment for JSX) instead of
+  duplicating the check.
+- Prefer `date-fns` (already a dependency) over manual string slicing/parsing for date handling - e.g.
+  `parseISO` to turn a backend ISO string into a `Date`. For locale-aware display formatting, pair it with
+  `next-intl`'s `useFormatter().dateTime(...)`, matching the pattern already used in `TransactionTableRow`.
+
+<!-- END:component-organization -->
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 # Next.js: ALWAYS read docs before coding

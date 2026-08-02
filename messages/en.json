@@ -2,6 +2,7 @@
   "Generics": {
     "actions": "Actions",
     "delete": "Delete",
+    "cancel": "Cancel",
     "clear": "Clear",
     "deleting": "Deleting",
     "edit": "Edit",
@@ -47,7 +48,8 @@
         "singular": "Dollar",
         "plural": "Dollars"
       }
-    }
+    },
+    "unexpectedError": "Unexpected Error"
   },
   "HomePage": {
     "hero": {
@@ -89,6 +91,17 @@
       },
       "history": {
         "title": "Income vs Expenses (Last 6 Months)"
+      },
+      "upcoming": {
+        "expenses": {
+          "title": "Upcoming Expenses"
+        },
+        "incomes": {
+          "title": "Upcoming Incomes"
+        },
+        "dueToday": "Due today",
+        "dueOn": "Due {date}",
+        "goToScheduledPayments": "Go to scheduled payments"
       }
     }
   },
@@ -140,6 +153,8 @@
     "createdSuccess": "Created transaction {id}",
     "editedSuccess": "Edited transaction {id}",
     "deletedSuccess": "Deleted transaction {id}",
+    "recurringCreatedSuccess": "Created recurring transaction {id}",
+    "recurringEditedSuccess": "Edited recurring transaction {id}",
     "unexpectedError": "Something went wrong! Couldn't save transaction",
     "excludeFromTotals": "Exclude from totals",
     "selectCategory": "Select category",
@@ -147,7 +162,20 @@
     "eventDate": "Event Date",
     "selectAccount": "Select account",
     "originAccount": "Origin Account",
-    "destinationAccount": "Destination Account"
+    "destinationAccount": "Destination Account",
+    "mode": {
+      "oneTime": "One-time",
+      "recurring": "Recurring"
+    },
+    "frequency": {
+      "intervalDays": "Every X days",
+      "monthlyDays": "Day(s) of month"
+    },
+    "intervalDaysLabel": "Interval (days)",
+    "daysOfMonthLabel": "Day(s) of month",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "noEndDate": "No end date"
   },
   "AccountForm": {
     "createdSuccess": "Created account {id}",
@@ -256,6 +284,11 @@
   "Transactions": {
     "title": "Transactions",
     "noTransactions": "No transactions with current filters",
+    "summary": {
+      "total": {
+        "title": "Total"
+      }
+    },
     "filters": {
       "title": "Filters",
       "month": "Month",
@@ -265,5 +298,39 @@
       "accounts": "Accounts",
       "dateRange": "Date range"
     }
+  },
+  "RecurringTransactions": {
+    "title": "Recurring Transactions",
+    "noRecurring": "No recurring transactions yet",
+    "dueToday": "Due today",
+    "dueOn": "Due {date}",
+    "ended": "Ended",
+    "status": {
+      "ACTIVE": "Active",
+      "PAUSED": "Paused",
+      "CANCELLED": "Cancelled"
+    },
+    "schedule": {
+      "everyNDays": "Every {n} days",
+      "monthlyOn": "Monthly on {days}"
+    },
+    "nextOccurrence": "Next: {date}",
+    "endsOn": "Ends {date}",
+    "noEndDate": "No end date",
+    "actions": {
+      "pause": "Pause",
+      "resume": "Resume",
+      "cancel": "Cancel",
+      "delete": "Delete"
+    },
+    "cancelConfirm": {
+      "title": "Cancel this recurrence?",
+      "body": "It will stop generating new transactions. Already-generated transactions are not affected."
+    },
+    "deleteConfirm": {
+      "title": "Delete this recurrence?",
+      "body": "This cannot be undone. Already-generated transactions are not affected."
+    },
+    "unexpectedError": "Something went wrong! Couldn't save recurring transaction"
   }
 }

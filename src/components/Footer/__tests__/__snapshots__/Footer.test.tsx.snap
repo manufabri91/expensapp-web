@@ -1,20 +1,26 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`Footer component should render correctly 1`] = `
 <div>
-  <div
-    class="container"
+  <footer
+    class="flex w-full flex-col items-center justify-center pb-30 lg:pb-0 lg:py-3"
   >
-    <div
-      class="companyName"
+    <a
+      class="link"
+      data-rac=""
+      data-react-aria-pressable="true"
+      href="https://www.manuelfabri.com"
+      rel="noopener noreferrer"
+      tabindex="0"
+      target="_blank"
     >
       ManukoDEV
-    </div>
-    <div
-      class="text"
-    >
-      2024 - All rights reserved
-    </div>
-  </div>
+    </a>
+    <p>
+      2026
+       - 
+      All rights reserved
+    </p>
+  </footer>
 </div>
 `;

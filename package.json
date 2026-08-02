@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint --fix",
     "format": "prettier --write .",
-    "test": "jest"
+    "test": "jest",
+    "prepare": "husky",
+    "check:diff-coverage": "node scripts/check-diff-coverage.mjs"
   },
   "dependencies": {
     "@heroui/react": "^3.2.1",
@@ -62,6 +64,7 @@
     "eslint-plugin-tailwindcss": "^4.0.2",
     "eslint-plugin-unused-imports": "4.4.1",
     "globals": "17.6.0",
+    "husky": "^9.1.7",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
     "prettier": "3.8.4",

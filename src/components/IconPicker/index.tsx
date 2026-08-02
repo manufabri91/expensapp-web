@@ -3,8 +3,8 @@ import { Label, ListBox, Select } from '@heroui/react';
 import React, { FC } from 'react';
 
 import { useTranslations } from 'use-intl';
+import { AVAILABLE_ICONS } from '@/components/Icon';
 import { Icon } from '@/types/enums/icon';
-import { AVAILABLE_ICONS } from './constants';
 
 interface Props {
   id?: string;
