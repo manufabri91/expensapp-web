@@ -69,7 +69,7 @@ export default function CategoriesSummaryPie({ categorySummaries, currency, loca
   const totalValue = data.reduce((acc, curr) => acc + curr.value, 0);
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="h-min w-full md:max-w-md">
       <Card.Header>
         <Card.Title>{t('Dashboard.summary.totalsPerCategory.title', { currencyCode: currency })}</Card.Title>
       </Card.Header>

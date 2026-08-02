@@ -1,8 +1,8 @@
 'use client';
 
-import React, { Suspense, useState } from 'react';
+import { Suspense, useState } from 'react';
 import { SubcategoriesList } from '@/app/manage/components/Categories/components/SubcategoriesList';
-import { AVAILABLE_ICONS } from '@/components/IconPicker/constants';
+import { Icon } from '@/components/Icon';
 import { CategoryResponse } from '@/types/dto';
 import { DeleteCategoryButton, EditCategoryButton } from '../CategoryActions';
 
@@ -12,7 +12,6 @@ interface CategoryItemProps {
 
 export const CategoryItem = ({ category }: CategoryItemProps) => {
   const [expanded, setExpanded] = useState(false);
-  const Icon = AVAILABLE_ICONS.get(category.iconName) ?? React.Fragment;
 
   const toggleExpanded = () => {
     setExpanded((prev) => !prev);
@@ -22,7 +21,7 @@ export const CategoryItem = ({ category }: CategoryItemProps) => {
     <div className="flex flex-col" onClick={toggleExpanded}>
       <div className="flex justify-between p-4">
         <div className="flex items-center gap-2">
-          <Icon className="mr-1 size-6" color={category.color ?? undefined} />
+          <Icon iconName={category.iconName} className="mr-1 size-6" color={category.color ?? undefined} />
           <span>{category.name}</span>
         </div>
         <div className="flex gap-2">

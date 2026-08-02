@@ -1,10 +1,9 @@
 import { Avatar, AvatarFallback, Table, Tooltip } from '@heroui/react';
 import { parseISO } from 'date-fns';
 import { useFormatter, useLocale, useTranslations } from 'next-intl';
-import React from 'react';
 import { HiPencil, HiTrash } from 'react-icons/hi2';
 import { Button } from '@/components/Button';
-import { AVAILABLE_ICONS } from '@/components/IconPicker/constants';
+import { Icon } from '@/components/Icon';
 import { Money } from '@/components/Money';
 import { useTrySystemTranslations } from '@/hooks/useTrySystemTranslations';
 import { TransactionResponse } from '@/types/dto';
@@ -29,11 +28,11 @@ export const TransactionTableRowMobile = ({ transaction, isEditing, isDeleting, 
         <span className="flex items-center gap-2 truncate">
           <Avatar color="accent" variant="soft">
             <Avatar.Fallback>
-              {AVAILABLE_ICONS.has(transaction.category.iconName) &&
-                React.createElement(AVAILABLE_ICONS.get(transaction.category.iconName)!, {
-                  color: transaction.category.color ?? undefined,
-                  className: 'size-8',
-                })}
+              <Icon
+                iconName={transaction.category.iconName}
+                color={transaction.category.color ?? undefined}
+                className="size-8"
+              />
             </Avatar.Fallback>
           </Avatar>
 

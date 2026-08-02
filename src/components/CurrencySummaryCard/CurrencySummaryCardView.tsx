@@ -1,8 +1,7 @@
 import { Card, Chip, Separator } from '@heroui/react';
-import clsx from 'clsx';
 import type { useTranslations } from 'next-intl';
-import { HiArrowDown, HiArrowRight, HiArrowUp } from 'react-icons/hi2';
 import { Money } from '@/components/Money';
+import { TrendIcon } from '@/components/TrendIcon';
 import { CurrencySummaryResponse } from '@/types/dto';
 
 interface Props {
@@ -11,20 +10,9 @@ interface Props {
   t: ReturnType<typeof useTranslations>;
 }
 
-const TrendIcon = ({ amount, className }: { amount: number; className?: string }) => {
-  const classes = clsx('text-xl font-bold', className);
-  if (amount < 0) {
-    return <HiArrowDown className={classes + ' text-red-600'} />;
-  }
-  if (amount > 0) {
-    return <HiArrowUp className={classes + ' text-emerald-600 dark:text-emerald-500'} />;
-  }
-  return <HiArrowRight className={classes + ' text-amber-600 dark:text-amber-300'} />;
-};
-
 export const CurrencySummaryCardView = ({ currencySummary, locale, t }: Props) => {
   return (
-    <Card className="md:min-w-75">
+    <Card className="h-min w-full min-w-100 md:max-w-md">
       <Card.Header>
         <Card.Title>
           {t('Dashboard.summary.balance.current.title', {

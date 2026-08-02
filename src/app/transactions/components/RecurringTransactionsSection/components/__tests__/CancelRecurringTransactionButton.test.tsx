@@ -3,7 +3,7 @@ import React from 'react';
 import { CancelRecurringTransactionButton } from '@/app/transactions/components/RecurringTransactionsSection/components/CancelRecurringTransactionButton';
 import { cancelRecurringTransaction } from '@/lib/actions/recurringTransactions';
 import { RecurrenceStatus } from '@/types/enums/recurrenceStatus';
-import { buildRecurrence } from '../testFixtures/buildRecurrence';
+import { buildRecurrence } from '@/utils/testFixtures/buildRecurrence';
 
 jest.mock('next-intl', () => ({
   useTranslations: () => (key: string) => key,
@@ -31,7 +31,7 @@ describe('CancelRecurringTransactionButton', () => {
 
   it('does not cancel the recurrence until the confirmation dialog is accepted', async () => {
     const onChanged = jest.fn();
-    render(<CancelRecurringTransactionButton recurrence={buildRecurrence(RecurrenceStatus.ACTIVE)} onChanged={onChanged} />);
+    render(<CancelRecurringTransactionButton recurrence={buildRecurrence({ status: RecurrenceStatus.ACTIVE })} onChanged={onChanged} />);
 
     fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
     expect(mockedCancel).not.toHaveBeenCalled();

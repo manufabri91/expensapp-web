@@ -61,6 +61,13 @@ const config: Config = {
     // No blanket requirement across the whole (largely pre-existing, untested) codebase.
     global: {},
     './src/utils/recurrenceSchedule.ts': { statements: 80, branches: 80, functions: 80, lines: 80 },
+    './src/utils/upcomingRecurringTransactions.ts': { statements: 80, branches: 80, functions: 80, lines: 80 },
+    './src/app/dashboard/components/Summary/UpcomingRecurringCard/index.tsx': {
+      statements: 80,
+      branches: 80,
+      functions: 80,
+      lines: 80,
+    },
     './src/lib/actions/recurringTransactions.ts': { statements: 80, branches: 80, functions: 80, lines: 80 },
     './src/types/enums/recurrenceFrequency.ts': { statements: 80, branches: 80, functions: 80, lines: 80 },
     './src/types/enums/recurrenceStatus.ts': { statements: 80, branches: 80, functions: 80, lines: 80 },

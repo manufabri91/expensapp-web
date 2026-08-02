@@ -39,11 +39,13 @@ export default async function Transactions({ searchParams }: Props) {
           <div className="flex items-end gap-4">
             <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">{t('title')}</h2>
           </div>
-          <Suspense fallback={<LoadingSummary />}>
-            <MonthSummary year={year} month={month} />
-          </Suspense>
+          <div className="flex flex-col gap-4 md:flex-row">
+            <Suspense fallback={<LoadingSummary />}>
+              <MonthSummary year={year} month={month} />
+            </Suspense>
+            <RecurringTransactionsSection />
+          </div>
           <TransactionsTable noTransactionsMessage={t('noTransactions')} showPagination />
-          <RecurringTransactionsSection />
         </main>
       </TransactionFormProvider>
     </TransactionsFiltersProvider>

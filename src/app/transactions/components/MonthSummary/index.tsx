@@ -8,10 +8,8 @@ interface Props {
 
 export const MonthSummary = async ({ year, month }: Props) => {
   return (
-    <div className="mb-4 flex flex-col justify-center gap-4 md:flex-row">
-      <FilteredTotalsSwitch>
-        <CurrencyCardsSection year={year} month={month} />
-      </FilteredTotalsSwitch>
-    </div>
+    <FilteredTotalsSwitch>
+      <CurrencyCardsSection year={year} month={month} />
+    </FilteredTotalsSwitch>
   );
 };

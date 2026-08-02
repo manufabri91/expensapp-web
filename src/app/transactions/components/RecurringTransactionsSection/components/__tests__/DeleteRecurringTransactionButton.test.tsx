@@ -3,7 +3,7 @@ import React from 'react';
 import { DeleteRecurringTransactionButton } from '@/app/transactions/components/RecurringTransactionsSection/components/DeleteRecurringTransactionButton';
 import { deleteRecurringTransactionById } from '@/lib/actions/recurringTransactions';
 import { RecurrenceStatus } from '@/types/enums/recurrenceStatus';
-import { buildRecurrence } from '../testFixtures/buildRecurrence';
+import { buildRecurrence } from '@/utils/testFixtures/buildRecurrence';
 
 jest.mock('next-intl', () => ({
   useTranslations: () => (key: string) => key,
@@ -32,7 +32,7 @@ describe('DeleteRecurringTransactionButton', () => {
   it('deletes the recurrence once the confirmation dialog is accepted', async () => {
     mockedDelete.mockResolvedValue({ success: true, message: 'deleted' });
     const onChanged = jest.fn();
-    render(<DeleteRecurringTransactionButton recurrence={buildRecurrence(RecurrenceStatus.ACTIVE)} onChanged={onChanged} />);
+    render(<DeleteRecurringTransactionButton recurrence={buildRecurrence({ status: RecurrenceStatus.ACTIVE })} onChanged={onChanged} />);
 
     fireEvent.click(screen.getByRole('button', { name: /delete/i }));
     const dialog = await screen.findByRole('alertdialog');

@@ -4,7 +4,7 @@ import React from 'react';
 import { PauseResumeRecurringTransactionButton } from '@/app/transactions/components/RecurringTransactionsSection/components/PauseResumeRecurringTransactionButton';
 import { pauseRecurringTransaction, resumeRecurringTransaction } from '@/lib/actions/recurringTransactions';
 import { RecurrenceStatus } from '@/types/enums/recurrenceStatus';
-import { buildRecurrence } from '../testFixtures/buildRecurrence';
+import { buildRecurrence } from '@/utils/testFixtures/buildRecurrence';
 
 jest.mock('next-intl', () => ({
   useTranslations: () => (key: string) => key,
@@ -38,7 +38,7 @@ describe('PauseResumeRecurringTransactionButton', () => {
     const onChanged = jest.fn();
 
     render(
-      <PauseResumeRecurringTransactionButton recurrence={buildRecurrence(RecurrenceStatus.ACTIVE)} onChanged={onChanged} />
+      <PauseResumeRecurringTransactionButton recurrence={buildRecurrence({ status: RecurrenceStatus.ACTIVE })} onChanged={onChanged} />
     );
     expect(screen.getByText('pause')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button'));
@@ -52,7 +52,7 @@ describe('PauseResumeRecurringTransactionButton', () => {
     const onChanged = jest.fn();
 
     render(
-      <PauseResumeRecurringTransactionButton recurrence={buildRecurrence(RecurrenceStatus.PAUSED)} onChanged={onChanged} />
+      <PauseResumeRecurringTransactionButton recurrence={buildRecurrence({ status: RecurrenceStatus.PAUSED })} onChanged={onChanged} />
     );
     expect(screen.getByText('resume')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button'));
@@ -66,7 +66,7 @@ describe('PauseResumeRecurringTransactionButton', () => {
     const onChanged = jest.fn();
 
     render(
-      <PauseResumeRecurringTransactionButton recurrence={buildRecurrence(RecurrenceStatus.ACTIVE)} onChanged={onChanged} />
+      <PauseResumeRecurringTransactionButton recurrence={buildRecurrence({ status: RecurrenceStatus.ACTIVE })} onChanged={onChanged} />
     );
     fireEvent.click(screen.getByRole('button'));
 

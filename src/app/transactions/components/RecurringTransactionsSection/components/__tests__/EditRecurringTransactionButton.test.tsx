@@ -3,7 +3,7 @@ import React from 'react';
 import { EditRecurringTransactionButton } from '@/app/transactions/components/RecurringTransactionsSection/components/EditRecurringTransactionButton';
 import { useTransactionForm } from '@/components/TransactionForm/TransactionFormProvider';
 import { RecurrenceStatus } from '@/types/enums/recurrenceStatus';
-import { buildRecurrence } from '../testFixtures/buildRecurrence';
+import { buildRecurrence } from '@/utils/testFixtures/buildRecurrence';
 
 jest.mock('next-intl', () => ({
   useTranslations: () => (key: string) => key,
@@ -23,7 +23,7 @@ describe('EditRecurringTransactionButton', () => {
   it('opens the recurring form for the given recurrence when pressed', () => {
     const showRecurringTransactionForm = jest.fn();
     mockedUseTransactionForm.mockReturnValue({ showRecurringTransactionForm });
-    const activeRecurrence = buildRecurrence(RecurrenceStatus.ACTIVE);
+    const activeRecurrence = buildRecurrence({ status: RecurrenceStatus.ACTIVE });
 
     render(<EditRecurringTransactionButton recurrence={activeRecurrence} />);
     fireEvent.click(screen.getByRole('button', { name: /edit/i }));

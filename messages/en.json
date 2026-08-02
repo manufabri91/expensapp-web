@@ -91,6 +91,17 @@
       },
       "history": {
         "title": "Income vs Expenses (Last 6 Months)"
+      },
+      "upcoming": {
+        "expenses": {
+          "title": "Upcoming Expenses"
+        },
+        "incomes": {
+          "title": "Upcoming Incomes"
+        },
+        "dueToday": "Due today",
+        "dueOn": "Due {date}",
+        "goToScheduledPayments": "Go to scheduled payments"
       }
     }
   },
@@ -286,6 +297,8 @@
   "RecurringTransactions": {
     "title": "Recurring Transactions",
     "noRecurring": "No recurring transactions yet",
+    "dueToday": "Due today",
+    "dueOn": "Due {date}",
     "status": {
       "ACTIVE": "Active",
       "PAUSED": "Paused",

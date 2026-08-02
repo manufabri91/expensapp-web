@@ -91,6 +91,17 @@
       },
       "history": {
         "title": "Ingresos vs Gastos (Últimos 6 meses)"
+      },
+      "upcoming": {
+        "expenses": {
+          "title": "Próximos gastos"
+        },
+        "incomes": {
+          "title": "Próximos ingresos"
+        },
+        "dueToday": "Programado para hoy",
+        "dueOn": "Programado para {date}",
+        "goToScheduledPayments": "Ir a los pagos programados"
       }
     }
   },
@@ -284,8 +295,10 @@
     }
   },
   "RecurringTransactions": {
-    "title": "Transacciones recurrentes",
-    "noRecurring": "Todavía no hay transacciones recurrentes",
+    "title": "Transacciones programadas",
+    "noRecurring": "Todavía no hay transacciones programadas",
+    "dueToday": "Programado para hoy",
+    "dueOn": "Programado para {date}",
     "status": {
       "ACTIVE": "Activa",
       "PAUSED": "Pausada",
@@ -302,16 +315,16 @@
       "pause": "Pausar",
       "resume": "Reanudar",
       "cancel": "Cancelar",
-      "delete": "Eliminar"
+      "delete": "Borrar"
     },
     "cancelConfirm": {
-      "title": "¿Cancelar esta recurrencia?",
-      "body": "Dejará de generar nuevas transacciones. Las transacciones ya generadas no se ven afectadas."
+      "title": "¿Cancelar esta transacción programada?",
+      "body": "Va a dejar de generar nuevas transacciones. Las transacciones ya generadas no se ven afectadas."
     },
     "deleteConfirm": {
-      "title": "¿Eliminar esta recurrencia?",
+      "title": "¿Borrar esta transacción programada?",
       "body": "Esta acción no se puede deshacer. Las transacciones ya generadas no se ven afectadas."
     },
-    "unexpectedError": "Algo fue mal! No se pudo guardar la transacción recurrente"
+    "unexpectedError": "Algo salió mal! No se pudo guardar la transacción programada"
   }
 }

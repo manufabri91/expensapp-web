@@ -4,7 +4,7 @@ import { RecurrenceFrequency } from '@/types/enums/recurrenceFrequency';
 import { RecurrenceStatus } from '@/types/enums/recurrenceStatus';
 import { TransactionType } from '@/types/enums/transactionType';
 
-export const buildRecurrence = (status: RecurrenceStatus): RecurringTransactionResponse => ({
+export const buildRecurrence = (overrides: Partial<RecurringTransactionResponse> = {}): RecurringTransactionResponse => ({
   id: 1,
   type: TransactionType.EXPENSE,
   amount: 9.99,
@@ -18,8 +18,9 @@ export const buildRecurrence = (status: RecurrenceStatus): RecurringTransactionR
   daysOfMonth: [],
   startDate: '2024-01-01T00:00:00.000Z',
   endDate: null,
-  status,
+  status: RecurrenceStatus.ACTIVE,
   lastGeneratedDate: null,
   nextDueDate: null,
   excludeFromTotals: false,
+  ...overrides,
 });
