@@ -77,7 +77,7 @@ export const InfiniteTransactionsTable = ({ noTransactionsMessage }: Props) => {
           showTransactionForm();
         }}
       >
-        <HiPlus className="mr-1 size-5" />
+        <HiPlus className="size-5 md:mr-1" />
         <div className="hidden md:block">{t('Generics.new.female')}</div>
       </Button>
 

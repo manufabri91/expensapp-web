@@ -15,7 +15,12 @@ export const CurrencyCardsSection = async ({ year, month }: Props) => {
   return (
     <div className="flex h-min flex-col justify-center gap-4 md:flex">
       {summaries.map((currencySummary) => (
-        <CurrencySummaryCard key={currencySummary.currency} currencySummary={currencySummary} locale={locale} />
+        <CurrencySummaryCard
+          key={currencySummary.currency}
+          currencySummary={currencySummary}
+          locale={locale}
+          variant="periodTotal"
+        />
       ))}
     </div>
   );

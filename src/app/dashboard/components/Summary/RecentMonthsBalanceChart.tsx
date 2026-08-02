@@ -25,7 +25,11 @@ export default function RecentMonthsBalanceChart({ data, currency, locale }: Pro
   const t = useTranslations();
   const [months, setMonths] = useState(DEFAULT_MONTHS);
 
-  const { data: history, isValidating, mutate } = useSWR(['monthly-history', months], () => getMonthlyHistory(months), {
+  const {
+    data: history,
+    isValidating,
+    mutate,
+  } = useSWR(['monthly-history', months], () => getMonthlyHistory(months), {
     fallbackData: months === DEFAULT_MONTHS ? data : undefined,
     keepPreviousData: true,
   });
@@ -68,7 +72,12 @@ export default function RecentMonthsBalanceChart({ data, currency, locale }: Pro
       <div className="bg-background border-divider rounded-medium shadow-medium text-tiny flex min-w-40 flex-col gap-2 border px-3 py-2">
         <div className="border-divider flex items-center justify-between gap-4 border-b pb-1 text-sm">
           <span className="font-semibold tracking-wider capitalize">{point.label}</span>
-          <Money amount={point.incomes - point.expenses} currency={currency} locale={locale} className="font-semibold" />
+          <Money
+            amount={point.incomes - point.expenses}
+            currency={currency}
+            locale={locale}
+            className="font-semibold"
+          />
         </div>
         <div className="flex flex-col gap-1 text-xs">
           <div className="flex justify-between gap-4">
@@ -90,7 +99,7 @@ export default function RecentMonthsBalanceChart({ data, currency, locale }: Pro
   }
 
   return (
-    <Card className="h-min w-full min-w-100">
+    <Card className="h-min w-full min-w-xs md:max-w-md">
       <Card.Header>
         <div className="flex w-full items-center justify-between gap-4">
           <Card.Title>

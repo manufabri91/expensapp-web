@@ -2,6 +2,7 @@
   "Generics": {
     "actions": "Acciones",
     "delete": "Eliminar",
+    "cancel": "Cancelar",
     "clear": "Limpiar",
     "deleting": "Elminando",
     "edit": "Editar",
@@ -47,7 +48,8 @@
         "singular": "Dólar",
         "plural": "Dólares"
       }
-    }
+    },
+    "unexpectedError": "Error inesperado"
   },
   "HomePage": {
     "hero": {
@@ -89,6 +91,17 @@
       },
       "history": {
         "title": "Ingresos vs Gastos (Últimos 6 meses)"
+      },
+      "upcoming": {
+        "expenses": {
+          "title": "Próximos gastos"
+        },
+        "incomes": {
+          "title": "Próximos ingresos"
+        },
+        "dueToday": "Programado para hoy",
+        "dueOn": "Programado para {date}",
+        "goToScheduledPayments": "Ir a los pagos programados"
       }
     }
   },
@@ -175,13 +188,28 @@
     "editedSuccess": "Transacción {id} editada exitosamente",
     "deletedSuccess": "Transacción {id} eliminada exitosamente",
     "unexpectedError": "Algo fue mal! No se ha podido guardar la transacción",
+    "recurringCreatedSuccess": "Transacción recurrente {id} creada exitosamente",
+    "recurringEditedSuccess": "Transacción recurrente {id} editada exitosamente",
     "excludeFromTotals": "Excluir de los totales",
     "eventDate": "Fecha del evento",
     "selectCategory": "Seleccionar categoría",
     "selectSubcategory": "Seleccionar subcategoría",
     "selectAccount": "Seleccionar cuenta",
     "originAccount": "Cuenta de origen",
-    "destinationAccount": "Cuenta de destino"
+    "destinationAccount": "Cuenta de destino",
+    "mode": {
+      "oneTime": "Puntual",
+      "recurring": "Recurrente"
+    },
+    "frequency": {
+      "intervalDays": "Cada X días",
+      "monthlyDays": "Día(s) del mes"
+    },
+    "intervalDaysLabel": "Intervalo (días)",
+    "daysOfMonthLabel": "Día(s) del mes",
+    "startDate": "Fecha de inicio",
+    "endDate": "Fecha de fin",
+    "noEndDate": "Sin fecha de fin"
   },
   "TransactionsTable": {
     "noTransactions": "No hay transacciones"
@@ -256,6 +284,11 @@
   "Transactions": {
     "title": "Transacciones",
     "noTransactions": "No hay transacciones con los filtros actuales",
+    "summary": {
+      "total": {
+        "title": "Total"
+      }
+    },
     "filters": {
       "title": "Filtros",
       "month": "Mes",
@@ -265,5 +298,39 @@
       "accounts": "Cuentas",
       "dateRange": "Rango de fechas"
     }
+  },
+  "RecurringTransactions": {
+    "title": "Transacciones programadas",
+    "noRecurring": "Todavía no hay transacciones programadas",
+    "dueToday": "Programado para hoy",
+    "dueOn": "Programado para {date}",
+    "ended": "Finalizada",
+    "status": {
+      "ACTIVE": "Activa",
+      "PAUSED": "Pausada",
+      "CANCELLED": "Cancelada"
+    },
+    "schedule": {
+      "everyNDays": "Cada {n} días",
+      "monthlyOn": "Mensual - Día {days} del mes"
+    },
+    "nextOccurrence": "Próxima: {date}",
+    "endsOn": "Finaliza {date}",
+    "noEndDate": "Sin fecha de fin",
+    "actions": {
+      "pause": "Pausar",
+      "resume": "Reanudar",
+      "cancel": "Cancelar",
+      "delete": "Borrar"
+    },
+    "cancelConfirm": {
+      "title": "¿Cancelar esta transacción programada?",
+      "body": "Va a dejar de generar nuevas transacciones. Las transacciones ya generadas no se ven afectadas."
+    },
+    "deleteConfirm": {
+      "title": "¿Borrar esta transacción programada?",
+      "body": "Esta acción no se puede deshacer. Las transacciones ya generadas no se ven afectadas."
+    },
+    "unexpectedError": "Algo salió mal! No se pudo guardar la transacción programada"
   }
 }

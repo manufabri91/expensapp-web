@@ -41,16 +41,11 @@ const config: Config = {
   // Indicates which provider should be used to instrument code for coverage
   coverageProvider: 'v8',
 
-  // A list of reporter names that Jest uses when writing coverage reports
-  // coverageReporters: [
-  //   "json",
-  //   "text",
-  //   "lcov",
-  //   "clover"
-  // ],
-
-  // An object that configures minimum threshold enforcement for coverage results
-  // coverageThreshold: undefined,
+  // lcov is what Codecov's GitHub Action consumes (see .github/workflows/ci-build-test.yml) to
+  // enforce coverage on a per-PR basis - patch (changed lines) and project (must not regress)
+  // targets are configured in codecov.yml, replacing the old hand-maintained per-file
+  // coverageThreshold list here. See AGENTS.md's Testing section.
+  coverageReporters: ['text', 'lcov'],
 
   // A path to a custom dependency extractor
   // dependencyExtractor: undefined,
@@ -103,6 +98,13 @@ const config: Config = {
   // transform never sees/rewrites -- Jest's own resolver needs this mapping to resolve it.
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    // @heroui/react and @heroui/styles are ESM-only with no `default`/`require` condition in their
+    // exports map (unlike e.g. next-auth, which falls back to `default`), so Jest's CJS-style
+    // resolver can't locate them at all ("Cannot find module") even with transpilePackages set in
+    // next.config.ts (that only fixes the syntax transform, not resolution). Point straight at the
+    // dist entry files instead.
+    '^@heroui/react$': '<rootDir>/node_modules/@heroui/react/dist/index.js',
+    '^@heroui/styles$': '<rootDir>/node_modules/@heroui/styles/dist/index.js',
   },
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
@@ -161,8 +163,16 @@ const config: Config = {
   // The test environment that will be used for testing
   testEnvironment: 'jsdom',
 
-  // Options that will be passed to the testEnvironment
-  // testEnvironmentOptions: {},
+  // jest-environment-jsdom defaults `customExportConditions` to ['browser'], which makes Jest's
+  // resolver prefer a package's `browser`/`import` export condition over `require`/`default` even
+  // though Jest itself runs on Node and evaluates CJS. Several deps (next-intl, among others) ship
+  // an ESM build behind that `browser` condition that Jest can't parse without an explicit
+  // transformIgnorePatterns entry, surfacing as "Unexpected token 'export'". Clearing this back to
+  // plain Node-style resolution (matching jest-environment-node's default) fixes that for every
+  // such package at once, instead of chasing each one individually via transpilePackages.
+  testEnvironmentOptions: {
+    customExportConditions: [''],
+  },
 
   // Adds a location field to test results
   // testLocationInResults: false,

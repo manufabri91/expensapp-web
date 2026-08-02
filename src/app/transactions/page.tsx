@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
 import LoadingSummary from '@/app/dashboard/components/Summary/loading';
 import { MonthSummary } from '@/app/transactions/components/MonthSummary';
+import { RecurringTransactionsSection } from '@/app/transactions/components/RecurringTransactionsSection';
 import { TransactionsTable } from '@/components';
 import { TransactionFormProvider } from '@/components/TransactionForm/TransactionFormProvider';
 import { TransactionsFiltersProvider } from '@/lib/providers/TransactionFiltersProvider';
@@ -38,9 +39,12 @@ export default async function Transactions({ searchParams }: Props) {
           <div className="flex items-end gap-4">
             <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">{t('title')}</h2>
           </div>
-          <Suspense fallback={<LoadingSummary />}>
-            <MonthSummary year={year} month={month} />
-          </Suspense>
+          <div className="flex flex-col gap-4 md:flex-row">
+            <Suspense fallback={<LoadingSummary />}>
+              <MonthSummary year={year} month={month} />
+            </Suspense>
+            <RecurringTransactionsSection />
+          </div>
           <TransactionsTable noTransactionsMessage={t('noTransactions')} showPagination />
         </main>
       </TransactionFormProvider>

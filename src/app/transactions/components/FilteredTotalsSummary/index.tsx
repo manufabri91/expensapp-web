@@ -3,8 +3,8 @@
 import { useSearchParams } from 'next/navigation';
 import { ReactNode } from 'react';
 import { FilteredTotalsCards } from '@/app/transactions/components/FilteredTotalsSummary/FilteredTotalsCards';
-import { getYearMonthFromParams } from '@/lib/utils/date';
 import { useTransactionsFilters } from '@/lib/providers/TransactionFiltersProvider';
+import { getYearMonthFromParams } from '@/lib/utils/date';
 import { hasActiveChipFilters, isCustomDateRange } from '@/types/viewModel/transactionFilters';
 
 interface Props {
