@@ -18,7 +18,12 @@ export const FilteredTotalsCards = () => {
   return (
     <div className="flex h-min flex-col justify-center gap-4 md:flex">
       {(data ?? []).map((currencySummary) => (
-        <CurrencySummaryCardClient key={currencySummary.currency} currencySummary={currencySummary} locale={locale} />
+        <CurrencySummaryCardClient
+          key={currencySummary.currency}
+          currencySummary={currencySummary}
+          locale={locale}
+          variant="periodTotal"
+        />
       ))}
     </div>
   );

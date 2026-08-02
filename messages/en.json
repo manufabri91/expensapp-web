@@ -284,6 +284,11 @@
   "Transactions": {
     "title": "Transactions",
     "noTransactions": "No transactions with current filters",
+    "summary": {
+      "total": {
+        "title": "Total"
+      }
+    },
     "filters": {
       "title": "Filters",
       "month": "Month",

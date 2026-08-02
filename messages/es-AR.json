@@ -284,6 +284,11 @@
   "Transactions": {
     "title": "Transacciones",
     "noTransactions": "No hay transacciones con los filtros actuales",
+    "summary": {
+      "total": {
+        "title": "Total"
+      }
+    },
     "filters": {
       "title": "Filtros",
       "month": "Mes",
