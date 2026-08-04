@@ -194,6 +194,7 @@ describe('recurringTransactions actions', () => {
       const { url, init } = lastFetchRequest();
       expect(url).toBe(`https://backend.test/recurrent-transaction/1/${action}`);
       expect(init.method).toBe('PATCH');
+      expect(revalidatePath).toHaveBeenCalledWith('/dashboard');
       expect(revalidatePath).toHaveBeenCalledWith('/transactions');
     });
 

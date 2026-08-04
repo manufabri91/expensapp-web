@@ -1,47 +1,22 @@
 import { getLocale, getTranslations } from 'next-intl/server';
 import { CurrencySummaryCard } from '@/components';
-import { ALLOWED_CURRENCIES } from '@/constants';
-import { getAccounts } from '@/lib/actions/accounts';
-import { getRecurringTransactions } from '@/lib/actions/recurringTransactions';
-import { getMonthlyHistory, getMonthSummary, getTotalsByCategory } from '@/lib/actions/summaries';
-import { CategorySummaryResponse, CurrencySummaryResponse, MonthlyBalanceSummaryResponse } from '@/types/dto';
-import { TransactionType } from '@/types/enums/transactionType';
-import { groupUpcomingRecurringTransactions } from '@/utils/upcomingRecurringTransactions';
 import CategoriesSummaryPie from './CategoriesSummaryPie';
+import { getDashboardSummaryData } from './getDashboardSummaryData';
 import RecentMonthsBalanceChart from './RecentMonthsBalanceChart';
 import { UpcomingRecurringCard } from './UpcomingRecurringCard';
-
-const currenciesPresentIn = (currencies: Iterable<string>) => {
-  const present = new Set(currencies);
-  return ALLOWED_CURRENCIES.filter((currency) => present.has(currency));
-};
 
 export const Summary = async () => {
   const locale = await getLocale();
   const t = await getTranslations('Dashboard.summary.upcoming');
-  const date = new Date();
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const summaries: CurrencySummaryResponse[] = await getMonthSummary();
-  const categorySummaries: CategorySummaryResponse[] = await getTotalsByCategory(year, month);
-  const monthlyHistory: MonthlyBalanceSummaryResponse[] = await getMonthlyHistory(6);
-  const recurringTransactions = await getRecurringTransactions();
-  const accounts = await getAccounts();
-
-  const categoryCurrencies = currenciesPresentIn(categorySummaries.flatMap((category) => Object.keys(category.totals)));
-  const historyCurrencies = currenciesPresentIn(monthlyHistory.map((entry) => entry.currency));
-  const upcomingExpenses = groupUpcomingRecurringTransactions(
-    recurringTransactions,
-    accounts,
-    TransactionType.EXPENSE,
-    date
-  );
-  const upcomingIncomes = groupUpcomingRecurringTransactions(
-    recurringTransactions,
-    accounts,
-    TransactionType.INCOME,
-    date
-  );
+  const {
+    summaries,
+    categorySummaries,
+    monthlyHistory,
+    categoryCurrencies,
+    historyCurrencies,
+    upcomingExpenses,
+    upcomingIncomes,
+  } = await getDashboardSummaryData(new Date());
 
   return (
     <>

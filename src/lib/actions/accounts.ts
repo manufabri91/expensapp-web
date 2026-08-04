@@ -6,8 +6,8 @@ import { AccountRequest, AccountResponse } from '@/types/dto';
 import { ActionResult } from '@/types/viewModel/actionResult';
 
 // Cache invariant: every read below uses `next: { revalidate: 3600 }` (1h). Any mutation that
-// touches accounts MUST call revalidatePath for every affected page (dashboard/manage) below,
-// or reads will keep serving stale data for up to an hour.
+// touches accounts MUST call revalidatePath for every affected page (dashboard/transactions/manage)
+// below, or reads will keep serving stale data for up to an hour.
 
 export const getAccounts = async (): Promise<AccountResponse[]> => {
   const response = await backendFetch('/account', { revalidate: 3600 });
@@ -33,6 +33,7 @@ export const createAccount = async (formData: FormData): Promise<AccountResponse
   }
 
   revalidatePath('/dashboard');
+  revalidatePath('/transactions');
   revalidatePath('/manage');
   return await response.json();
 };
@@ -54,6 +55,7 @@ export const editAccount = async (formData: FormData): Promise<AccountResponse> 
   }
 
   revalidatePath('/dashboard');
+  revalidatePath('/transactions');
   revalidatePath('/manage');
   return await response.json();
 };
@@ -63,6 +65,7 @@ export const deleteAccountById = async (id: number): Promise<ActionResult> => {
   const response = await backendFetch(`/account/${id}`, { method: 'DELETE' });
 
   revalidatePath('/dashboard');
+  revalidatePath('/transactions');
   revalidatePath('/manage');
   if (!response.ok) {
     return { success: false, message: `Failed to delete Account: ${id}` };

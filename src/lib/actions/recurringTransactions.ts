@@ -88,6 +88,9 @@ const patchRecurringTransactionStatus = async (
     throw new Error(`Failed to ${action} recurring transaction ${id}`);
   }
 
+  // Dashboard's "upcoming recurring" cards (getDashboardSummaryData.ts) derive from the same
+  // getRecurringTransactions() read, so a pause/resume/cancel here must also revalidate it.
+  revalidatePath('/dashboard');
   revalidatePath('/transactions');
   return await response.json();
 };

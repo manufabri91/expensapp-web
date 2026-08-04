@@ -3,10 +3,12 @@ import { getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
 import { Summary } from '@/app/dashboard/components/Summary';
 import LoadingSummary from '@/app/dashboard/components/Summary/loading';
-import { InfiniteTransactionsTable } from '@/components';
+import { ListSkeleton } from '@/components';
 import { AccountFormProvider } from '@/components/AccountForm/AccountFormProvider';
 import { TransactionFormProvider } from '@/components/TransactionForm/TransactionFormProvider';
+import { InfiniteTransactionsTableSection } from '@/components/TransactionsTable/InfiniteTransactionsTableSection';
 import { TransactionsFiltersProvider } from '@/lib/providers/TransactionFiltersProvider';
+import { TransactionFilters } from '@/types/viewModel/transactionFilters';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -25,6 +27,16 @@ const Dashboard = async () => {
   const now = new Date();
   const fromDate = startOfMonth(now);
   const toDate = endOfMonth(now);
+  const initialTableFilters: TransactionFilters = {
+    fromDate,
+    toDate,
+    size: 10,
+    currentPage: 1,
+    totalPages: 1,
+    sortBy: 'eventDate',
+    ascending: false,
+  };
+
   return (
     <TransactionsFiltersProvider initialFilters={{ size: 10, fromDate, toDate }}>
       <TransactionFormProvider>
@@ -37,7 +49,9 @@ const Dashboard = async () => {
             <h3 className="mt-8 text-xl font-semibold text-gray-800 md:mt-16 dark:text-gray-100">
               {t('latestTransactions')}
             </h3>
-            <InfiniteTransactionsTable />
+            <Suspense fallback={<ListSkeleton rows={5} />}>
+              <InfiniteTransactionsTableSection filters={initialTableFilters} />
+            </Suspense>
           </main>
         </AccountFormProvider>
       </TransactionFormProvider>

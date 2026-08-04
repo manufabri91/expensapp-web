@@ -16,9 +16,14 @@ const buildGetKey =
     return [RECENT_TRANSACTIONS_KEY, pageIndex, params] as const;
   };
 
-export const useInfiniteTransactions = (baseFilters: TransactionFilters) =>
-  useSWRInfinite<PagedResponse<TransactionResponse>>(buildGetKey(baseFilters), ([, , params]) =>
-    getTransactions(`/api/transaction${params}`)
+export const useInfiniteTransactions = (
+  baseFilters: TransactionFilters,
+  initialData?: PagedResponse<TransactionResponse>
+) =>
+  useSWRInfinite<PagedResponse<TransactionResponse>>(
+    buildGetKey(baseFilters),
+    ([, , params]) => getTransactions(`/api/transaction${params}`),
+    { fallbackData: initialData ? [initialData] : undefined }
   );
 
 // The real `$inf$`-prefixed cache key useSWRInfinite subscribes to for these filters.

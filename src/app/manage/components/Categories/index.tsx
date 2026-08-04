@@ -2,13 +2,11 @@ import { Card, Spinner } from '@heroui/react';
 import { getTranslations } from 'next-intl/server';
 import React, { Suspense } from 'react';
 
-import { CategoriesAccordion } from '@/app/manage/components/Categories/components/CategoriesAccordion';
-import { getCategories } from '@/lib/actions/categories';
+import { CategoriesDetails } from '@/app/manage/components/Categories/components/CategoriesDetails';
 
 import { CreateCategoryButton } from './components/CategoryActions';
 
 export const Categories = async () => {
-  const categories = await getCategories();
   const t = await getTranslations('Manage.categories');
 
   return (
@@ -27,7 +25,7 @@ export const Categories = async () => {
           </Card>
         }
       >
-        <CategoriesAccordion categories={categories} />
+        <CategoriesDetails />
       </Suspense>
     </>
   );

@@ -3,11 +3,13 @@ import { getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
 import LoadingSummary from '@/app/dashboard/components/Summary/loading';
 import { MonthSummary } from '@/app/transactions/components/MonthSummary';
-import { RecurringTransactionsSection } from '@/app/transactions/components/RecurringTransactionsSection';
-import { TransactionsTable } from '@/components';
+import { RecurringTransactionsSectionServer } from '@/app/transactions/components/RecurringTransactionsSection/RecurringTransactionsSectionServer';
+import { CardSkeleton, ListSkeleton } from '@/components';
 import { TransactionFormProvider } from '@/components/TransactionForm/TransactionFormProvider';
+import { TransactionsTableSection } from '@/components/TransactionsTable/TransactionsTableSection';
 import { TransactionsFiltersProvider } from '@/lib/providers/TransactionFiltersProvider';
 import { getYearMonthFromParams } from '@/lib/utils/date';
+import { TransactionFilters } from '@/types/viewModel/transactionFilters';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -31,6 +33,15 @@ export default async function Transactions({ searchParams }: Props) {
   const { year, month } = getYearMonthFromParams(yearParam, monthParam);
   const fromDate = startOfMonth(new Date(year, month - 1));
   const toDate = endOfMonth(new Date(year, month - 1));
+  const initialTableFilters: TransactionFilters = {
+    fromDate,
+    toDate,
+    size: 50,
+    currentPage: 1,
+    totalPages: 1,
+    sortBy: 'eventDate',
+    ascending: false,
+  };
 
   return (
     <TransactionsFiltersProvider initialFilters={{ size: 50, fromDate, toDate }}>
@@ -43,9 +54,13 @@ export default async function Transactions({ searchParams }: Props) {
             <Suspense fallback={<LoadingSummary />}>
               <MonthSummary year={year} month={month} />
             </Suspense>
-            <RecurringTransactionsSection />
+            <Suspense fallback={<CardSkeleton />}>
+              <RecurringTransactionsSectionServer />
+            </Suspense>
           </div>
-          <TransactionsTable noTransactionsMessage={t('noTransactions')} showPagination />
+          <Suspense fallback={<ListSkeleton rows={10} />}>
+            <TransactionsTableSection filters={initialTableFilters} noTransactionsMessage={t('noTransactions')} />
+          </Suspense>
         </main>
       </TransactionFormProvider>
     </TransactionsFiltersProvider>

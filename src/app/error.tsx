@@ -2,9 +2,14 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useEffect } from 'react';
 import { Button } from '@/components/Button';
 
-export default function Error() {
+export default function Error({ error }: { error: Error & { digest?: string } }) {
+  useEffect(() => {
+    console.error('[error boundary]', error);
+  }, [error]);
+
   return (
     <main className="flex h-5/6 flex-col items-center gap-2 p-6">
       <div className="relative flex h-96 w-full">
