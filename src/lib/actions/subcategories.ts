@@ -7,8 +7,8 @@ import { SubCategoryRequest } from '@/types/dto/subcategoryRequest';
 import { ActionResult } from '@/types/viewModel/actionResult';
 
 // Cache invariant: every read below uses `next: { revalidate: 3600 }` (1h). Any mutation that
-// touches subcategories MUST call revalidatePath for every affected page (dashboard/manage)
-// below, or reads will keep serving stale data for up to an hour.
+// touches subcategories MUST call revalidatePath for every affected page (dashboard/transactions
+// /manage) below, or reads will keep serving stale data for up to an hour.
 
 export const getSubcategories = async (): Promise<SubCategoryResponse[]> => {
   const response = await backendFetch('/subcategory', { revalidate: 3600 });
@@ -36,6 +36,7 @@ export const createSubcategory = async (formData: FormData): Promise<SubCategory
   }
 
   revalidatePath('/dashboard');
+  revalidatePath('/transactions');
   revalidatePath('/manage');
   return await response.json();
 };
@@ -56,6 +57,7 @@ export const editSubcategory = async (formData: FormData): Promise<SubCategoryRe
   }
 
   revalidatePath('/dashboard');
+  revalidatePath('/transactions');
   revalidatePath('/manage');
   return await response.json();
 };
@@ -69,6 +71,7 @@ export const deleteSubcategoryById = async (id: number): Promise<ActionResult> =
   }
 
   revalidatePath('/dashboard');
+  revalidatePath('/transactions');
   revalidatePath('/manage');
   return { success: true, message: `Subcategory ${id} deleted` };
 };

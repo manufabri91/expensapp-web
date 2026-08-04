@@ -3,7 +3,8 @@
 import { Card } from '@heroui/react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
-import { CategoryPieChart, CategorySlice, Money, PRESET_COLORS } from '@/components';
+import { Money, PRESET_COLORS } from '@/components';
+import { CategoryPieChart, CategorySlice } from '@/components/CategoryPieChart';
 import { useTrySystemTranslations } from '@/hooks/useTrySystemTranslations';
 import { CategorySummaryResponse } from '@/types/dto';
 

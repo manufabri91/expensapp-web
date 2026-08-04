@@ -4,7 +4,8 @@ import { Card, Tag, TagGroup } from '@heroui/react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import useSWR from 'swr';
-import { BalanceAreaChart, EXPENSE_COLOR, INCOME_COLOR, Money, MonthPoint } from '@/components';
+import { Money } from '@/components';
+import { BalanceAreaChart, EXPENSE_COLOR, INCOME_COLOR, MonthPoint } from '@/components/BalanceAreaChart';
 import { getMonthlyHistory } from '@/lib/actions/summaries';
 import { MonthlyBalanceSummaryResponse } from '@/types/dto';
 

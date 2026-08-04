@@ -77,7 +77,10 @@ const refreshAccessToken = (token: JWT): Promise<JWT> => {
 };
 
 export const authConfig: NextAuthConfig = {
-  secret: process.env.NEXTAUTH_SECRET,
+  // No explicit `secret` here: @auth/core reads `AUTH_SECRET` from the environment directly when
+  // `secret` is left unset - the idiomatic next-auth v5 convention, and what `.env.example`/
+  // `src/env.ts` actually document/validate (a previous `secret: process.env.NEXTAUTH_SECRET`
+  // line only "worked" because that var was never set, silently triggering the same fallback).
   session: { strategy: 'jwt' },
   providers: [
     CredentialsProvider({
