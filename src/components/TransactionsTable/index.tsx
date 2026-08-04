@@ -2,9 +2,8 @@
 
 import { EmptyState, Pagination, Spinner, Table } from '@heroui/react';
 import { useTranslations } from 'next-intl';
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { HiOutlineInbox, HiPlus } from 'react-icons/hi2';
-import useSWR from 'swr';
 import { TransactionFiltersBar } from '@/app/transactions/components/TransactionFiltersBar';
 import { Button } from '@/components/Button';
 import { useTransactionForm } from '@/components/TransactionForm/TransactionFormProvider';
@@ -12,39 +11,27 @@ import { TransactionTableColumns } from '@/components/TransactionsTable/Transact
 import { TransactionTableColumnsMobile } from '@/components/TransactionsTable/TransactionTableColumnsMobile';
 import { TransactionTableRow } from '@/components/TransactionsTable/TransactionTableRow';
 import { TransactionTableRowMobile } from '@/components/TransactionsTable/TransactionTableRowMobile';
+import { usePaginationSync } from '@/components/TransactionsTable/usePaginationSync';
 import { useTransactionRowActions } from '@/components/TransactionsTable/useTransactionRowActions';
-import { getTransactions } from '@/lib/actions/transactions';
+import { useTransactions } from '@/components/TransactionsTable/useTransactions';
 import { useTransactionsFilters } from '@/lib/providers/TransactionFiltersProvider';
-import { TransactionFilters, transactionFiltersToQueryParams } from '@/types/viewModel/transactionFilters';
-
-const useTransactions = (filters: TransactionFilters) => {
-  const queryParams = transactionFiltersToQueryParams(filters);
-
-  return useSWR(`/api/transaction${queryParams}`, getTransactions, { refreshInterval: 5 * 60 * 1000 });
-};
+import { TransactionResponse } from '@/types/dto';
+import { PagedResponse } from '@/types/dto/pageable';
 
 interface Props {
   showPagination?: boolean;
-  pageData?: { size: number; currentPage: number; totalPages: number };
   noTransactionsMessage?: string;
+  initialData?: PagedResponse<TransactionResponse>;
 }
 
-export const TransactionsTable = ({ showPagination = false, noTransactionsMessage }: Props) => {
+export const TransactionsTable = ({ showPagination = false, noTransactionsMessage, initialData }: Props) => {
   const { filters, patchFilters } = useTransactionsFilters();
-  const { data, isLoading, mutate } = useTransactions(filters);
+  const { data, isLoading, mutate } = useTransactions(filters, initialData);
   const t = useTranslations();
   const { showTransactionForm } = useTransactionForm();
   const { deleteHandler, editHandler, isDeleting, isEditing } = useTransactionRowActions(() => mutate());
 
-  useEffect(() => {
-    if (data) {
-      patchFilters({
-        currentPage: data.pageable.pageNumber + 1,
-        size: data.pageable.size,
-        totalPages: data.totalPages,
-      });
-    }
-  }, [data]);
+  usePaginationSync(data, patchFilters);
 
   const pages = useMemo(() => Array.from({ length: filters.totalPages }, (_, i) => i + 1), [filters.totalPages]);
 

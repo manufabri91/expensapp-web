@@ -13,15 +13,18 @@ import { TransactionTableRowMobile } from '@/components/TransactionsTable/Transa
 import { useInfiniteTransactions } from '@/components/TransactionsTable/useInfiniteTransactions';
 import { useTransactionRowActions } from '@/components/TransactionsTable/useTransactionRowActions';
 import { useTransactionsFilters } from '@/lib/providers/TransactionFiltersProvider';
+import { TransactionResponse } from '@/types/dto';
+import { PagedResponse } from '@/types/dto/pageable';
 
 interface Props {
   noTransactionsMessage?: string;
+  initialData?: PagedResponse<TransactionResponse>;
 }
 
-export const InfiniteTransactionsTable = ({ noTransactionsMessage }: Props) => {
+export const InfiniteTransactionsTable = ({ noTransactionsMessage, initialData }: Props) => {
   const t = useTranslations();
   const { filters } = useTransactionsFilters();
-  const { data, isLoading, isValidating, size, setSize, mutate } = useInfiniteTransactions(filters);
+  const { data, isLoading, isValidating, size, setSize, mutate } = useInfiniteTransactions(filters, initialData);
   const { showTransactionForm } = useTransactionForm();
   const { deleteHandler, editHandler, isDeleting, isEditing } = useTransactionRowActions(() => mutate());
   const [isLoadingMore, setIsLoadingMore] = useState(false);

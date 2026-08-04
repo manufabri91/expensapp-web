@@ -5,10 +5,15 @@ import LoadingSummary from '@/app/dashboard/components/Summary/loading';
 import { useFilteredTotals } from '@/app/transactions/components/FilteredTotalsSummary/useFilteredTotals';
 import { CurrencySummaryCardClient } from '@/components';
 import { useTransactionsFilters } from '@/lib/providers/TransactionFiltersProvider';
+import { CurrencySummaryResponse } from '@/types/dto';
 
-export const FilteredTotalsCards = () => {
+interface Props {
+  fallbackTotals?: CurrencySummaryResponse[];
+}
+
+export const FilteredTotalsCards = ({ fallbackTotals }: Props) => {
   const { filters } = useTransactionsFilters();
-  const { data, isLoading } = useFilteredTotals(filters);
+  const { data, isLoading } = useFilteredTotals(filters, fallbackTotals);
   const locale = useLocale();
 
   if (isLoading) {

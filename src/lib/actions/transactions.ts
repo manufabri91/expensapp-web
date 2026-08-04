@@ -7,6 +7,7 @@ import { CurrencySummaryResponse, TransactionRequest, TransactionResponse } from
 import { PagedResponse } from '@/types/dto/pageable';
 import { TransactionType } from '@/types/enums/transactionType';
 import { ActionResult } from '@/types/viewModel/actionResult';
+import { TransactionFilters, transactionFiltersToQueryParams } from '@/types/viewModel/transactionFilters';
 
 // Cache invariant: every read below uses `next: { revalidate: 3600 }` (1h). Any mutation that
 // touches transactions MUST call revalidatePath for every affected page (dashboard/transactions
@@ -24,6 +25,13 @@ export const getTransactions = async (url: string): Promise<PagedResponse<Transa
 
   return await response.json();
 };
+
+// Shared by every page-level Server Component that prefetches a transaction table's first page
+// (see TransactionsTableSection / InfiniteTransactionsTableSection), so the query-param-building
+// call site isn't duplicated across pages.
+export const getInitialTransactionsPage = async (
+  filters: TransactionFilters
+): Promise<PagedResponse<TransactionResponse>> => getTransactions(`/api/transaction${transactionFiltersToQueryParams(filters)}`);
 
 export const getFilteredTotals = async (url: string): Promise<CurrencySummaryResponse[]> => {
   const response = await backendFetch(toBackendPath(url), { revalidate: 3600 });
