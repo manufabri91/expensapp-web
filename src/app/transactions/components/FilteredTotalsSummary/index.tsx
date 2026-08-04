@@ -5,18 +5,20 @@ import { ReactNode } from 'react';
 import { FilteredTotalsCards } from '@/app/transactions/components/FilteredTotalsSummary/FilteredTotalsCards';
 import { useTransactionsFilters } from '@/lib/providers/TransactionFiltersProvider';
 import { getYearMonthFromParams } from '@/lib/utils/date';
+import { CurrencySummaryResponse } from '@/types/dto';
 import { hasActiveChipFilters, isCustomDateRange } from '@/types/viewModel/transactionFilters';
 
 interface Props {
   children: ReactNode;
+  fallbackTotals?: CurrencySummaryResponse[];
 }
 
-export const FilteredTotalsSwitch = ({ children }: Props) => {
+export const FilteredTotalsSwitch = ({ children, fallbackTotals }: Props) => {
   const { filters } = useTransactionsFilters();
   const searchParams = useSearchParams();
   const { year, month } = getYearMonthFromParams(searchParams.get('year'), searchParams.get('month'));
 
   const showFilteredTotals = hasActiveChipFilters(filters) || isCustomDateRange(filters, year, month);
 
-  return showFilteredTotals ? <FilteredTotalsCards /> : <>{children}</>;
+  return showFilteredTotals ? <FilteredTotalsCards fallbackTotals={fallbackTotals} /> : <>{children}</>;
 };

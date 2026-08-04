@@ -4,10 +4,9 @@ import { Accordion, Card, Chip, EmptyState, Spinner } from '@heroui/react';
 import { isToday, parseISO } from 'date-fns';
 import { useFormatter, useLocale, useTranslations } from 'next-intl';
 import { useMemo } from 'react';
-import useSWR from 'swr';
 import { Icon, Money, TypeBadge } from '@/components';
-import { getRecurringTransactions } from '@/lib/actions/recurringTransactions';
 import { useAccounts } from '@/lib/providers/AccountsProvider';
+import { RecurringTransactionResponse } from '@/types/dto';
 import { RecurrenceStatus } from '@/types/enums/recurrenceStatus';
 import { TransactionType } from '@/types/enums/transactionType';
 import { formatScheduleDescription } from '@/utils/recurrenceSchedule';
@@ -15,6 +14,7 @@ import { CancelRecurringTransactionButton } from './components/CancelRecurringTr
 import { DeleteRecurringTransactionButton } from './components/DeleteRecurringTransactionButton';
 import { EditRecurringTransactionButton } from './components/EditRecurringTransactionButton';
 import { PauseResumeRecurringTransactionButton } from './components/PauseResumeRecurringTransactionButton';
+import { useRecurringTransactions } from './useRecurringTransactions';
 
 const DATE_FORMAT_OPTIONS = { year: '2-digit', month: '2-digit', day: '2-digit' } as const;
 
@@ -24,15 +24,17 @@ const statusChipColor = (status: RecurrenceStatus): 'success' | 'warning' | 'def
   return 'default';
 };
 
-const useRecurringTransactions = () => useSWR('/api/recurring-transaction', getRecurringTransactions);
+interface Props {
+  initialRecurrences?: RecurringTransactionResponse[];
+}
 
-export const RecurringTransactionsSection = () => {
+export const RecurringTransactionsSection = ({ initialRecurrences }: Props) => {
   const t = useTranslations('RecurringTransactions');
   const format = useFormatter();
   const locale = useLocale();
   const { accounts } = useAccounts();
   const accountsById = useMemo(() => new Map(accounts.map((account) => [account.id, account])), [accounts]);
-  const { data: recurrences, isLoading, mutate } = useRecurringTransactions();
+  const { data: recurrences, isLoading, mutate } = useRecurringTransactions(initialRecurrences);
 
   return (
     <Card className="w-full md:max-w-lg" id="recurring-transactions">
