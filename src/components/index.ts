@@ -13,7 +13,5 @@ export * from '@/components/CardSkeleton';
 export * from '@/components/TypeBadge';
 export * from '@/components/ColorPicker';
 export * from '@/components/IconPicker';
-export * from '@/components/CategoryPieChart';
-export * from '@/components/BalanceAreaChart';
 export * from '@/components/CurrencySummaryCard';
 export * from '@/components/CurrencySummaryCard/CurrencySummaryCardClient';

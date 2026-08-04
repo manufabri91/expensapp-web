@@ -6,8 +6,8 @@ import { CategoryRequest, CategoryResponse } from '@/types/dto';
 import { ActionResult } from '@/types/viewModel/actionResult';
 
 // Cache invariant: every read below uses `next: { revalidate: 3600 }` (1h). Any mutation that
-// touches categories MUST call revalidatePath for every affected page (dashboard/manage) below,
-// or reads will keep serving stale data for up to an hour.
+// touches categories MUST call revalidatePath for every affected page (dashboard/transactions/manage)
+// below, or reads will keep serving stale data for up to an hour.
 
 export const getCategories = async (): Promise<CategoryResponse[]> => {
   const response = await backendFetch('/category', { revalidate: 3600 });
@@ -35,6 +35,7 @@ export const createCategory = async (formData: FormData): Promise<CategoryRespon
   }
 
   revalidatePath('/dashboard');
+  revalidatePath('/transactions');
   revalidatePath('/manage');
   return await response.json();
 };
@@ -57,6 +58,7 @@ export const editCategory = async (formData: FormData): Promise<CategoryResponse
   }
 
   revalidatePath('/dashboard');
+  revalidatePath('/transactions');
   revalidatePath('/manage');
   return await response.json();
 };
@@ -70,6 +72,7 @@ export const deleteCategoryById = async (id: number): Promise<ActionResult> => {
   }
 
   revalidatePath('/dashboard');
+  revalidatePath('/transactions');
   revalidatePath('/manage');
   return { success: true, message: `Category ${id} deleted` };
 };
