@@ -106,6 +106,17 @@ export const editTransaction = async (formData: FormData): Promise<TransactionRe
   return await response.json();
 };
 
+export const confirmTransaction = async (id: number): Promise<TransactionResponse> => {
+  unstable_noStore();
+  const response = await backendFetch(`/transaction/${id}/confirm`, { method: 'PATCH' });
+  if (!response.ok) {
+    throw new Error(`Failed to confirm transaction ${id}`);
+  }
+  revalidatePath('/dashboard');
+  revalidatePath('/transactions');
+  return await response.json();
+};
+
 export const deleteTransactionById = async (id: number): Promise<ActionResult> => {
   unstable_noStore();
   const response = await backendFetch(`/transaction/${id}`, { method: 'DELETE' });
