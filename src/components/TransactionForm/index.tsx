@@ -305,18 +305,6 @@ export const TransactionForm = () => {
   }, [recurringFormData]);
 
   useEffect(() => {
-    // Also guarded on `isEditingExisting` (not just `excludeFromTotalsTouched`) so this cannot
-    // race the hydration effects above: on a hypothetical mount where transactionFormData/
-    // recurringFormData is already present on the very first render, this effect's closure would
-    // still see `excludeFromTotalsTouched === false` from that same render and could overwrite the
-    // seeded value before the hydration effect's own `setExcludeFromTotalsTouched(true)` takes
-    // effect. Gating on `isEditingExisting` makes it structurally impossible for this effect to
-    // touch `excludeFromTotals` while editing, regardless of mount/effect ordering.
-    if (mode !== 'oneTime' || excludeFromTotalsTouched || isEditingExisting) return;
-    setExcludeFromTotals(isFuture(selectedDate));
-  }, [selectedDate, mode, excludeFromTotalsTouched, isEditingExisting]);
-
-  useEffect(() => {
     if (!overlayState.isOpen) {
       excludeFromTotalsTouchedRef.current = false;
       reset(buildOneTimeDefaults());
