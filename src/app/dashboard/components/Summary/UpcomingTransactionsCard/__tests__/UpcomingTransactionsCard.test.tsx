@@ -70,6 +70,21 @@ describe('UpcomingTransactionsCard', () => {
     expect(screen.getByText(/dueOn::/)).toBeInTheDocument();
   });
 
+  it('falls back to "ended" rather than a due date if an item ever arrives without one', () => {
+    render(
+      <UpcomingTransactionsCard
+        title="Upcoming Expenses"
+        currency="EUR"
+        total={-16.99}
+        items={[buildUpcomingTransactionItem({ date: null })]}
+        footerHref="/transactions#programmed-payments"
+      />
+    );
+
+    expect(screen.getByText('ended')).toBeInTheDocument();
+    expect(screen.queryByText(/dueOn::/)).not.toBeInTheDocument();
+  });
+
   it('shows the schedule description for a RECURRING item', () => {
     render(
       <UpcomingTransactionsCard

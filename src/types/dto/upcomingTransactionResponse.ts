@@ -5,7 +5,13 @@ export type UpcomingTransactionSourceType = 'RECURRING' | 'ONE_TIME';
 export interface UpcomingTransactionItem {
   sourceType: UpcomingTransactionSourceType;
   sourceId: number;
-  date: string;
+  /**
+   * Null only for an ended RECURRING item - an active/paused recurrence whose endDate has already
+   * passed, so it has no next occurrence left. `/summary/programmed-transactions` lists those (they
+   * still need to be manageable) and sorts them last; `/summary/upcoming-transactions` excludes
+   * them. ONE_TIME items always carry a date.
+   */
+  date: string | null;
   description: string;
   categoryIconName: string;
   categoryColor: string;

@@ -342,6 +342,88 @@ describe('ProgrammedTransactionsSection', () => {
     expect(screen.getByText('dueToday')).toBeInTheDocument();
   });
 
+  it('sorts ended recurring items (null date) last, after everything still scheduled', () => {
+    givenLists({
+      programmedTransactions: {
+        expenses: [
+          buildUpcomingTransactionItem({
+            sourceType: 'RECURRING',
+            sourceId: 2,
+            date: null,
+            description: 'Ended recurrence',
+          }),
+          buildOneTimeItem({ sourceId: 30, date: '2024-06-30T00:00:00.000Z', description: 'Late one-time' }),
+          buildUpcomingTransactionItem({
+            sourceType: 'RECURRING',
+            sourceId: 3,
+            date: null,
+            description: 'Another ended recurrence',
+          }),
+          buildOneTimeItem({ sourceId: 10, date: '2024-06-01T00:00:00.000Z', description: 'Early one-time' }),
+        ],
+        incomes: [],
+      },
+      recurrences: [
+        buildRecurrence({ id: 2, description: 'Ended recurrence', nextDueDate: null }),
+        buildRecurrence({ id: 3, description: 'Another ended recurrence', nextDueDate: null }),
+      ],
+    });
+
+    render(<ProgrammedTransactionsSection />);
+
+    const renderedText = textContentOf('programmed-payments');
+    expect(renderedText.indexOf('Early one-time')).toBeLessThan(renderedText.indexOf('Late one-time'));
+    expect(renderedText.indexOf('Late one-time')).toBeLessThan(renderedText.indexOf('Ended recurrence'));
+    expect(renderedText.indexOf('Late one-time')).toBeLessThan(renderedText.indexOf('Another ended recurrence'));
+  });
+
+  it('still offers Edit and Delete on an ended recurring item so it can be cleaned up', () => {
+    givenLists({
+      programmedTransactions: {
+        expenses: [
+          buildUpcomingTransactionItem({
+            sourceType: 'RECURRING',
+            sourceId: 2,
+            date: null,
+            description: 'Ended recurrence',
+          }),
+        ],
+        incomes: [],
+      },
+      recurrences: [buildRecurrence({ id: 2, nextDueDate: null, endDate: '2024-01-31T00:00:00.000Z' })],
+    });
+
+    render(<ProgrammedTransactionsSection />);
+
+    expect(screen.getByText('ended')).toBeInTheDocument();
+    expect(screen.getByText('edit')).toBeInTheDocument();
+    expect(screen.getByText('delete')).toBeInTheDocument();
+  });
+
+  it('shows "ended" instead of a due date for a null-dated recurring item with no matching recurrence', () => {
+    givenLists({
+      programmedTransactions: {
+        expenses: [
+          buildUpcomingTransactionItem({
+            sourceType: 'RECURRING',
+            sourceId: 99,
+            date: null,
+            description: 'Orphan ended recurrence',
+          }),
+        ],
+        incomes: [],
+      },
+      recurrences: [],
+    });
+
+    render(<ProgrammedTransactionsSection />);
+
+    expect(screen.getByText('Orphan ended recurrence')).toBeInTheDocument();
+    expect(screen.getByText('ended')).toBeInTheDocument();
+    expect(screen.queryByText('dueToday')).not.toBeInTheDocument();
+    expect(screen.queryByText(/dueOn/)).not.toBeInTheDocument();
+  });
+
   it('renders a recurring and a one-time item that share a numeric id without React key warnings', () => {
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     givenLists({

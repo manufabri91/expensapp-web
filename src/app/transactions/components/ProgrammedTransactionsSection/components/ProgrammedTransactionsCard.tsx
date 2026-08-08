@@ -11,6 +11,16 @@ import { RecurringTransactionAccordionItem } from './RecurringTransactionAccordi
 import { RemovePendingTransactionButton } from './RemovePendingTransactionButton';
 
 /**
+ * Mirrors the backend's `nullsLast` ordering: an ended recurrence has no next occurrence, so it
+ * sorts after everything that is still scheduled instead of jumping to the top of the list.
+ */
+const compareByDateNullsLast = (first: UpcomingTransactionItem, second: UpcomingTransactionItem): number => {
+  if (first.date === null) return second.date === null ? 0 : 1;
+  if (second.date === null) return -1;
+  return compareAsc(parseISO(first.date), parseISO(second.date));
+};
+
+/**
  * The two id→entity maps every row needs to resolve itself: recurring rows carry only a
  * `sourceId` (their full recurrence lives in a separately fetched list) and every row carries
  * only an `accountId` (its currency lives in the accounts provider).
@@ -38,10 +48,7 @@ export const ProgrammedTransactionsCard = ({
   onChanged,
 }: ProgrammedTransactionsCardProps) => {
   const t = useTranslations('ProgrammedTransactions');
-  const sortedItems = useMemo(
-    () => [...items].sort((first, second) => compareAsc(parseISO(first.date), parseISO(second.date))),
-    [items]
-  );
+  const sortedItems = useMemo(() => [...items].sort(compareByDateNullsLast), [items]);
 
   const renderItem = (item: UpcomingTransactionItem): ReactNode => {
     const currency = lookups.accountsById.get(item.accountId)?.currency;

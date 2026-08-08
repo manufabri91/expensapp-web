@@ -29,7 +29,9 @@ export const ProgrammedTransactionAccordionItem = ({
   const t = useTranslations('RecurringTransactions');
   const format = useFormatter();
   const locale = useLocale();
-  const dueDate = parseISO(item.date);
+  // Null for an ended recurrence (endDate already passed, no occurrences left) - the same case
+  // RecurringTransactionAccordionItem handles via its own nullable `nextDueDate`.
+  const dueDate = item.date ? parseISO(item.date) : null;
   // A RECURRING item's frequency/daysOfMonth are only nullable at the type level to accommodate
   // ONE_TIME items sharing this DTO - for RECURRING items the backend always populates them, so
   // it's safe to narrow them here once sourceType has been checked.
@@ -61,9 +63,11 @@ export const ProgrammedTransactionAccordionItem = ({
             <div className="flex flex-col items-end">
               <Money amount={item.signedAmount} currency={currency} locale={locale} className="text-md font-bold" />
               <span className="text-muted text-xs">
-                {isToday(dueDate)
-                  ? t('dueToday')
-                  : t('dueOn', { date: format.dateTime(dueDate, { month: 'short', day: 'numeric' }) })}
+                {dueDate === null
+                  ? t('ended')
+                  : isToday(dueDate)
+                    ? t('dueToday')
+                    : t('dueOn', { date: format.dateTime(dueDate, { month: 'short', day: 'numeric' }) })}
               </span>
             </div>
           </div>

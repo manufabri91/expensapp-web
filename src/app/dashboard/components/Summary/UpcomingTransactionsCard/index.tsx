@@ -37,7 +37,10 @@ export const UpcomingTransactionsCard = ({ title, currency, total, items, footer
       <Card.Content>
         <div className="divide-y">
           {items.map((item) => {
-            const dueDate = parseISO(item.date);
+            // `/summary/upcoming-transactions` only lists items falling inside the current month,
+            // so an ended recurrence (the one case with a null date) never reaches this card. Kept
+            // null-safe anyway since the DTO is shared with the programmed-transactions view.
+            const dueDate = item.date ? parseISO(item.date) : null;
             // A RECURRING item's frequency/daysOfMonth are only nullable at the type level to
             // accommodate ONE_TIME items sharing this DTO - for RECURRING items the backend always
             // populates them, so it's safe to narrow them here once sourceType has been checked.
@@ -68,9 +71,11 @@ export const UpcomingTransactionsCard = ({ title, currency, total, items, footer
                 </div>
                 <div className="flex flex-col items-end">
                   <span className="text-muted text-xs">
-                    {isToday(dueDate)
-                      ? t('dueToday')
-                      : t('dueOn', { date: format.dateTime(dueDate, { month: 'short', day: 'numeric' }) })}
+                    {dueDate === null
+                      ? tSchedule('ended')
+                      : isToday(dueDate)
+                        ? t('dueToday')
+                        : t('dueOn', { date: format.dateTime(dueDate, { month: 'short', day: 'numeric' }) })}
                   </span>
                   <Money amount={item.signedAmount} currency={currency} locale={locale} />
                 </div>
