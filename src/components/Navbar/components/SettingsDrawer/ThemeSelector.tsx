@@ -4,6 +4,8 @@ import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { Key } from 'react';
 import { HiComputerDesktop, HiMoon, HiSun } from 'react-icons/hi2';
+import { updateUserSettings } from '@/lib/actions/userSettings';
+import { Theme } from '@/types/dto';
 
 const THEMES = ['system', 'light', 'dark'] as const;
 
@@ -12,9 +14,14 @@ export const ThemeSelector = () => {
   const t = useTranslations('System.themeSelector');
 
   const onThemeModeChange = (key: Key | null) => {
-    if (key) {
-      setTheme(key as string);
+    if (!key) {
+      return;
     }
+    const nextTheme = key as Theme;
+    setTheme(nextTheme);
+    updateUserSettings({ theme: nextTheme }).catch((error) => {
+      console.error('[ThemeSelector] failed to persist theme to backend:', error);
+    });
   };
 
   const themeLabelMap = {
