@@ -41,7 +41,7 @@ export const ProgrammedTransactionAccordionItem = ({
           {
             frequency: item.frequency as RecurrenceFrequency,
             intervalDays: item.intervalDays,
-            daysOfMonth: item.daysOfMonth as number[],
+            daysOfMonth: item.daysOfMonth ?? [],
           },
           t,
           locale

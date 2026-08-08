@@ -50,7 +50,7 @@ export const UpcomingTransactionsCard = ({ title, currency, total, items, footer
                     {
                       frequency: item.frequency as RecurrenceFrequency,
                       intervalDays: item.intervalDays,
-                      daysOfMonth: item.daysOfMonth as number[],
+                      daysOfMonth: item.daysOfMonth ?? [],
                     },
                     tSchedule,
                     locale

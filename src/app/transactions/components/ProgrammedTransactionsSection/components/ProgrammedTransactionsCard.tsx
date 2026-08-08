@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { ReactNode, useMemo } from 'react';
 import { AccountResponse, RecurringTransactionResponse, UpcomingTransactionItem } from '@/types/dto';
 import { ConfirmPendingTransactionButton } from './ConfirmPendingTransactionButton';
+import { EditPendingTransactionButton } from './EditPendingTransactionButton';
 import { ProgrammedTransactionAccordionItem } from './ProgrammedTransactionAccordionItem';
 import { RecurringTransactionAccordionItem } from './RecurringTransactionAccordionItem';
 import { RemovePendingTransactionButton } from './RemovePendingTransactionButton';
@@ -77,6 +78,7 @@ export const ProgrammedTransactionsCard = ({
         currency={currency}
         actions={
           <>
+            <EditPendingTransactionButton transactionId={item.sourceId} />
             <ConfirmPendingTransactionButton transactionId={item.sourceId} onChanged={onChanged} />
             <RemovePendingTransactionButton transactionId={item.sourceId} onChanged={onChanged} />
           </>

@@ -4,7 +4,7 @@ import useSWR from 'swr';
 import { ProgrammedTransactionsSection } from '@/app/transactions/components/ProgrammedTransactionsSection';
 import { useTransactionForm } from '@/components/TransactionForm/TransactionFormProvider';
 import { pauseRecurringTransaction } from '@/lib/actions/recurringTransactions';
-import { confirmTransaction, deleteTransactionById } from '@/lib/actions/transactions';
+import { confirmTransaction, deleteTransactionById, getTransactionById } from '@/lib/actions/transactions';
 import { useAccounts } from '@/lib/providers/AccountsProvider';
 import { ProgrammedTransactionsResponse, RecurringTransactionResponse } from '@/types/dto';
 import { RecurrenceStatus } from '@/types/enums/recurrenceStatus';
@@ -47,6 +47,7 @@ jest.mock('@/lib/actions/summaries', () => ({ getProgrammedTransactions: jest.fn
 jest.mock('@/lib/actions/transactions', () => ({
   confirmTransaction: jest.fn(),
   deleteTransactionById: jest.fn(),
+  getTransactionById: jest.fn(),
 }));
 
 const PROGRAMMED_TRANSACTIONS_CACHE_KEY = '/api/summary/programmed-transactions';
@@ -97,7 +98,7 @@ describe('ProgrammedTransactionsSection', () => {
     mockedUseAccounts.mockReturnValue({
       accounts: [{ id: 1, name: 'Checking', currency: 'USD', accountBalance: 0, initialBalance: 0 }],
     });
-    mockedUseTransactionForm.mockReturnValue({ showRecurringTransactionForm: jest.fn() });
+    mockedUseTransactionForm.mockReturnValue({ showRecurringTransactionForm: jest.fn(), showTransactionForm: jest.fn() });
   });
 
   it('renders a payments card and an incomes card', () => {
@@ -214,17 +215,36 @@ describe('ProgrammedTransactionsSection', () => {
     expect(screen.queryByText('remove')).not.toBeInTheDocument();
   });
 
-  it('shows Confirm and Remove actions for a one-time pending item', () => {
+  it('shows Edit, Confirm and Remove actions for a one-time pending item', () => {
     givenLists({
       programmedTransactions: { expenses: [buildOneTimeItem({ sourceId: 55 })], incomes: [] },
     });
 
     render(<ProgrammedTransactionsSection />);
 
+    expect(screen.getByText('edit')).toBeInTheDocument();
     expect(screen.getByText('confirm')).toBeInTheDocument();
     expect(screen.getByText('remove')).toBeInTheDocument();
-    expect(screen.queryByText('edit')).not.toBeInTheDocument();
     expect(screen.queryByText('pause')).not.toBeInTheDocument();
+  });
+
+  it('opens the one-time edit form with the fetched transaction when Edit is pressed on a one-time pending item', async () => {
+    const showTransactionForm = jest.fn();
+    mockedUseTransactionForm.mockReturnValue({
+      showRecurringTransactionForm: jest.fn(),
+      showTransactionForm,
+    });
+    const fullTransaction = { id: 55, description: 'Rent' };
+    (getTransactionById as jest.Mock).mockResolvedValue(fullTransaction);
+    givenLists({
+      programmedTransactions: { expenses: [buildOneTimeItem({ sourceId: 55 })], incomes: [] },
+    });
+
+    render(<ProgrammedTransactionsSection />);
+    fireEvent.click(screen.getByText('edit'));
+
+    await waitFor(() => expect(getTransactionById).toHaveBeenCalledWith(55));
+    expect(showTransactionForm).toHaveBeenCalledWith(fullTransaction);
   });
 
   it('confirms a one-time pending item by its source id and revalidates', async () => {

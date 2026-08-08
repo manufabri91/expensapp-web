@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 import { revalidatePath } from 'next/cache';
-import { confirmTransaction } from '@/lib/actions/transactions';
+import { confirmTransaction, getTransactionById } from '@/lib/actions/transactions';
 import { auth } from '@/lib/auth';
 
 jest.mock('@/lib/auth', () => ({ auth: jest.fn() }));
@@ -46,6 +46,26 @@ describe('transactions actions', () => {
       (global.fetch as jest.Mock).mockResolvedValue(new Response('', { status: 500 }));
 
       await expect(confirmTransaction(1)).rejects.toThrow('Failed to confirm transaction 1');
+    });
+  });
+
+  describe('getTransactionById', () => {
+    it('GETs /transaction/{id} and returns the full transaction', async () => {
+      const transaction = { id: 7, description: 'Rent' };
+      (global.fetch as jest.Mock).mockResolvedValue(new Response(JSON.stringify(transaction), { status: 200 }));
+
+      const result = await getTransactionById(7);
+
+      expect(result).toEqual(transaction);
+      const { url, init } = lastFetchRequest();
+      expect(url).toBe('https://backend.test/transaction/7');
+      expect(init.method).toBe('GET');
+    });
+
+    it('throws a descriptive error naming the id when the backend fetch fails', async () => {
+      (global.fetch as jest.Mock).mockResolvedValue(new Response('', { status: 404 }));
+
+      await expect(getTransactionById(7)).rejects.toThrow('Failed to fetch transaction 7');
     });
   });
 });

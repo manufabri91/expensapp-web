@@ -212,7 +212,11 @@ describe('TransactionForm - excludeFromTotals switch (pending-transaction defaul
         accountName: 'Checking',
         category: { id: 1, name: 'Housing', iconName: 'icon', color: '#fff', type: 'EXPENSE', readOnly: false },
         subcategory: { id: 1, name: 'Rent', parentCategoryId: 1, parentCategoryName: 'Housing', readOnly: false },
-        excludeFromTotals: false,
+        // Deliberately true while eventDate is a future date: isFuture(new Date()) at mount is
+        // false, so if the seeding logic were broken and this coincidentally fell back to the
+        // date-driven auto-default, the switch would render unchecked instead - only a saved
+        // value of `true` can distinguish real hydration from that coincidence.
+        excludeFromTotals: true,
         linkedTransaction: null,
       },
       recurringFormData: undefined,
@@ -222,7 +226,7 @@ describe('TransactionForm - excludeFromTotals switch (pending-transaction defaul
 
     render(<TransactionForm />);
 
-    expect(getExcludeFromTotalsSwitch().checked).toBe(false);
+    expect(getExcludeFromTotalsSwitch().checked).toBe(true);
   });
 
   it('leaves the switch unaffected by the date-driven effect while in recurring mode', () => {
