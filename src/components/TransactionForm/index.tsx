@@ -6,6 +6,8 @@ import {
   CheckboxGroup,
   DateField,
   DatePicker,
+  ErrorMessage,
+  FieldError,
   InputGroup,
   Label,
   ListBox,
@@ -18,11 +20,13 @@ import {
   ToggleButton,
   ToggleButtonGroup,
 } from '@heroui/react';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { fromDate, getLocalTimeZone } from '@internationalized/date';
-import { formatISO, isFuture, parseISO } from 'date-fns';
+import { isFuture, parseISO } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Controller, Resolver, useForm, useWatch } from 'react-hook-form';
 import { useSWRConfig } from 'swr';
 import { Button } from '@/components';
 import { useTransactionForm } from '@/components/TransactionForm/TransactionFormProvider';
@@ -35,7 +39,8 @@ import { createTransaction, editTransaction } from '@/lib/actions/transactions';
 import { useAccounts } from '@/lib/providers/AccountsProvider';
 import { useCategories } from '@/lib/providers/CategoriesProvider';
 import { useTransactionsFilters } from '@/lib/providers/TransactionFiltersProvider';
-import { RecurringTransactionResponse, SubCategoryResponse, TransactionResponse } from '@/types/dto';
+import { oneTimeTransactionSchema, recurringTransactionSchema } from '@/schemas/transaction';
+import { RecurringTransactionRequest, RecurringTransactionResponse, TransactionRequest, TransactionResponse } from '@/types/dto';
 import { PagedResponse } from '@/types/dto/pageable';
 import { RecurrenceFrequency } from '@/types/enums/recurrenceFrequency';
 import { TransactionType } from '@/types/enums/transactionType';
@@ -43,16 +48,35 @@ import { getCurrencySymbol } from '@/utils/currency';
 
 const DAYS_OF_MONTH = Array.from({ length: 31 }, (_, i) => i + 1);
 
+interface TransactionFormValues {
+  id?: number;
+  amount: number;
+  type: TransactionType;
+  account?: number;
+  destinationAccount?: number;
+  category?: number;
+  subcategory?: number;
+  description: string;
+  excludeFromTotals: boolean;
+  eventDate?: Date;
+  frequency: RecurrenceFrequency;
+  intervalDays?: number;
+  daysOfMonth: number[];
+  startDate?: Date;
+  endDate?: Date;
+  hasEndDate: boolean;
+}
+
 interface TransactionDatePickerProps {
   label: string;
-  value: Date;
+  value?: Date;
   onChange: (date: Date) => void;
 }
 
 const TransactionDatePicker = ({ label, value, onChange }: TransactionDatePickerProps) => (
   <DatePicker
     granularity="day"
-    value={fromDate(value, getLocalTimeZone())}
+    value={fromDate(value ?? new Date(), getLocalTimeZone())}
     onChange={(date: { toDate: () => Date } | null) => onChange(date?.toDate() ?? new Date())}
     isRequired
   >
@@ -100,28 +124,122 @@ export const TransactionForm = () => {
   const { accounts } = useAccounts();
   const { categories, subcategories } = useCategories();
   const { filters } = useTransactionsFilters();
-  const [createdTransaction, setCreatedTransaction] = useState<TransactionResponse | null>(null);
-  const [editedTransaction, setEditedTransaction] = useState<TransactionResponse | null>(null);
-  const [createdRecurring, setCreatedRecurring] = useState<RecurringTransactionResponse | null>(null);
-  const [editedRecurring, setEditedRecurring] = useState<RecurringTransactionResponse | null>(null);
-  const [processing, setProcessing] = useState<boolean>(false);
-  const [mode, setMode] = useState<TransactionMode>('oneTime');
-  const [selectedCategory, setSelectedCategory] = useState<number | undefined>(undefined);
-  const [filteredSubcategories, setFilteredSubcategories] = useState<SubCategoryResponse[]>(subcategories);
-  const [selectedSubcategory, setSelectedSubcategory] = useState<number | undefined>(undefined);
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedAccount, setSelectedAccount] = useState<number>(accounts[0]?.id);
-  const [selectedType, setSelectedType] = useState<TransactionType>(TransactionType.EXPENSE);
-  const [selectedFrequency, setSelectedFrequency] = useState<RecurrenceFrequency>(RecurrenceFrequency.INTERVAL_DAYS);
-  const [selectedDaysOfMonth, setSelectedDaysOfMonth] = useState<Set<number>>(new Set());
-  const [selectedStartDate, setSelectedStartDate] = useState(new Date());
-  const [selectedEndDate, setSelectedEndDate] = useState(new Date());
-  const [hasEndDate, setHasEndDate] = useState(false);
-  const [excludeFromTotals, setExcludeFromTotals] = useState(false);
-  const [excludeFromTotalsTouched, setExcludeFromTotalsTouched] = useState(false);
 
   const isEditingExisting = !!transactionFormData || !!recurringFormData;
-  const selectedAccountObj = accounts.find((acc) => acc.id === selectedAccount);
+
+  const buildOneTimeDefaults = useCallback(
+    (): TransactionFormValues => ({
+      id: undefined,
+      amount: 0,
+      type: TransactionType.EXPENSE,
+      account: accounts[0]?.id,
+      destinationAccount: undefined,
+      category: undefined,
+      subcategory: undefined,
+      description: '',
+      excludeFromTotals: false,
+      eventDate: new Date(),
+      frequency: RecurrenceFrequency.INTERVAL_DAYS,
+      intervalDays: 1,
+      daysOfMonth: [],
+      startDate: new Date(),
+      endDate: new Date(),
+      hasEndDate: false,
+    }),
+    [accounts]
+  );
+
+  const buildRecurringDefaults = useCallback(
+    (): TransactionFormValues => ({
+      ...buildOneTimeDefaults(),
+      eventDate: undefined,
+    }),
+    [buildOneTimeDefaults]
+  );
+
+  const buildOneTimeDefaultsFromTransaction = useCallback(
+    (transaction: TransactionResponse): TransactionFormValues => ({
+      id: transaction.id,
+      amount: Number(Math.abs(transaction.amount).toFixed(2)),
+      type: transaction.type,
+      account: transaction.accountId,
+      destinationAccount:
+        transaction.type === TransactionType.TRANSFER
+          ? transaction.subcategory.name === 'TRANSFER.IN.SUBCATEGORY'
+            ? transaction.accountId
+            : transaction.linkedTransaction?.accountId
+          : undefined,
+      category: transaction.type === TransactionType.TRANSFER ? undefined : transaction.category.id,
+      subcategory: transaction.type === TransactionType.TRANSFER ? undefined : transaction.subcategory.id,
+      description: transaction.description,
+      excludeFromTotals: transaction.excludeFromTotals,
+      eventDate: parseISO(transaction.eventDate),
+      frequency: RecurrenceFrequency.INTERVAL_DAYS,
+      intervalDays: 1,
+      daysOfMonth: [],
+      startDate: new Date(),
+      endDate: new Date(),
+      hasEndDate: false,
+    }),
+    []
+  );
+
+  const buildRecurringDefaultsFromRecurrence = useCallback(
+    (recurrence: RecurringTransactionResponse): TransactionFormValues => ({
+      id: recurrence.id,
+      amount: recurrence.amount,
+      type: recurrence.type,
+      account: recurrence.accountId,
+      destinationAccount: undefined,
+      category: recurrence.category.id,
+      subcategory: recurrence.subcategory.id,
+      description: recurrence.description,
+      excludeFromTotals: recurrence.excludeFromTotals,
+      eventDate: undefined,
+      frequency: recurrence.frequency,
+      intervalDays: recurrence.intervalDays ?? 1,
+      daysOfMonth: recurrence.daysOfMonth ?? [],
+      startDate: parseISO(recurrence.startDate),
+      endDate: recurrence.endDate ? parseISO(recurrence.endDate) : new Date(),
+      hasEndDate: !!recurrence.endDate,
+    }),
+    []
+  );
+
+  // `mode` drives which schema the resolver below validates against and which action gets called
+  // on submit; it lives outside the schema shape (it's UI routing, not a submitted field), so it's
+  // tracked separately rather than as a real RHF field.
+  const [mode, setMode] = useState<TransactionMode>(formMode);
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { isSubmitting },
+  } = useForm<TransactionFormValues>({
+    resolver: ((values, context, options) => {
+      const schema = mode === 'recurring' ? recurringTransactionSchema : oneTimeTransactionSchema;
+      return zodResolver(schema)(values as never, context, options as never);
+    }) as Resolver<TransactionFormValues>,
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
+    defaultValues: buildOneTimeDefaults(),
+  });
+
+  const watchedType = useWatch({ control, name: 'type' });
+  const watchedCategory = useWatch({ control, name: 'category' });
+  const watchedAccount = useWatch({ control, name: 'account' });
+  const watchedFrequency = useWatch({ control, name: 'frequency' });
+  const watchedEventDate = useWatch({ control, name: 'eventDate' });
+  const watchedHasEndDate = useWatch({ control, name: 'hasEndDate' });
+  const watchedDaysOfMonth = useWatch({ control, name: 'daysOfMonth' });
+
+  const selectedAccountObj = accounts.find((acc) => acc.id === watchedAccount);
+  const filteredSubcategories = useMemo(
+    () => subcategories.filter((subcategory) => subcategory.parentCategoryId === watchedCategory),
+    [subcategories, watchedCategory]
+  );
 
   const revalidateTransactions = () =>
     mutate((key) => typeof key === 'string' && key.startsWith('/api/transaction'), undefined, { revalidate: true });
@@ -158,204 +276,104 @@ export const TransactionForm = () => {
     );
   };
 
-  const restoreFormState = useCallback(() => {
-    setProcessing(false);
-    setMode('oneTime');
-    setSelectedCategory(undefined);
-    setSelectedSubcategory(undefined);
-    setSelectedDate(new Date());
-    setFilteredSubcategories(subcategories);
-    setSelectedAccount(accounts[0]?.id);
-    setSelectedType(TransactionType.EXPENSE);
-    setSelectedFrequency(RecurrenceFrequency.INTERVAL_DAYS);
-    setSelectedDaysOfMonth(new Set());
-    setSelectedStartDate(new Date());
-    setSelectedEndDate(new Date());
-    setHasEndDate(false);
-    setExcludeFromTotals(false);
-    setExcludeFromTotalsTouched(false);
-  }, [accounts]);
-
-  const applyCategorySelection = useCallback(
-    (categoryId: number, subcategoryId: number) => {
-      setSelectedCategory(categoryId);
-      setFilteredSubcategories(subcategories.filter((subcategory) => subcategory.parentCategoryId === categoryId));
-      setSelectedSubcategory(subcategoryId);
-    },
-    [subcategories]
-  );
-
   useEffect(() => {
-    if (overlayState.isOpen) {
-      setMode(formMode);
-    }
-  }, [overlayState.isOpen, formMode]);
+    if (overlayState.isOpen) setMode(formMode);
+  }, [overlayState.isOpen, formMode, setMode]);
+
+  // Tracks whether the user has manually touched the excludeFromTotals switch, so the
+  // date-driven auto-default effect below stops overriding it. A ref (rather than RHF's
+  // `dirtyFields`) is used deliberately: RHF marks a field dirty as soon as its value differs
+  // from its default - including via this same effect's own programmatic `setValue` calls - so
+  // `dirtyFields.excludeFromTotals` cannot distinguish "the user touched this" from "the
+  // auto-default effect touched this" and would permanently latch after the first auto-update.
+  const excludeFromTotalsTouchedRef = useRef(false);
 
   useEffect(() => {
     if (transactionFormData) {
-      setSelectedType(transactionFormData.type);
-      applyCategorySelection(transactionFormData.category.id, transactionFormData.subcategory.id);
-      setSelectedDate(parseISO(transactionFormData.eventDate));
-      setSelectedAccount(transactionFormData.accountId);
-      setExcludeFromTotals(transactionFormData.excludeFromTotals);
-      setExcludeFromTotalsTouched(true);
+      setMode('oneTime');
+      excludeFromTotalsTouchedRef.current = true;
+      reset(buildOneTimeDefaultsFromTransaction(transactionFormData));
     }
-  }, [transactionFormData, applyCategorySelection]);
+  }, [transactionFormData]);
 
   useEffect(() => {
     if (recurringFormData) {
-      setSelectedType(recurringFormData.type);
-      applyCategorySelection(recurringFormData.category.id, recurringFormData.subcategory.id);
-      setSelectedAccount(recurringFormData.accountId);
-      setSelectedFrequency(recurringFormData.frequency);
-      setSelectedDaysOfMonth(new Set(recurringFormData.daysOfMonth ?? []));
-      setSelectedStartDate(parseISO(recurringFormData.startDate));
-      if (recurringFormData.endDate) {
-        setHasEndDate(true);
-        setSelectedEndDate(parseISO(recurringFormData.endDate));
-      } else {
-        setHasEndDate(false);
-      }
-      setExcludeFromTotals(recurringFormData.excludeFromTotals);
-      setExcludeFromTotalsTouched(true);
+      setMode('recurring');
+      excludeFromTotalsTouchedRef.current = true;
+      reset(buildRecurringDefaultsFromRecurrence(recurringFormData));
     }
-  }, [recurringFormData, applyCategorySelection]);
-
-  useEffect(() => {
-    // Also guarded on `isEditingExisting` (not just `excludeFromTotalsTouched`) so this cannot
-    // race the hydration effects above: on a hypothetical mount where transactionFormData/
-    // recurringFormData is already present on the very first render, this effect's closure would
-    // still see `excludeFromTotalsTouched === false` from that same render and could overwrite the
-    // seeded value before the hydration effect's own `setExcludeFromTotalsTouched(true)` takes
-    // effect. Gating on `isEditingExisting` makes it structurally impossible for this effect to
-    // touch `excludeFromTotals` while editing, regardless of mount/effect ordering.
-    if (mode !== 'oneTime' || excludeFromTotalsTouched || isEditingExisting) return;
-    setExcludeFromTotals(isFuture(selectedDate));
-  }, [selectedDate, mode, excludeFromTotalsTouched, isEditingExisting]);
+  }, [recurringFormData]);
 
   useEffect(() => {
     if (!overlayState.isOpen) {
-      restoreFormState();
+      excludeFromTotalsTouchedRef.current = false;
+      reset(buildOneTimeDefaults());
+      setMode('oneTime');
     }
-  }, [overlayState.isOpen, restoreFormState]);
+  }, [overlayState.isOpen]);
+
+  useEffect(() => {
+    // Also guarded on `isEditingExisting` (not just the touched ref) so this cannot race the
+    // hydration effects above: on a hypothetical mount where transactionFormData/recurringFormData
+    // is already present on the very first render, this effect's closure would still see the ref
+    // as untouched from that same render and could overwrite the seeded value before the
+    // hydration effect's own reset() takes effect. Gating on `isEditingExisting` makes it
+    // structurally impossible for this effect to touch `excludeFromTotals` while editing,
+    // regardless of mount/effect ordering.
+    if (mode !== 'oneTime' || excludeFromTotalsTouchedRef.current || isEditingExisting || !watchedEventDate) return;
+    setValue('excludeFromTotals', isFuture(watchedEventDate));
+  }, [watchedEventDate, mode, isEditingExisting, setValue]);
+
+  const handleModeChange = (nextMode: TransactionMode) => {
+    setMode(nextMode);
+    excludeFromTotalsTouchedRef.current = false;
+    reset(nextMode === 'oneTime' ? buildOneTimeDefaults() : buildRecurringDefaults());
+  };
 
   const finishSuccessfully = useCallback(
     (message: string, revalidate: () => void) => {
       toast.success(message);
       clearForm();
-      restoreFormState();
+      reset(buildOneTimeDefaults());
+      setMode('oneTime');
       revalidate();
       router.refresh();
+      overlayState.close();
     },
-    [clearForm, restoreFormState, router]
+    [clearForm, reset, buildOneTimeDefaults, setMode, router, overlayState]
   );
 
-  // execute when submit
-  useEffect(() => {
-    if (createdTransaction) {
-      finishSuccessfully(t('TransactionForm.createdSuccess', { id: createdTransaction.id }), revalidateTransactions);
-      insertIntoRecentTransactions(createdTransaction);
-      setCreatedTransaction(null);
-    } else if (editedTransaction) {
-      finishSuccessfully(t('TransactionForm.editedSuccess', { id: editedTransaction.id }), revalidateTransactions);
-      updateRecentTransactions(editedTransaction);
-      setEditedTransaction(null);
-    } else if (createdRecurring) {
-      // A recurrence due today (interval starting today, or a monthly day matching today) has its
-      // first transaction generated synchronously by the backend as part of this same request, so
-      // the transactions table's own cache needs revalidating too, not just the recurring list's.
-      finishSuccessfully(t('TransactionForm.recurringCreatedSuccess', { id: createdRecurring.id }), () => {
-        revalidateRecurringTransactions();
-        revalidateTransactions();
-      });
-      setCreatedRecurring(null);
-    } else if (editedRecurring) {
-      finishSuccessfully(
-        t('TransactionForm.recurringEditedSuccess', { id: editedRecurring.id }),
-        revalidateRecurringTransactions
-      );
-      setEditedRecurring(null);
-    }
-  }, [createdTransaction, editedTransaction, createdRecurring, editedRecurring, finishSuccessfully, t]);
-
-  const onSelectedCategory = (key: React.Key | null) => {
-    if (key === null) return;
-    const categoryId = Number(key);
-    setSelectedCategory(categoryId);
-    const validSubcategories = subcategories.filter((subcategory) => subcategory.parentCategoryId === categoryId);
-    setFilteredSubcategories(validSubcategories);
-    setSelectedSubcategory(validSubcategories[0]?.id);
-  };
-
-  const onSelectedSubcategory = (key: React.Key | null) => {
-    if (key === null) return;
-    setSelectedSubcategory(Number(key));
-  };
-
-  const onAccountChange = (key: React.Key | null) => {
-    if (key === null) return;
-    setSelectedAccount(Number(key));
-  };
-
-  const onTypeChange = (type: TransactionType) => {
-    if (type === TransactionType.TRANSFER) {
-      setSelectedCategory(undefined);
-      setSelectedSubcategory(undefined);
-      setFilteredSubcategories(subcategories);
-    } else {
-      setSelectedCategory(undefined);
-      setSelectedSubcategory(undefined);
-    }
-    setSelectedType(type);
-  };
-
-  const submitHandler = async (e: React.FormEvent<HTMLFormElement>, cb?: () => void) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    setProcessing(true);
+  const onValid = async (rawData: TransactionFormValues) => {
     try {
       if (mode === 'recurring') {
-        formData.set('frequency', selectedFrequency);
-        formData.set('startDate', formatISO(selectedStartDate, { representation: 'date' }));
-        formData.delete('endDate');
-        if (hasEndDate) {
-          formData.set('endDate', formatISO(selectedEndDate, { representation: 'date' }));
-        }
-        formData.delete('daysOfMonth');
-        selectedDaysOfMonth.forEach((day) => formData.append('daysOfMonth', day.toString()));
-
+        const data = rawData as unknown as RecurringTransactionRequest;
         if (!recurringFormData) {
-          const created = await createRecurringTransaction(formData);
-          setCreatedRecurring(created);
+          const created = await createRecurringTransaction(data);
+          finishSuccessfully(t('TransactionForm.recurringCreatedSuccess', { id: created.id }), () => {
+            revalidateRecurringTransactions();
+            revalidateTransactions();
+          });
         } else {
-          formData.set('id', String(recurringFormData.id));
-          const updated = await editRecurringTransaction(formData);
-          setEditedRecurring(updated);
+          const updated = await editRecurringTransaction({ ...data, id: recurringFormData.id });
+          finishSuccessfully(
+            t('TransactionForm.recurringEditedSuccess', { id: updated.id }),
+            revalidateRecurringTransactions
+          );
         }
       } else {
-        formData.set('eventDate', formatISO(selectedDate, { representation: 'date' }));
+        const data = rawData as unknown as TransactionRequest;
         if (!transactionFormData) {
-          const createdTx = await createTransaction(formData);
-          setCreatedTransaction(createdTx);
+          const created = await createTransaction(data);
+          finishSuccessfully(t('TransactionForm.createdSuccess', { id: created.id }), revalidateTransactions);
+          insertIntoRecentTransactions(created);
         } else {
-          const updatedTx = await editTransaction(formData);
-          setEditedTransaction(updatedTx);
+          const updated = await editTransaction({ ...data, id: transactionFormData.id });
+          finishSuccessfully(t('TransactionForm.editedSuccess', { id: updated.id }), revalidateTransactions);
+          updateRecentTransactions(updated);
         }
       }
-      if (cb) cb();
     } catch (error) {
-      if (error instanceof Error) {
-        toast.danger(error.message);
-      } else {
-        toast.danger(t('TransactionForm.unexpectedError'));
-      }
-      setEditedTransaction(null);
-      setCreatedTransaction(null);
-      setEditedRecurring(null);
-      setCreatedRecurring(null);
-      setProcessing(false);
-      clearForm();
-      cb?.();
+      toast.danger(error instanceof Error ? error.message : t('TransactionForm.unexpectedError'));
     }
   };
 
@@ -371,231 +389,309 @@ export const TransactionForm = () => {
               {isEditingExisting ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.transaction.singular')}
             </Modal.Heading>
           </Modal.Header>
-          <form onSubmit={(e) => submitHandler(e, () => overlayState.close())}>
+          <form onSubmit={handleSubmit(onValid)}>
             <Modal.Body className="flex flex-col gap-4">
-              <input
-                id="id"
-                name="id"
-                type="hidden"
-                value={`${mode === 'recurring' ? recurringFormData?.id : transactionFormData?.id}`}
-                readOnly
-              />
               {!isEditingExisting && (
                 <div>
-                  <TransactionModeSelector initialValue={mode} onSelect={setMode} />
+                  <TransactionModeSelector initialValue={mode} onSelect={handleModeChange} />
                 </div>
               )}
-              <div>
-                <TransactionTypeSelector
-                  initialValue={selectedType}
-                  onSelect={onTypeChange}
-                  hideTransfers={mode === 'recurring'}
-                />
-              </div>
-              <NumberField
-                defaultValue={
-                  transactionFormData?.amount
-                    ? Number(Math.abs(transactionFormData.amount).toFixed(2))
-                    : (recurringFormData?.amount ?? 0)
-                }
+              <Controller
+                control={control}
+                name="type"
+                render={({ field, fieldState }) => (
+                  <div>
+                    <TransactionTypeSelector
+                      initialValue={field.value}
+                      onSelect={(type) => {
+                        field.onChange(type);
+                        setValue('category', undefined, { shouldDirty: true });
+                        setValue('subcategory', undefined, { shouldDirty: true });
+                      }}
+                      hideTransfers={mode === 'recurring'}
+                    />
+                    {fieldState.error?.message && <ErrorMessage>{t(fieldState.error.message)}</ErrorMessage>}
+                  </div>
+                )}
+              />
+              <Controller
+                control={control}
                 name="amount"
-                fullWidth
-                isRequired
-                variant="secondary"
-              >
-                <Label>{t('Generics.amount')}</Label>
-                <InputGroup variant="secondary" fullWidth>
-                  {selectedAccountObj && (
-                    <InputGroup.Prefix>{getCurrencySymbol(locale, selectedAccountObj.currency)}</InputGroup.Prefix>
-                  )}
-                  <InputGroup.Input />
-                </InputGroup>
-              </NumberField>
-              {selectedType !== TransactionType.TRANSFER && (
-                <Switch
-                  size="sm"
-                  name="excludeFromTotals"
-                  isSelected={excludeFromTotals}
-                  onChange={(selected: boolean) => {
-                    setExcludeFromTotals(selected);
-                    setExcludeFromTotalsTouched(true);
-                  }}
-                >
-                  <Switch.Content>
-                    <Switch.Control>
-                      <Switch.Thumb />
-                    </Switch.Control>
-                    <span>{t('TransactionForm.excludeFromTotals')}</span>
-                  </Switch.Content>
-                </Switch>
-              )}
-              {selectedType !== TransactionType.TRANSFER && (
-                <>
-                  <Select
-                    id="account"
-                    name="account"
-                    defaultSelectedKey={
-                      transactionFormData?.accountId.toString() ??
-                      recurringFormData?.accountId.toString() ??
-                      accounts[0]?.id.toString()
-                    }
-                    isRequired
-                    onSelectionChange={onAccountChange}
-                    variant="secondary"
-                  >
-                    <Label>{t('Generics.account')}</Label>
-                    <Select.Trigger>
-                      <Select.Value />
-                      <Select.Indicator />
-                    </Select.Trigger>
-                    <Select.Popover>
-                      <ListBox>
-                        {accounts.map((account) => (
-                          <ListBox.Item key={account.id} id={account.id.toString()} textValue={account.name}>
-                            {account.name}
-                          </ListBox.Item>
-                        ))}
-                      </ListBox>
-                    </Select.Popover>
-                  </Select>
-                  <TextField
-                    name="description"
-                    isRequired
-                    defaultValue={transactionFormData?.description ?? recurringFormData?.description}
+                render={({ field, fieldState }) => (
+                  <NumberField
                     fullWidth
+                    isRequired
+                    variant="secondary"
+                    isInvalid={fieldState.invalid}
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
                   >
-                    <Label>{t('Generics.description')}</Label>
-                    <InputGroup variant="secondary">
-                      <InputGroup.Input id="description" type="text" />
+                    <Label>{t('Generics.amount')}</Label>
+                    <InputGroup variant="secondary" fullWidth>
+                      {selectedAccountObj && (
+                        <InputGroup.Prefix>{getCurrencySymbol(locale, selectedAccountObj.currency)}</InputGroup.Prefix>
+                      )}
+                      <InputGroup.Input />
                     </InputGroup>
-                  </TextField>
+                    {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
+                  </NumberField>
+                )}
+              />
+              {watchedType !== TransactionType.TRANSFER && (
+                <Controller
+                  control={control}
+                  name="excludeFromTotals"
+                  render={({ field }) => (
+                    <Switch
+                      size="sm"
+                      isSelected={field.value}
+                      onChange={(selected: boolean) => {
+                        excludeFromTotalsTouchedRef.current = true;
+                        field.onChange(selected);
+                      }}
+                    >
+                      <Switch.Content>
+                        <Switch.Control>
+                          <Switch.Thumb />
+                        </Switch.Control>
+                        <span>{t('TransactionForm.excludeFromTotals')}</span>
+                      </Switch.Content>
+                    </Switch>
+                  )}
+                />
+              )}
+              {watchedType !== TransactionType.TRANSFER && (
+                <>
+                  <Controller
+                    control={control}
+                    name="account"
+                    render={({ field, fieldState }) => (
+                      <Select
+                        isRequired
+                        variant="secondary"
+                        isInvalid={fieldState.invalid}
+                        selectedKey={field.value?.toString()}
+                        onSelectionChange={(key) => field.onChange(key ? Number(key) : undefined)}
+                        onBlur={field.onBlur}
+                      >
+                        <Label>{t('Generics.account')}</Label>
+                        <Select.Trigger>
+                          <Select.Value />
+                          <Select.Indicator />
+                        </Select.Trigger>
+                        <Select.Popover>
+                          <ListBox>
+                            {accounts.map((account) => (
+                              <ListBox.Item key={account.id} id={account.id.toString()} textValue={account.name}>
+                                {account.name}
+                              </ListBox.Item>
+                            ))}
+                          </ListBox>
+                        </Select.Popover>
+                        {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
+                      </Select>
+                    )}
+                  />
+                  <Controller
+                    control={control}
+                    name="description"
+                    render={({ field, fieldState }) => (
+                      <TextField
+                        isRequired
+                        fullWidth
+                        isInvalid={fieldState.invalid}
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                      >
+                        <Label>{t('Generics.description')}</Label>
+                        <InputGroup variant="secondary">
+                          <InputGroup.Input type="text" />
+                        </InputGroup>
+                        {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
+                      </TextField>
+                    )}
+                  />
                 </>
               )}
-              {selectedType === TransactionType.TRANSFER && (
+              {watchedType === TransactionType.TRANSFER && (
                 <>
-                  <Select
-                    id="account"
+                  <Controller
+                    control={control}
                     name="account"
-                    defaultSelectedKey={transactionFormData?.accountId.toString() ?? accounts[0]?.id.toString()}
-                    isRequired
-                    onSelectionChange={onAccountChange}
-                    placeholder={t('TransactionForm.selectAccount')}
-                    variant="secondary"
-                  >
-                    <Label>{t('Generics.account')}</Label>
-                    <Select.Trigger>
-                      <Select.Value />
-                      <Select.Indicator />
-                    </Select.Trigger>
-                    <Select.Popover>
-                      <ListBox>
-                        {accounts.map((account) => (
-                          <ListBox.Item key={account.id} id={account.id.toString()} textValue={account.name}>
-                            {account.name}
-                          </ListBox.Item>
-                        ))}
-                      </ListBox>
-                    </Select.Popover>
-                  </Select>
-                  <Select
-                    id="destinationAccount"
+                    render={({ field, fieldState }) => (
+                      <Select
+                        isRequired
+                        variant="secondary"
+                        isInvalid={fieldState.invalid}
+                        selectedKey={field.value?.toString()}
+                        onSelectionChange={(key) => field.onChange(key ? Number(key) : undefined)}
+                        onBlur={field.onBlur}
+                        placeholder={t('TransactionForm.selectAccount')}
+                      >
+                        <Label>{t('Generics.account')}</Label>
+                        <Select.Trigger>
+                          <Select.Value />
+                          <Select.Indicator />
+                        </Select.Trigger>
+                        <Select.Popover>
+                          <ListBox>
+                            {accounts.map((account) => (
+                              <ListBox.Item key={account.id} id={account.id.toString()} textValue={account.name}>
+                                {account.name}
+                              </ListBox.Item>
+                            ))}
+                          </ListBox>
+                        </Select.Popover>
+                        {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
+                      </Select>
+                    )}
+                  />
+                  <Controller
+                    control={control}
                     name="destinationAccount"
-                    defaultSelectedKey={
-                      transactionFormData && transactionFormData.subcategory.name === 'TRANSFER.IN.SUBCATEGORY'
-                        ? transactionFormData.accountId.toString()
-                        : (transactionFormData?.linkedTransaction?.accountId.toString() ?? '')
-                    }
-                    isRequired
-                    placeholder={t('TransactionForm.selectAccount')}
-                    variant="secondary"
-                  >
-                    <Label>{t('TransactionForm.destinationAccount')}</Label>
-                    <Select.Trigger>
-                      <Select.Value />
-                      <Select.Indicator />
-                    </Select.Trigger>
-                    <Select.Popover>
-                      <ListBox>
-                        {accounts.map((account) => (
-                          <ListBox.Item key={account.id} id={account.id.toString()} textValue={account.name}>
-                            {account.name}
-                          </ListBox.Item>
-                        ))}
-                      </ListBox>
-                    </Select.Popover>
-                  </Select>
+                    render={({ field, fieldState }) => (
+                      <Select
+                        isRequired
+                        variant="secondary"
+                        isInvalid={fieldState.invalid}
+                        selectedKey={field.value?.toString()}
+                        onSelectionChange={(key) => field.onChange(key ? Number(key) : undefined)}
+                        onBlur={field.onBlur}
+                        placeholder={t('TransactionForm.selectAccount')}
+                      >
+                        <Label>{t('TransactionForm.destinationAccount')}</Label>
+                        <Select.Trigger>
+                          <Select.Value />
+                          <Select.Indicator />
+                        </Select.Trigger>
+                        <Select.Popover>
+                          <ListBox>
+                            {accounts.map((account) => (
+                              <ListBox.Item key={account.id} id={account.id.toString()} textValue={account.name}>
+                                {account.name}
+                              </ListBox.Item>
+                            ))}
+                          </ListBox>
+                        </Select.Popover>
+                        {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
+                      </Select>
+                    )}
+                  />
                 </>
               )}
 
               {mode === 'oneTime' && (
-                <TransactionDatePicker label={t('Generics.date')} value={selectedDate} onChange={setSelectedDate} />
+                <Controller
+                  control={control}
+                  name="eventDate"
+                  render={({ field }) => (
+                    <TransactionDatePicker label={t('Generics.date')} value={field.value} onChange={field.onChange} />
+                  )}
+                />
               )}
 
               {mode === 'recurring' && (
                 <>
-                  <ToggleButtonGroup
-                    selectionMode="single"
-                    disallowEmptySelection
-                    selectedKeys={[selectedFrequency]}
-                    onSelectionChange={(keys) => {
-                      const next = Array.from(keys)[0] as RecurrenceFrequency | undefined;
-                      if (next) setSelectedFrequency(next);
-                    }}
-                  >
-                    <ToggleButton id={RecurrenceFrequency.INTERVAL_DAYS}>
-                      {t('TransactionForm.frequency.intervalDays')}
-                    </ToggleButton>
-                    <ToggleButton id={RecurrenceFrequency.MONTHLY_DAYS}>
-                      {t('TransactionForm.frequency.monthlyDays')}
-                    </ToggleButton>
-                  </ToggleButtonGroup>
-
-                  {selectedFrequency === RecurrenceFrequency.INTERVAL_DAYS && (
-                    <NumberField
-                      name="intervalDays"
-                      defaultValue={recurringFormData?.intervalDays ?? 1}
-                      minValue={1}
-                      fullWidth
-                      isRequired
-                      variant="secondary"
-                    >
-                      <Label>{t('TransactionForm.intervalDaysLabel')}</Label>
-                      <InputGroup variant="secondary" fullWidth>
-                        <InputGroup.Input />
-                      </InputGroup>
-                    </NumberField>
-                  )}
-
-                  {selectedFrequency === RecurrenceFrequency.MONTHLY_DAYS && (
-                    <CheckboxGroup
-                      value={Array.from(selectedDaysOfMonth)
-                        .sort((a, b) => a - b)
-                        .map(String)}
-                      onChange={(keys: string[]) => setSelectedDaysOfMonth(new Set(keys.map(Number)))}
-                    >
-                      <Label>{t('TransactionForm.daysOfMonthLabel')}</Label>
-                      <div className="grid grid-cols-7 gap-1">
-                        {DAYS_OF_MONTH.map((day) => (
-                          <Checkbox key={day} value={day.toString()}>
-                            <Checkbox.Content>
-                              <Checkbox.Control>
-                                <Checkbox.Indicator />
-                              </Checkbox.Control>
-                              <span>{day}</span>
-                            </Checkbox.Content>
-                          </Checkbox>
-                        ))}
-                      </div>
-                    </CheckboxGroup>
-                  )}
-
-                  <TransactionDatePicker
-                    label={t('TransactionForm.startDate')}
-                    value={selectedStartDate}
-                    onChange={setSelectedStartDate}
+                  <Controller
+                    control={control}
+                    name="frequency"
+                    render={({ field }) => (
+                      <ToggleButtonGroup
+                        selectionMode="single"
+                        disallowEmptySelection
+                        selectedKeys={[field.value]}
+                        onSelectionChange={(keys) => {
+                          const next = Array.from(keys)[0] as RecurrenceFrequency | undefined;
+                          if (next) field.onChange(next);
+                        }}
+                      >
+                        <ToggleButton id={RecurrenceFrequency.INTERVAL_DAYS}>
+                          {t('TransactionForm.frequency.intervalDays')}
+                        </ToggleButton>
+                        <ToggleButton id={RecurrenceFrequency.MONTHLY_DAYS}>
+                          {t('TransactionForm.frequency.monthlyDays')}
+                        </ToggleButton>
+                      </ToggleButtonGroup>
+                    )}
                   />
 
-                  <Switch size="sm" isSelected={!hasEndDate} onChange={(selected: boolean) => setHasEndDate(!selected)}>
+                  {watchedFrequency === RecurrenceFrequency.INTERVAL_DAYS && (
+                    <Controller
+                      control={control}
+                      name="intervalDays"
+                      render={({ field, fieldState }) => (
+                        <NumberField
+                          minValue={1}
+                          fullWidth
+                          isRequired
+                          variant="secondary"
+                          isInvalid={fieldState.invalid}
+                          value={field.value}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                        >
+                          <Label>{t('TransactionForm.intervalDaysLabel')}</Label>
+                          <InputGroup variant="secondary" fullWidth>
+                            <InputGroup.Input />
+                          </InputGroup>
+                          {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
+                        </NumberField>
+                      )}
+                    />
+                  )}
+
+                  {watchedFrequency === RecurrenceFrequency.MONTHLY_DAYS && (
+                    <Controller
+                      control={control}
+                      name="daysOfMonth"
+                      render={({ field, fieldState }) => (
+                        <>
+                          <CheckboxGroup
+                            value={(watchedDaysOfMonth ?? [])
+                              .slice()
+                              .sort((a, b) => a - b)
+                              .map(String)}
+                            onChange={(keys: string[]) => field.onChange(keys.map(Number))}
+                          >
+                            <Label>{t('TransactionForm.daysOfMonthLabel')}</Label>
+                            <div className="grid grid-cols-7 gap-1">
+                              {DAYS_OF_MONTH.map((day) => (
+                                <Checkbox key={day} value={day.toString()}>
+                                  <Checkbox.Content>
+                                    <Checkbox.Control>
+                                      <Checkbox.Indicator />
+                                    </Checkbox.Control>
+                                    <span>{day}</span>
+                                  </Checkbox.Content>
+                                </Checkbox>
+                              ))}
+                            </div>
+                          </CheckboxGroup>
+                          {fieldState.error?.message && <ErrorMessage>{t(fieldState.error.message)}</ErrorMessage>}
+                        </>
+                      )}
+                    />
+                  )}
+
+                  <Controller
+                    control={control}
+                    name="startDate"
+                    render={({ field }) => (
+                      <TransactionDatePicker
+                        label={t('TransactionForm.startDate')}
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    )}
+                  />
+
+                  <Switch
+                    size="sm"
+                    isSelected={!watchedHasEndDate}
+                    onChange={(selected: boolean) => setValue('hasEndDate', !selected, { shouldDirty: true })}
+                  >
                     <Switch.Content>
                       <Switch.Control>
                         <Switch.Thumb />
@@ -604,94 +700,117 @@ export const TransactionForm = () => {
                     </Switch.Content>
                   </Switch>
 
-                  {hasEndDate && (
-                    <TransactionDatePicker
-                      label={t('TransactionForm.endDate')}
-                      value={selectedEndDate}
-                      onChange={setSelectedEndDate}
+                  {watchedHasEndDate && (
+                    <Controller
+                      control={control}
+                      name="endDate"
+                      render={({ field, fieldState }) => (
+                        <div className="flex flex-col gap-1">
+                          <TransactionDatePicker
+                            label={t('TransactionForm.endDate')}
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                          {fieldState.error?.message && <ErrorMessage>{t(fieldState.error.message)}</ErrorMessage>}
+                        </div>
+                      )}
                     />
                   )}
                 </>
               )}
 
-              {selectedType !== TransactionType.TRANSFER && (
+              {watchedType !== TransactionType.TRANSFER && (
                 <>
-                  <Select
-                    id="category"
+                  <Controller
+                    control={control}
                     name="category"
-                    defaultSelectedKey={
-                      transactionFormData?.category.id.toString() ?? recurringFormData?.category.id.toString()
-                    }
-                    isRequired
-                    onSelectionChange={onSelectedCategory}
-                    placeholder={t('TransactionForm.selectCategory')}
-                    variant="secondary"
-                  >
-                    <Label>{t('Generics.category')}</Label>
-                    <Select.Trigger>
-                      <Select.Value />
-                      <Select.Indicator />
-                    </Select.Trigger>
-                    <Select.Popover>
-                      <ListBox>
-                        {categories.map((category) => (
-                          <ListBox.Item
-                            key={category.id}
-                            id={category.id.toString()}
-                            textValue={category.name}
-                            hidden={category.type !== selectedType}
-                          >
-                            {category.name}
-                          </ListBox.Item>
-                        ))}
-                      </ListBox>
-                    </Select.Popover>
-                  </Select>
+                    render={({ field, fieldState }) => (
+                      <Select
+                        isRequired
+                        variant="secondary"
+                        isInvalid={fieldState.invalid}
+                        selectedKey={field.value?.toString()}
+                        onSelectionChange={(key) => {
+                          const categoryId = key ? Number(key) : undefined;
+                          field.onChange(categoryId);
+                          const validSubcategories = subcategories.filter(
+                            (subcategory) => subcategory.parentCategoryId === categoryId
+                          );
+                          setValue('subcategory', validSubcategories[0]?.id, { shouldDirty: true });
+                        }}
+                        onBlur={field.onBlur}
+                        placeholder={t('TransactionForm.selectCategory')}
+                      >
+                        <Label>{t('Generics.category')}</Label>
+                        <Select.Trigger>
+                          <Select.Value />
+                          <Select.Indicator />
+                        </Select.Trigger>
+                        <Select.Popover>
+                          <ListBox>
+                            {categories.map((category) => (
+                              <ListBox.Item
+                                key={category.id}
+                                id={category.id.toString()}
+                                textValue={category.name}
+                                hidden={category.type !== watchedType}
+                              >
+                                {category.name}
+                              </ListBox.Item>
+                            ))}
+                          </ListBox>
+                        </Select.Popover>
+                        {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
+                      </Select>
+                    )}
+                  />
 
-                  <Select
-                    id="subcategory"
+                  <Controller
+                    control={control}
                     name="subcategory"
-                    isRequired
-                    defaultSelectedKey={
-                      transactionFormData?.subcategory.id
-                        ? transactionFormData.subcategory.id.toString()
-                        : recurringFormData?.subcategory.id.toString()
-                    }
-                    isDisabled={!selectedCategory}
-                    onSelectionChange={onSelectedSubcategory}
-                    selectedKey={selectedSubcategory?.toString()}
-                    placeholder={t('TransactionForm.selectSubcategory')}
-                    variant="secondary"
-                  >
-                    <Label>{t('Generics.subcategory')}</Label>
-                    <Select.Trigger>
-                      <Select.Value />
-                      <Select.Indicator />
-                    </Select.Trigger>
-                    <Select.Popover>
-                      <ListBox>
-                        {filteredSubcategories.map((subcategory) => (
-                          <ListBox.Item
-                            key={subcategory.id}
-                            id={subcategory.id.toString()}
-                            textValue={trySystemTranslations(subcategory.name)}
-                          >
-                            {trySystemTranslations(subcategory.name)}
-                          </ListBox.Item>
-                        ))}
-                      </ListBox>
-                    </Select.Popover>
-                  </Select>
+                    render={({ field, fieldState }) => (
+                      <Select
+                        isRequired
+                        isDisabled={!watchedCategory}
+                        variant="secondary"
+                        isInvalid={fieldState.invalid}
+                        selectedKey={field.value?.toString()}
+                        onSelectionChange={(key) => field.onChange(key ? Number(key) : undefined)}
+                        onBlur={field.onBlur}
+                        placeholder={t('TransactionForm.selectSubcategory')}
+                      >
+                        <Label>{t('Generics.subcategory')}</Label>
+                        <Select.Trigger>
+                          <Select.Value />
+                          <Select.Indicator />
+                        </Select.Trigger>
+                        <Select.Popover>
+                          <ListBox>
+                            {filteredSubcategories.map((subcategory) => (
+                              <ListBox.Item
+                                key={subcategory.id}
+                                id={subcategory.id.toString()}
+                                textValue={trySystemTranslations(subcategory.name)}
+                              >
+                                {trySystemTranslations(subcategory.name)}
+                              </ListBox.Item>
+                            ))}
+                          </ListBox>
+                        </Select.Popover>
+                        {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
+                      </Select>
+                    )}
+                  />
                 </>
               )}
             </Modal.Body>
             <Modal.Footer>
-              {!processing && (
+              {!isSubmitting && (
                 <Button type="submit" variant="primary" fullWidth>
                   {isEditingExisting ? t('Generics.edit') : t('Generics.save')}
                 </Button>
               )}
-              {processing && (
+              {isSubmitting && (
                 <Button type="button" isDisabled fullWidth>
                   {isEditingExisting ? t('Generics.editing') : t('Generics.saving')}...
                 </Button>

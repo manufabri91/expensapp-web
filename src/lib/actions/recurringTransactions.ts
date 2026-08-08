@@ -2,29 +2,9 @@
 
 import { revalidatePath, unstable_noStore } from 'next/cache';
 import { backendFetch } from '@/lib/api/backendFetch';
-import { parseCalendarDateOnly as parseDateOnly } from '@/lib/utils/date';
+import { recurringTransactionServerSchema } from '@/schemas/transaction';
 import { RecurringTransactionRequest, RecurringTransactionResponse } from '@/types/dto';
-import { RecurrenceFrequency } from '@/types/enums/recurrenceFrequency';
-import { TransactionType } from '@/types/enums/transactionType';
 import { ActionResult } from '@/types/viewModel/actionResult';
-
-const buildPayload = (data: Record<string, FormDataEntryValue>, daysOfMonth: number[]): RecurringTransactionRequest => {
-  const frequency = data.frequency as RecurrenceFrequency;
-  return {
-    type: data.type as TransactionType,
-    amount: Math.abs(Number(data.amount)),
-    description: String(data.description),
-    accountId: Number(data.account),
-    categoryId: Number(data.category),
-    subcategoryId: Number(data.subcategory),
-    frequency,
-    intervalDays: frequency === RecurrenceFrequency.INTERVAL_DAYS ? Number(data.intervalDays) : undefined,
-    daysOfMonth: frequency === RecurrenceFrequency.MONTHLY_DAYS ? daysOfMonth : undefined,
-    startDate: parseDateOnly(data.startDate ? String(data.startDate) : null) ?? new Date().toISOString(),
-    endDate: parseDateOnly(data.endDate ? String(data.endDate) : null),
-    excludeFromTotals: data.excludeFromTotals === 'on',
-  };
-};
 
 // Unlike the other actions in this file, this one is never called with a dynamic path (its SWR
 // key is always the literal '/api/recurring-transaction'), so it hardcodes the backend path
@@ -41,11 +21,16 @@ export const getRecurringTransactions = async (): Promise<RecurringTransactionRe
   return await response.json();
 };
 
-export const createRecurringTransaction = async (formData: FormData): Promise<RecurringTransactionResponse> => {
+export const createRecurringTransaction = async (
+  data: RecurringTransactionRequest
+): Promise<RecurringTransactionResponse> => {
   unstable_noStore();
-  const data = Object.fromEntries(formData);
-  const daysOfMonth = formData.getAll('daysOfMonth').map(Number);
-  const payload = buildPayload(data, daysOfMonth);
+  const parsed = recurringTransactionServerSchema.safeParse(data);
+  if (!parsed.success) {
+    throw new Error('Invalid recurring transaction data');
+  }
+
+  const payload: RecurringTransactionRequest = parsed.data;
   const response = await backendFetch('/recurrent-transaction', { method: 'POST', body: payload });
 
   if (!response.ok) {
@@ -58,15 +43,20 @@ export const createRecurringTransaction = async (formData: FormData): Promise<Re
   return await response.json();
 };
 
-export const editRecurringTransaction = async (formData: FormData): Promise<RecurringTransactionResponse> => {
+export const editRecurringTransaction = async (
+  data: RecurringTransactionRequest
+): Promise<RecurringTransactionResponse> => {
   unstable_noStore();
-  const data = Object.fromEntries(formData);
-  const daysOfMonth = formData.getAll('daysOfMonth').map(Number);
-  const payload = buildPayload(data, daysOfMonth);
-  const response = await backendFetch(`/recurrent-transaction/${data.id}`, { method: 'PUT', body: payload });
+  const parsed = recurringTransactionServerSchema.safeParse(data);
+  if (!parsed.success || !parsed.data.id) {
+    throw new Error('Invalid recurring transaction data');
+  }
+
+  const payload: RecurringTransactionRequest = parsed.data;
+  const response = await backendFetch(`/recurrent-transaction/${parsed.data.id}`, { method: 'PUT', body: payload });
 
   if (!response.ok) {
-    throw new Error(`Failed to edit recurring transaction ${data.id}. Please try again later.`);
+    throw new Error(`Failed to edit recurring transaction ${parsed.data.id}. Please try again later.`);
   }
 
   revalidatePath('/dashboard');

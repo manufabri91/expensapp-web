@@ -11,9 +11,20 @@ interface Props {
   name?: string;
   label?: string;
   initialValue?: Icon;
+  selectedKey?: Icon;
+  onSelectionChange?: (icon: Icon) => void;
+  isInvalid?: boolean;
 }
 
-export const IconPickerFormField: FC<Props> = ({ id, name = 'iconName', initialValue = Icon.NONE, label }) => {
+export const IconPickerFormField: FC<Props> = ({
+  id,
+  name = 'iconName',
+  initialValue = Icon.NONE,
+  label,
+  selectedKey,
+  onSelectionChange,
+  isInvalid,
+}) => {
   const t = useTranslations('IconPicker');
   const iconItems = AVAILABLE_ICONS.entries()
     .toArray()
@@ -23,13 +34,18 @@ export const IconPickerFormField: FC<Props> = ({ id, name = 'iconName', initialV
       label: iconName,
     }));
 
+  const isControlled = selectedKey !== undefined;
+
   return (
     <Select
       placeholder={t('noIcon')}
       fullWidth
       id={id ?? name}
       name={name}
-      defaultSelectedKey={initialValue}
+      isInvalid={isInvalid}
+      {...(isControlled
+        ? { selectedKey, onSelectionChange: (key: React.Key | null) => onSelectionChange?.((key ?? Icon.NONE) as Icon) }
+        : { defaultSelectedKey: initialValue })}
       variant="secondary"
     >
       <Label>{label ?? 'Icon'}</Label>

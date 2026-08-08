@@ -2,6 +2,7 @@
 
 import { revalidatePath, unstable_noStore } from 'next/cache';
 import { backendFetch } from '@/lib/api/backendFetch';
+import { categoryFormSchema, CategoryFormValues } from '@/schemas/category';
 import { CategoryRequest, CategoryResponse } from '@/types/dto';
 import { ActionResult } from '@/types/viewModel/actionResult';
 
@@ -17,15 +18,18 @@ export const getCategories = async (): Promise<CategoryResponse[]> => {
   return await response.json();
 };
 
-export const createCategory = async (formData: FormData): Promise<CategoryResponse> => {
+export const createCategory = async (data: CategoryFormValues): Promise<CategoryResponse> => {
   unstable_noStore();
-  const data = Object.fromEntries(formData);
+  const parsed = categoryFormSchema.safeParse(data);
+  if (!parsed.success) {
+    throw new Error('Invalid category data');
+  }
 
   const payload: CategoryRequest = {
-    name: String(data.name),
-    color: String(data.color),
-    iconName: String(data.iconName),
-    type: String(data.type),
+    name: parsed.data.name,
+    color: parsed.data.color,
+    iconName: parsed.data.iconName,
+    type: parsed.data.type,
   };
 
   const response = await backendFetch('/category', { method: 'POST', body: payload });
@@ -40,18 +44,21 @@ export const createCategory = async (formData: FormData): Promise<CategoryRespon
   return await response.json();
 };
 
-export const editCategory = async (formData: FormData): Promise<CategoryResponse> => {
+export const editCategory = async (data: CategoryFormValues): Promise<CategoryResponse> => {
   unstable_noStore();
-  const data = Object.fromEntries(formData);
+  const parsed = categoryFormSchema.safeParse(data);
+  if (!parsed.success) {
+    throw new Error('Invalid category data');
+  }
 
   const payload: CategoryRequest = {
-    id: Number(data.id),
-    name: String(data.name),
-    color: String(data.color),
-    iconName: String(data.iconName),
-    type: String(data.type),
+    id: parsed.data.id,
+    name: parsed.data.name,
+    color: parsed.data.color,
+    iconName: parsed.data.iconName,
+    type: parsed.data.type,
   };
-  const response = await backendFetch(`/category/${data.id}`, { method: 'PUT', body: payload });
+  const response = await backendFetch(`/category/${parsed.data.id}`, { method: 'PUT', body: payload });
 
   if (!response.ok) {
     throw new Error(`Failed to edit category`);

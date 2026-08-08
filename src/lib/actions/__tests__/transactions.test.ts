@@ -2,13 +2,24 @@
  * @jest-environment node
  */
 import { revalidatePath } from 'next/cache';
-import { confirmTransaction, getTransactionById } from '@/lib/actions/transactions';
+import { confirmTransaction, createTransaction, editTransaction, getTransactionById } from '@/lib/actions/transactions';
 import { auth } from '@/lib/auth';
+import { TransactionType } from '@/types/enums/transactionType';
 
 jest.mock('@/lib/auth', () => ({ auth: jest.fn() }));
 jest.mock('next/cache', () => ({ revalidatePath: jest.fn(), unstable_noStore: jest.fn() }));
 
 const mockedAuth = auth as unknown as jest.Mock;
+
+const validTransaction = {
+  amount: 50,
+  eventDate: '2024-01-01',
+  description: 'Groceries',
+  accountId: 1,
+  categoryId: 2,
+  subcategoryId: 3,
+  type: TransactionType.EXPENSE,
+};
 
 const lastFetchRequest = () => {
   const [url, init] = (global.fetch as jest.Mock).mock.calls[0];
@@ -26,6 +37,53 @@ describe('transactions actions', () => {
 
   afterAll(() => {
     process.env.API_URL = originalApiUrl;
+  });
+
+  describe('createTransaction', () => {
+    it('posts the payload and revalidates dashboard, transactions, and manage', async () => {
+      (global.fetch as jest.Mock).mockResolvedValue(new Response('{"id":1}', { status: 201 }));
+
+      const result = await createTransaction(validTransaction);
+
+      expect(result).toEqual({ id: 1 });
+      const { url, init } = lastFetchRequest();
+      expect(url).toBe('https://backend.test/transaction');
+      expect(init.method).toBe('POST');
+      expect(revalidatePath).toHaveBeenCalledWith('/dashboard');
+      expect(revalidatePath).toHaveBeenCalledWith('/transactions');
+      expect(revalidatePath).toHaveBeenCalledWith('/manage');
+    });
+
+    it('throws when the backend rejects the request', async () => {
+      (global.fetch as jest.Mock).mockResolvedValue(new Response('', { status: 400 }));
+
+      await expect(createTransaction(validTransaction)).rejects.toThrow('Failed to create transaction');
+    });
+
+    it('throws when the data fails server-side validation', async () => {
+      await expect(createTransaction({ ...validTransaction, amount: -5 })).rejects.toThrow('Invalid transaction data');
+      expect(global.fetch).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('editTransaction', () => {
+    it('puts the payload and revalidates dashboard, transactions, and manage', async () => {
+      (global.fetch as jest.Mock).mockResolvedValue(new Response('{"id":1}', { status: 200 }));
+
+      await editTransaction({ ...validTransaction, id: 1 });
+
+      const { url, init } = lastFetchRequest();
+      expect(url).toBe('https://backend.test/transaction/1');
+      expect(init.method).toBe('PUT');
+      expect(revalidatePath).toHaveBeenCalledWith('/dashboard');
+      expect(revalidatePath).toHaveBeenCalledWith('/transactions');
+      expect(revalidatePath).toHaveBeenCalledWith('/manage');
+    });
+
+    it('throws when no id is present', async () => {
+      await expect(editTransaction(validTransaction)).rejects.toThrow('Invalid transaction data');
+      expect(global.fetch).not.toHaveBeenCalled();
+    });
   });
 
   describe('confirmTransaction', () => {
