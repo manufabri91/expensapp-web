@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import React from 'react';
-import { CancelRecurringTransactionButton } from '@/app/transactions/components/RecurringTransactionsSection/components/CancelRecurringTransactionButton';
-import { cancelRecurringTransaction } from '@/lib/actions/recurringTransactions';
+import { DeleteRecurringTransactionButton } from '@/app/transactions/components/ProgrammedTransactionsSection/components/DeleteRecurringTransactionButton';
+import { deleteRecurringTransactionById } from '@/lib/actions/recurringTransactions';
 import { RecurrenceStatus } from '@/types/enums/recurrenceStatus';
 import { buildRecurrence } from '@/utils/testFixtures/buildRecurrence';
 
@@ -14,7 +14,7 @@ jest.mock('@/components', () => ({
 }));
 
 jest.mock('@/lib/actions/recurringTransactions', () => ({
-  cancelRecurringTransaction: jest.fn(),
+  deleteRecurringTransactionById: jest.fn(),
 }));
 
 jest.mock('@heroui/react', () => {
@@ -22,24 +22,23 @@ jest.mock('@heroui/react', () => {
   return { ...actual, toast: { success: jest.fn(), danger: jest.fn() } };
 });
 
-const mockedCancel = cancelRecurringTransaction as jest.Mock;
+const mockedDelete = deleteRecurringTransactionById as jest.Mock;
 
-describe('CancelRecurringTransactionButton', () => {
+describe('DeleteRecurringTransactionButton', () => {
   beforeEach(() => {
-    mockedCancel.mockReset();
+    mockedDelete.mockReset();
   });
 
-  it('does not cancel the recurrence until the confirmation dialog is accepted', async () => {
+  it('deletes the recurrence once the confirmation dialog is accepted', async () => {
+    mockedDelete.mockResolvedValue({ success: true, message: 'deleted' });
     const onChanged = jest.fn();
-    render(<CancelRecurringTransactionButton recurrence={buildRecurrence({ status: RecurrenceStatus.ACTIVE })} onChanged={onChanged} />);
+    render(<DeleteRecurringTransactionButton recurrence={buildRecurrence({ status: RecurrenceStatus.ACTIVE })} onChanged={onChanged} />);
 
-    fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
-    expect(mockedCancel).not.toHaveBeenCalled();
-
+    fireEvent.click(screen.getByRole('button', { name: /delete/i }));
     const dialog = await screen.findByRole('alertdialog');
     fireEvent.click(within(dialog).getAllByRole('button')[1]);
 
-    await waitFor(() => expect(mockedCancel).toHaveBeenCalledWith(1));
+    await waitFor(() => expect(mockedDelete).toHaveBeenCalledWith(1));
     expect(onChanged).toHaveBeenCalled();
   });
 });

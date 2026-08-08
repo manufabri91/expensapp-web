@@ -1,7 +1,7 @@
 import { toast } from '@heroui/react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
-import { PauseResumeRecurringTransactionButton } from '@/app/transactions/components/RecurringTransactionsSection/components/PauseResumeRecurringTransactionButton';
+import { PauseResumeRecurringTransactionButton } from '@/app/transactions/components/ProgrammedTransactionsSection/components/PauseResumeRecurringTransactionButton';
 import { pauseRecurringTransaction, resumeRecurringTransaction } from '@/lib/actions/recurringTransactions';
 import { RecurrenceStatus } from '@/types/enums/recurrenceStatus';
 import { buildRecurrence } from '@/utils/testFixtures/buildRecurrence';

@@ -3,7 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
 import LoadingSummary from '@/app/dashboard/components/Summary/loading';
 import { MonthSummary } from '@/app/transactions/components/MonthSummary';
-import { RecurringTransactionsSectionServer } from '@/app/transactions/components/RecurringTransactionsSection/RecurringTransactionsSectionServer';
+import { ProgrammedTransactionsSectionServer } from '@/app/transactions/components/ProgrammedTransactionsSection/ProgrammedTransactionsSectionServer';
 import { CardSkeleton, ListSkeleton } from '@/components';
 import { TransactionFormProvider } from '@/components/TransactionForm/TransactionFormProvider';
 import { TransactionsTableSection } from '@/components/TransactionsTable/TransactionsTableSection';
@@ -55,7 +55,7 @@ export default async function Transactions({ searchParams }: Props) {
               <MonthSummary year={year} month={month} />
             </Suspense>
             <Suspense fallback={<CardSkeleton />}>
-              <RecurringTransactionsSectionServer />
+              <ProgrammedTransactionsSectionServer />
             </Suspense>
           </div>
           <Suspense fallback={<ListSkeleton rows={10} />}>

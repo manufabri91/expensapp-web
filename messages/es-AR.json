@@ -332,5 +332,21 @@
       "body": "Esta acción no se puede deshacer. Las transacciones ya generadas no se ven afectadas."
     },
     "unexpectedError": "Algo salió mal! No se pudo guardar la transacción programada"
+  },
+  "ProgrammedTransactions": {
+    "title": {
+      "payments": "Pagos programados",
+      "incomes": "Ingresos programados"
+    },
+    "noProgrammed": "Todavía no hay transacciones programadas",
+    "actions": {
+      "confirm": "Confirmar",
+      "remove": "Borrar"
+    },
+    "removeConfirm": {
+      "title": "¿Borrar esta transacción?",
+      "body": "Esta acción no se puede deshacer."
+    },
+    "unexpectedError": "Algo salió mal! No se pudo actualizar la transacción programada"
   }
 }
