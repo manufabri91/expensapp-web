@@ -3,7 +3,7 @@
 exports[`Footer component should render correctly 1`] = `
 <div>
   <footer
-    class="flex w-full flex-col items-center justify-center pb-30 lg:pb-0 lg:py-3"
+    class="flex w-full flex-col items-center justify-center gap-1 pb-30 lg:pb-0 lg:py-3"
   >
     <a
       class="link"
@@ -16,6 +16,37 @@ exports[`Footer component should render correctly 1`] = `
     >
       ManukoDEV
     </a>
+    <nav
+      class="flex gap-4 text-sm"
+    >
+      <a
+        class="link"
+        data-rac=""
+        data-react-aria-pressable="true"
+        href="/legal/privacy-policy"
+        tabindex="0"
+      >
+        Privacy Policy
+      </a>
+      <a
+        class="link"
+        data-rac=""
+        data-react-aria-pressable="true"
+        href="/legal/terms-of-use"
+        tabindex="0"
+      >
+        Terms of Use
+      </a>
+      <a
+        class="link"
+        data-rac=""
+        data-react-aria-pressable="true"
+        href="/legal/cookie-policy"
+        tabindex="0"
+      >
+        Cookie Policy
+      </a>
+    </nav>
     <p>
       2026
        - 

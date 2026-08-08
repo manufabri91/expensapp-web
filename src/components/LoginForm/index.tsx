@@ -131,12 +131,35 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
             </InputGroup>
           </TextField>
           {!isLoginMode && (
-            <TextField name="passwordRepeat" isRequired fullWidth>
-              <Label>{t('form.confirmPassword')}</Label>
-              <InputGroup variant="secondary">
-                <InputGroup.Input type="password" />
-              </InputGroup>
-            </TextField>
+            <>
+              <TextField name="passwordRepeat" isRequired fullWidth>
+                <Label>{t('form.confirmPassword')}</Label>
+                <InputGroup variant="secondary">
+                  <InputGroup.Input type="password" />
+                </InputGroup>
+              </TextField>
+              <Checkbox name="acceptedTerms" variant="secondary" isRequired>
+                <Checkbox.Content>
+                  <Checkbox.Control>
+                    <Checkbox.Indicator />
+                  </Checkbox.Control>
+                  <span>
+                    {t.rich('form.acceptTerms', {
+                      terms: (chunks) => (
+                        <Link href="/legal/terms-of-use" target="_blank" className="underline">
+                          {chunks}
+                        </Link>
+                      ),
+                      privacy: (chunks) => (
+                        <Link href="/legal/privacy-policy" target="_blank" className="underline">
+                          {chunks}
+                        </Link>
+                      ),
+                    })}
+                  </span>
+                </Checkbox.Content>
+              </Checkbox>
+            </>
           )}
           {isLoginMode && (
             <div className="flex justify-between">

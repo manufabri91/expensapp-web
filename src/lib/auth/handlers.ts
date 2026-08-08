@@ -40,9 +40,11 @@ export async function refresh(token: string): Promise<Response> {
 }
 
 /**
- * Refresh the access token by sending a POST request to the backend using
- * the supplied refresh token.
- * @param token The current refresh token
+ * Register a new user by sending a POST request to the backend with the
+ * supplied profile data.
+ * @param acceptedTerms Whether the user checked the Terms of Use / Privacy Policy consent
+ * checkbox - the backend rejects registration (400) without it via `@AssertTrue` on
+ * `UserRegisterDto.acceptedTerms`.
  * @returns A BackendAccessJWT response from the backend.
  */
 export async function register(
@@ -50,7 +52,8 @@ export async function register(
   email: string,
   password: string,
   firstName: string,
-  lastName: string
+  lastName: string,
+  acceptedTerms: boolean
 ): Promise<Response> {
   const response = await fetch(`${process.env.API_URL}/auth/register`, {
     signal: AbortSignal.timeout(2000),
@@ -61,6 +64,7 @@ export async function register(
       password,
       firstName,
       lastName,
+      acceptedTerms,
     }),
     headers: {
       'Content-Type': 'application/json',

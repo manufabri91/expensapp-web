@@ -144,7 +144,8 @@
       "alreadyHaveAccount": "¿Ya tenés una cuenta? ",
       "login": "Ingresar",
       "loading": "Cargando...",
-      "rememberMe": "Recordar"
+      "rememberMe": "Recordar",
+      "acceptTerms": "Acepto los <terms>Términos de Uso</terms> y la <privacy>Política de Privacidad</privacy>"
     }
   },
   "Navbar": {
@@ -216,7 +217,12 @@
     "noTransactions": "No hay movimientos"
   },
   "Footer": {
-    "rights": "Todos los derechos reservados"
+    "rights": "Todos los derechos reservados",
+    "links": {
+      "privacyPolicy": "Política de Privacidad",
+      "termsOfUse": "Términos de Uso",
+      "cookiePolicy": "Política de Cookies"
+    }
   },
   "IconPicker": {
     "noIcon": "Sin ícono"
@@ -244,6 +250,20 @@
     "transactions": {
       "title": "Transacciones",
       "description": "Acá ves todos tus movimientos"
+    },
+    "legal": {
+      "privacyPolicy": {
+        "title": "Política de Privacidad",
+        "description": "Cómo e-Xpens recopila, usa y protege tus datos"
+      },
+      "termsOfUse": {
+        "title": "Términos de Uso",
+        "description": "Los términos que rigen el uso de e-Xpens"
+      },
+      "cookiePolicy": {
+        "title": "Política de Cookies",
+        "description": "Las cookies que usa e-Xpens y por qué"
+      }
     }
   },
   "System": {
@@ -270,7 +290,8 @@
       "USER_CREATION_FAIL": "No se pudo crear el usuario. Intentá de nuevo",
       "SERVICE_UNAVAILABLE": "Servicio no disponible. Intentá de nuevo",
       "WRONG_CREDENTIALS": "Usuario o contraseña incorrecto",
-      "LOGIN_FAILED": "No se pudo iniciar sesión. Intentá de nuevo"
+      "LOGIN_FAILED": "No se pudo iniciar sesión. Intentá de nuevo",
+      "TERMS_NOT_ACCEPTED": "Debés aceptar los Términos de Uso y la Política de Privacidad para crear una cuenta"
     },
     "themeSelector": {
       "systemMode": "Igual al sistema",
@@ -280,7 +301,14 @@
     }
   },
   "Settings": {
-    "title": "Ajustes"
+    "title": "Ajustes",
+    "downloadMyData": "Descargar mis datos",
+    "deleteMyAccount": "Eliminar mi cuenta",
+    "deleteAccountFailed": "No se pudo eliminar tu cuenta. Por favor, intentá de nuevo",
+    "deleteAccountConfirm": {
+      "title": "¿Eliminar tu cuenta?",
+      "body": "Esto elimina permanentemente tu perfil, cuentas, transacciones y categorías. Esta acción no se puede deshacer."
+    }
   },
   "Transactions": {
     "title": "Transacciones",
@@ -349,5 +377,139 @@
       "body": "Esta acción no se puede deshacer."
     },
     "unexpectedError": "Algo salió mal! No se pudo actualizar la transacción programada"
+  },
+  "CookieConsent": {
+    "message": "Usamos cookies esenciales para mantener tu sesión iniciada y recordar tu idioma preferido. No usamos cookies de seguimiento ni de publicidad.",
+    "acknowledge": "Aceptar",
+    "learnMore": "Política de Cookies"
+  },
+  "LegalPrivacyPolicy": {
+    "title": "Política de Privacidad",
+    "lastUpdated": "Última actualización: 8 de agosto de 2026",
+    "disclaimer": "Esta página es una plantilla general y no constituye asesoramiento legal. No fue revisada por un abogado y no debe usarse para garantizar el cumplimiento legal sin una revisión independiente.",
+    "sections": [
+      {
+        "heading": "1. Quiénes somos",
+        "body": "e-Xpens es operado por Manuel Fabri, un desarrollador individual, no una empresa registrada. Si tenés preguntas sobre esta política o sobre cómo se tratan tus datos, podés escribir a me@manuelfabri.com."
+      },
+      {
+        "heading": "2. Qué datos recopilamos",
+        "body": "Al crear una cuenta recopilamos tu nombre, nombre de usuario y correo electrónico. A medida que usás la app, almacenamos los datos financieros que vos mismo introducís: cuentas, transacciones, categorías, subcategorías y transacciones recurrentes. También guardamos tus preferencias de visualización (tema e idioma). No recopilamos datos de tarjetas de pago, documentos de identidad, ni vinculamos ninguna cuenta bancaria: todos los datos financieros de e-Xpens se introducen manualmente."
+      },
+      {
+        "heading": "3. Por qué procesamos tus datos",
+        "body": "Procesamos tus datos de cuenta y financieros porque es necesario para prestarte el servicio contratado (ejecución de un contrato). Ninguno de los datos que almacena e-Xpens es una \"categoría especial\" de datos según el RGPD (como datos de salud, biométricos o religiosos): son los registros financieros cotidianos que decidís introducir. Cuando pedimos consentimiento -como en el aviso de cookies o la casilla al registrarte- el consentimiento es la base legal solo para ese tratamiento específico."
+      },
+      {
+        "heading": "4. Con quién compartimos tus datos",
+        "body": "Usamos Firebase Authentication (un servicio de Google Cloud) para gestionar el inicio de sesión y las contraseñas. Firebase recibe tu correo electrónico y credenciales de autenticación, pero nunca tus datos financieros. No usamos servicios de analítica, publicidad ni seguimiento, y no vendemos ni compartimos tus datos con nadie más."
+      },
+      {
+        "heading": "5. Transferencias internacionales",
+        "body": "Firebase Authentication es operado por Google, que puede procesar datos fuera de tu país, incluido en Estados Unidos. Google ofrece garantías contractuales (como las Cláusulas Contractuales Tipo) para estas transferencias como parte de sus términos estándar para Firebase."
+      },
+      {
+        "heading": "6. Cuánto tiempo conservamos tus datos",
+        "body": "Conservamos tus datos de cuenta y financieros mientras tu cuenta esté activa. Si eliminás tu cuenta, tu perfil y todos los datos financieros asociados se eliminan permanentemente, junto con tu registro de autenticación en Firebase."
+      },
+      {
+        "heading": "7. Tus derechos",
+        "body": "Tenés derecho a acceder, corregir, eliminar, exportar, restringir u oponerte al tratamiento de tus datos, y a retirar tu consentimiento en cualquier momento. Podés descargar una copia de tus datos o eliminar tu cuenta permanentemente en cualquier momento desde Ajustes. Para cualquier otra consulta, o para presentar un reclamo ante tu autoridad de protección de datos, contactanos a me@manuelfabri.com."
+      },
+      {
+        "heading": "8. Cookies",
+        "body": "e-Xpens usa un pequeño número de cookies propias necesarias para mantener tu sesión iniciada y recordar tu idioma. Consultá nuestra Política de Cookies para más detalles."
+      },
+      {
+        "heading": "9. Privacidad de menores",
+        "body": "e-Xpens no está dirigido a, ni se ofrece conscientemente a, menores de 16 años. Si creés que un menor nos proporcionó datos personales, contactanos para que podamos eliminarlos."
+      },
+      {
+        "heading": "10. Cambios en esta política",
+        "body": "Podemos actualizar esta política de vez en cuando. La fecha de \"última actualización\" indicada arriba refleja la versión más reciente. Si seguís usando e-Xpens después de un cambio, aceptás la política actualizada."
+      },
+      {
+        "heading": "11. Contacto",
+        "body": "¿Preguntas sobre esta política o tus datos? Escribinos a me@manuelfabri.com."
+      }
+    ]
+  },
+  "LegalTermsOfUse": {
+    "title": "Términos de Uso",
+    "lastUpdated": "Última actualización: 8 de agosto de 2026",
+    "disclaimer": "Esta página es una plantilla general y no constituye asesoramiento legal. No fue revisada por un abogado y no debe considerarse un acuerdo legal vinculante sin una revisión independiente.",
+    "sections": [
+      {
+        "heading": "1. Aceptación de estos términos",
+        "body": "Al crear una cuenta o usar e-Xpens, aceptás estos Términos de Uso y nuestra Política de Privacidad. Si no estás de acuerdo, por favor no uses la app."
+      },
+      {
+        "heading": "2. El servicio",
+        "body": "e-Xpens es una herramienta personal de seguimiento de gastos que te permite registrar y organizar tus propios datos financieros (cuentas, transacciones, categorías y transacciones recurrentes). Está desarrollada por un desarrollador individual, no una empresa, y se ofrece tal cual."
+      },
+      {
+        "heading": "3. Tu cuenta",
+        "body": "Sos responsable de mantener seguras tus credenciales de acceso y de toda la actividad realizada con tu cuenta. Debés proporcionar información precisa al registrarte y mantenerla actualizada."
+      },
+      {
+        "heading": "4. Uso aceptable",
+        "body": "Aceptás no hacer un uso indebido del servicio, por ejemplo, intentando acceder sin autorización, interrumpir el servicio, o usarlo con fines ilícitos."
+      },
+      {
+        "heading": "5. Propiedad intelectual",
+        "body": "La aplicación e-Xpens, su diseño y su código son propiedad del desarrollador. Tus datos financieros te pertenecen: no reclamamos ninguna propiedad sobre los datos que introducís."
+      },
+      {
+        "heading": "6. Sin garantía y limitación de responsabilidad",
+        "body": "e-Xpens se ofrece \"tal cual\", sin garantías de ningún tipo. En la máxima medida permitida por la ley, el desarrollador no es responsable de ninguna pérdida o daño derivado del uso de la app, incluida la pérdida de datos. e-Xpens no sustituye el asesoramiento financiero o contable profesional."
+      },
+      {
+        "heading": "7. Terminación",
+        "body": "Podés dejar de usar el servicio y eliminar tu cuenta en cualquier momento desde Ajustes. Podemos suspender o cancelar el acceso si se incumplen estos términos."
+      },
+      {
+        "heading": "8. Ley aplicable",
+        "body": "Estos términos se rigen por las leyes de [tu jurisdicción - pendiente de confirmar]. Esta sección debe revisarse y completarse antes de utilizar estos términos comercialmente."
+      },
+      {
+        "heading": "9. Cambios en estos términos",
+        "body": "Podemos actualizar estos términos de vez en cuando. La fecha de \"última actualización\" indicada arriba refleja la versión más reciente. Si seguís usando e-Xpens después de un cambio, aceptás los términos actualizados."
+      },
+      {
+        "heading": "10. Contacto",
+        "body": "¿Preguntas sobre estos términos? Escribinos a me@manuelfabri.com."
+      }
+    ]
+  },
+  "LegalCookiePolicy": {
+    "title": "Política de Cookies",
+    "lastUpdated": "Última actualización: 8 de agosto de 2026",
+    "disclaimer": "Esta página es una plantilla general y no constituye asesoramiento legal.",
+    "sections": [
+      {
+        "heading": "1. Qué son las cookies",
+        "body": "Las cookies son pequeños archivos de texto almacenados en tu dispositivo que permiten que un sitio web recuerde información entre visitas, como si iniciaste sesión."
+      },
+      {
+        "heading": "2. Las cookies que usamos",
+        "body": "authjs.session-token (esencial): mantiene tu sesión iniciada. Se establece al iniciar sesión y es necesaria para que la app funcione. Propia, expira al finalizar tu sesión o al cerrarla.\n\nNEXT_LOCALE (funcional): recuerda tu idioma preferido. Propia, persiste hasta que se cambie.\n\ncookie_consent (funcional): recuerda que ya viste este aviso de cookies, para que no vuelva a aparecer. Propia, persiste hasta que se cambie."
+      },
+      {
+        "heading": "3. Por qué no pedimos consentimiento para estas",
+        "body": "Todas las cookies anteriores son estrictamente necesarias o funcionales para prestar el servicio que solicitaste: no te rastrean en otros sitios ni se usan con fines publicitarios o de analítica, por lo que, según la normativa ePrivacy, no requieren un aviso de consentimiento de tipo opt-in. Aun así, mostramos un breve aviso en tu primera visita para que sepas que existen."
+      },
+      {
+        "heading": "4. Cambios futuros",
+        "body": "Si en el futuro e-Xpens incorpora analítica o publicidad, esta política -y el aviso de cookies- se actualizarán para incluir una opción adecuada de aceptar/rechazar esas cookies antes de que se instalen."
+      },
+      {
+        "heading": "5. Gestionar las cookies",
+        "body": "Podés bloquear o eliminar las cookies desde la configuración de tu navegador en cualquier momento. Tené en cuenta que bloquear la cookie de sesión va a impedir que permanezcas conectado."
+      },
+      {
+        "heading": "6. Contacto",
+        "body": "¿Preguntas sobre esta política? Escribinos a me@manuelfabri.com."
+      }
+    ]
   }
 }

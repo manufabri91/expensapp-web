@@ -28,8 +28,11 @@ export const handleRegisterAction = async (_: unknown, formData: FormData): Prom
   if (password !== passwordRepeat) {
     return { error: t('System.ERRORS.PASSWORDS_NOT_MATCH'), payload: formData, succeded: false };
   }
+  if (!formData.get('acceptedTerms')) {
+    return { error: t('System.ERRORS.TERMS_NOT_ACCEPTED'), payload: formData, succeded: false };
+  }
   try {
-    await register(userName, email, password, firstName, lastName);
+    await register(userName, email, password, firstName, lastName, true);
     await signIn('credentials', { email, password, redirectTo: '/dashboard' });
     return { succeded: true, error: null, payload: formData };
   } catch (err: unknown) {

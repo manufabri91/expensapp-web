@@ -6,8 +6,10 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { PropsWithChildren } from 'react';
 import { Navbar } from '@/components';
+import { CookieConsentBanner } from '@/components/CookieConsentBanner';
 import { Footer } from '@/components/Footer';
 import { fontBrand, fontSans } from '@/config/fonts';
+import { hasAcknowledgedCookieConsent } from '@/lib/actions/cookieConsent';
 import { AppProviders } from '@/lib/providers';
 import { Providers } from './providers';
 
@@ -34,6 +36,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 export default async function RootLayout({ children }: PropsWithChildren) {
   const locale = await getLocale();
+  const cookieConsentAcknowledged = await hasAcknowledgedCookieConsent();
   return (
     <html suppressHydrationWarning lang={locale}>
       <head>
@@ -60,6 +63,7 @@ export default async function RootLayout({ children }: PropsWithChildren) {
               </AppProviders>
               <Footer />
             </div>
+            <CookieConsentBanner initialAcknowledged={cookieConsentAcknowledged} />
           </Providers>
         </NextIntlClientProvider>
       </body>
