@@ -19,7 +19,7 @@ import {
   ToggleButtonGroup,
 } from '@heroui/react';
 import { fromDate, getLocalTimeZone } from '@internationalized/date';
-import { formatISO, parseISO } from 'date-fns';
+import { formatISO, isFuture, parseISO } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
@@ -117,6 +117,8 @@ export const TransactionForm = () => {
   const [selectedStartDate, setSelectedStartDate] = useState(new Date());
   const [selectedEndDate, setSelectedEndDate] = useState(new Date());
   const [hasEndDate, setHasEndDate] = useState(false);
+  const [excludeFromTotals, setExcludeFromTotals] = useState(false);
+  const [excludeFromTotalsTouched, setExcludeFromTotalsTouched] = useState(false);
 
   const isEditingExisting = !!transactionFormData || !!recurringFormData;
   const selectedAccountObj = accounts.find((acc) => acc.id === selectedAccount);
@@ -170,6 +172,8 @@ export const TransactionForm = () => {
     setSelectedStartDate(new Date());
     setSelectedEndDate(new Date());
     setHasEndDate(false);
+    setExcludeFromTotals(false);
+    setExcludeFromTotalsTouched(false);
   }, [accounts]);
 
   const applyCategorySelection = useCallback(
@@ -193,6 +197,8 @@ export const TransactionForm = () => {
       applyCategorySelection(transactionFormData.category.id, transactionFormData.subcategory.id);
       setSelectedDate(parseISO(transactionFormData.eventDate));
       setSelectedAccount(transactionFormData.accountId);
+      setExcludeFromTotals(transactionFormData.excludeFromTotals);
+      setExcludeFromTotalsTouched(true);
     }
   }, [transactionFormData, applyCategorySelection]);
 
@@ -210,8 +216,15 @@ export const TransactionForm = () => {
       } else {
         setHasEndDate(false);
       }
+      setExcludeFromTotals(recurringFormData.excludeFromTotals);
+      setExcludeFromTotalsTouched(true);
     }
   }, [recurringFormData, applyCategorySelection]);
+
+  useEffect(() => {
+    if (mode !== 'oneTime' || excludeFromTotalsTouched) return;
+    setExcludeFromTotals(isFuture(selectedDate));
+  }, [selectedDate, mode, excludeFromTotalsTouched]);
 
   useEffect(() => {
     if (!overlayState.isOpen) {
@@ -395,7 +408,11 @@ export const TransactionForm = () => {
                 <Switch
                   size="sm"
                   name="excludeFromTotals"
-                  defaultSelected={transactionFormData?.excludeFromTotals ?? recurringFormData?.excludeFromTotals ?? false}
+                  isSelected={excludeFromTotals}
+                  onChange={(selected: boolean) => {
+                    setExcludeFromTotals(selected);
+                    setExcludeFromTotalsTouched(true);
+                  }}
                 >
                   <Switch.Content>
                     <Switch.Control>
