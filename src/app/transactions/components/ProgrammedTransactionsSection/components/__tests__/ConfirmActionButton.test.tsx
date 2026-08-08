@@ -2,10 +2,12 @@ import { toast } from '@heroui/react';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import React from 'react';
 import { HiTrash } from 'react-icons/hi2';
-import { ConfirmActionButton } from '@/app/transactions/components/RecurringTransactionsSection/components/ConfirmActionButton';
+import { ConfirmActionButton } from '@/app/transactions/components/ProgrammedTransactionsSection/components/ConfirmActionButton';
 
+// Echoes the namespace back in every translated string so the tests below can assert which
+// namespace `titleKey`/`bodyKey` were resolved against.
 jest.mock('next-intl', () => ({
-  useTranslations: () => (key: string) => key,
+  useTranslations: (namespace?: string) => (key: string) => (namespace ? `${namespace}.${key}` : key),
 }));
 
 jest.mock('@/components', () => ({
@@ -59,5 +61,42 @@ describe('ConfirmActionButton', () => {
 
     await waitFor(() => expect(toast.danger).toHaveBeenCalledWith('network down'));
     expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+  });
+
+  it('resolves the dialog copy against the RecurringTransactions namespace by default', async () => {
+    render(
+      <ConfirmActionButton
+        label="delete"
+        icon={HiTrash}
+        titleKey="deleteConfirm.title"
+        bodyKey="deleteConfirm.body"
+        onConfirm={jest.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'delete' }));
+    const dialog = await screen.findByRole('alertdialog');
+
+    expect(within(dialog).getByText('RecurringTransactions.deleteConfirm.title')).toBeInTheDocument();
+    expect(within(dialog).getByText('RecurringTransactions.deleteConfirm.body')).toBeInTheDocument();
+  });
+
+  it('resolves the dialog copy against an explicitly provided namespace', async () => {
+    render(
+      <ConfirmActionButton
+        label="remove"
+        icon={HiTrash}
+        namespace="ProgrammedTransactions"
+        titleKey="removeConfirm.title"
+        bodyKey="removeConfirm.body"
+        onConfirm={jest.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'remove' }));
+    const dialog = await screen.findByRole('alertdialog');
+
+    expect(within(dialog).getByText('ProgrammedTransactions.removeConfirm.title')).toBeInTheDocument();
+    expect(within(dialog).getByText('ProgrammedTransactions.removeConfirm.body')).toBeInTheDocument();
   });
 });

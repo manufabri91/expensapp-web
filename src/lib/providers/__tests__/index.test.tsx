@@ -4,6 +4,7 @@
 import { getAccounts } from '@/lib/actions/accounts';
 import { getCategories } from '@/lib/actions/categories';
 import { getSubcategories } from '@/lib/actions/subcategories';
+import { getUserSettings } from '@/lib/actions/userSettings';
 import { auth } from '@/lib/auth';
 import { AppProviders } from '@/lib/providers';
 
@@ -11,11 +12,13 @@ jest.mock('@/lib/auth', () => ({ auth: jest.fn() }));
 jest.mock('@/lib/actions/accounts', () => ({ getAccounts: jest.fn() }));
 jest.mock('@/lib/actions/categories', () => ({ getCategories: jest.fn() }));
 jest.mock('@/lib/actions/subcategories', () => ({ getSubcategories: jest.fn() }));
+jest.mock('@/lib/actions/userSettings', () => ({ getUserSettings: jest.fn() }));
 
 const mockedAuth = auth as unknown as jest.Mock;
 const mockedGetAccounts = getAccounts as unknown as jest.Mock;
 const mockedGetCategories = getCategories as unknown as jest.Mock;
 const mockedGetSubcategories = getSubcategories as unknown as jest.Mock;
+const mockedGetUserSettings = getUserSettings as unknown as jest.Mock;
 
 describe('AppProviders', () => {
   beforeEach(() => {
@@ -54,11 +57,13 @@ describe('AppProviders', () => {
     mockedGetCategories.mockResolvedValue([]);
     mockedGetSubcategories.mockResolvedValue([]);
     mockedGetAccounts.mockResolvedValue([]);
+    mockedGetUserSettings.mockResolvedValue({ theme: 'system', locale: 'en' });
 
     await AppProviders({ children: null });
 
     expect(mockedGetAccounts).toHaveBeenCalledTimes(1);
     expect(mockedGetCategories).toHaveBeenCalledTimes(1);
     expect(mockedGetSubcategories).toHaveBeenCalledTimes(1);
+    expect(mockedGetUserSettings).toHaveBeenCalledTimes(1);
   });
 });

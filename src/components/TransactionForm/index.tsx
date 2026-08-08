@@ -19,7 +19,7 @@ import {
   ToggleButtonGroup,
 } from '@heroui/react';
 import { fromDate, getLocalTimeZone } from '@internationalized/date';
-import { formatISO, parseISO } from 'date-fns';
+import { formatISO, isFuture, parseISO } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
@@ -117,6 +117,8 @@ export const TransactionForm = () => {
   const [selectedStartDate, setSelectedStartDate] = useState(new Date());
   const [selectedEndDate, setSelectedEndDate] = useState(new Date());
   const [hasEndDate, setHasEndDate] = useState(false);
+  const [excludeFromTotals, setExcludeFromTotals] = useState(false);
+  const [excludeFromTotalsTouched, setExcludeFromTotalsTouched] = useState(false);
 
   const isEditingExisting = !!transactionFormData || !!recurringFormData;
   const selectedAccountObj = accounts.find((acc) => acc.id === selectedAccount);
@@ -170,6 +172,8 @@ export const TransactionForm = () => {
     setSelectedStartDate(new Date());
     setSelectedEndDate(new Date());
     setHasEndDate(false);
+    setExcludeFromTotals(false);
+    setExcludeFromTotalsTouched(false);
   }, [accounts]);
 
   const applyCategorySelection = useCallback(
@@ -193,6 +197,8 @@ export const TransactionForm = () => {
       applyCategorySelection(transactionFormData.category.id, transactionFormData.subcategory.id);
       setSelectedDate(parseISO(transactionFormData.eventDate));
       setSelectedAccount(transactionFormData.accountId);
+      setExcludeFromTotals(transactionFormData.excludeFromTotals);
+      setExcludeFromTotalsTouched(true);
     }
   }, [transactionFormData, applyCategorySelection]);
 
@@ -210,8 +216,22 @@ export const TransactionForm = () => {
       } else {
         setHasEndDate(false);
       }
+      setExcludeFromTotals(recurringFormData.excludeFromTotals);
+      setExcludeFromTotalsTouched(true);
     }
   }, [recurringFormData, applyCategorySelection]);
+
+  useEffect(() => {
+    // Also guarded on `isEditingExisting` (not just `excludeFromTotalsTouched`) so this cannot
+    // race the hydration effects above: on a hypothetical mount where transactionFormData/
+    // recurringFormData is already present on the very first render, this effect's closure would
+    // still see `excludeFromTotalsTouched === false` from that same render and could overwrite the
+    // seeded value before the hydration effect's own `setExcludeFromTotalsTouched(true)` takes
+    // effect. Gating on `isEditingExisting` makes it structurally impossible for this effect to
+    // touch `excludeFromTotals` while editing, regardless of mount/effect ordering.
+    if (mode !== 'oneTime' || excludeFromTotalsTouched || isEditingExisting) return;
+    setExcludeFromTotals(isFuture(selectedDate));
+  }, [selectedDate, mode, excludeFromTotalsTouched, isEditingExisting]);
 
   useEffect(() => {
     if (!overlayState.isOpen) {
@@ -395,7 +415,11 @@ export const TransactionForm = () => {
                 <Switch
                   size="sm"
                   name="excludeFromTotals"
-                  defaultSelected={transactionFormData?.excludeFromTotals ?? recurringFormData?.excludeFromTotals ?? false}
+                  isSelected={excludeFromTotals}
+                  onChange={(selected: boolean) => {
+                    setExcludeFromTotals(selected);
+                    setExcludeFromTotalsTouched(true);
+                  }}
                 >
                   <Switch.Content>
                     <Switch.Control>

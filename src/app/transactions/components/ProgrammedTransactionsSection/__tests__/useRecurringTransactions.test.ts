@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { useRecurringTransactions } from '@/app/transactions/components/RecurringTransactionsSection/useRecurringTransactions';
+import { useRecurringTransactions } from '@/app/transactions/components/ProgrammedTransactionsSection/useRecurringTransactions';
 import { getRecurringTransactions } from '@/lib/actions/recurringTransactions';
 import { RecurringTransactionResponse } from '@/types/dto';
 import { buildRecurrence } from '@/utils/testFixtures/buildRecurrence';

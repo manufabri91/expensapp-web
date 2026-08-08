@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
-import { EditRecurringTransactionButton } from '@/app/transactions/components/RecurringTransactionsSection/components/EditRecurringTransactionButton';
+import { EditRecurringTransactionButton } from '@/app/transactions/components/ProgrammedTransactionsSection/components/EditRecurringTransactionButton';
 import { useTransactionForm } from '@/components/TransactionForm/TransactionFormProvider';
 import { RecurrenceStatus } from '@/types/enums/recurrenceStatus';
 import { buildRecurrence } from '@/utils/testFixtures/buildRecurrence';
