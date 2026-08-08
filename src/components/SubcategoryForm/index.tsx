@@ -1,15 +1,19 @@
 'use client';
 
-import { InputGroup, Label, ListBox, Modal, Select, TextField, toast } from '@heroui/react';
+import { FieldError, InputGroup, Label, ListBox, Modal, Select, TextField, toast } from '@heroui/react';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 
 import { Button } from '@/components/Button';
 import { useSubcategoryForm } from '@/components/SubcategoryForm/SubcategoryFormProvider';
 import { useTrySystemTranslations } from '@/hooks/useTrySystemTranslations';
 import { createSubcategory, editSubcategory } from '@/lib/actions/subcategories';
 import { useCategories } from '@/lib/providers/CategoriesProvider';
-import { SubCategoryResponse } from '@/types/dto';
+import { subcategoryFormSchema, SubcategoryFormValues } from '@/schemas/subcategory';
+
+const defaultValues: SubcategoryFormValues = { name: '', parentCategoryId: 0 };
 
 export const SubcategoryForm = () => {
   const t = useTranslations();
@@ -17,52 +21,44 @@ export const SubcategoryForm = () => {
   const { subcategoryFormData, clearForm, overlayState } = useSubcategoryForm();
 
   const { categories, addSubcategory, refetchAll } = useCategories();
-  const [createdSubcategory, setCreatedSubcategory] = useState<SubCategoryResponse | null>(null);
-  const [editedSubcategory, setEditedSubcategory] = useState<SubCategoryResponse | null>(null);
-  const [processing, setProcessing] = useState<boolean>(false);
   const isEditMode = !!subcategoryFormData?.id;
 
-  useEffect(() => {
-    if (createdSubcategory) {
-      toast.success(t('SubcategoryForm.createdSuccess', { id: createdSubcategory.id }));
-      addSubcategory(createdSubcategory);
-      setCreatedSubcategory(null);
-      clearForm();
-      setProcessing(false);
-    } else if (editedSubcategory) {
-      toast.success(t('SubcategoryForm.editedSuccess', { id: editedSubcategory.id }));
-      setEditedSubcategory(null);
-      clearForm();
-      setProcessing(false);
-    }
-  }, [addSubcategory, clearForm, createdSubcategory, editedSubcategory, t]);
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = useForm<SubcategoryFormValues>({
+    resolver: zodResolver(subcategoryFormSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
+    defaultValues,
+  });
 
-  const submitHandler = async (e: React.FormEvent<HTMLFormElement>, cb?: () => void) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    setProcessing(true);
+  useEffect(() => {
+    if (!overlayState.isOpen || !subcategoryFormData) return;
+    reset({
+      id: isEditMode ? subcategoryFormData.id : undefined,
+      name: isEditMode ? trySystemTranslation(subcategoryFormData.name) : '',
+      parentCategoryId: subcategoryFormData.parentCategoryId,
+    });
+  }, [overlayState.isOpen, subcategoryFormData, isEditMode, trySystemTranslation, reset]);
+
+  const onValid = async (data: SubcategoryFormValues) => {
     try {
       if (isEditMode) {
-        const updatedAccocreatedSubcategory = await editSubcategory(formData);
-        setEditedSubcategory(updatedAccocreatedSubcategory);
+        const edited = await editSubcategory(data);
         await refetchAll();
-        if (cb) cb();
+        toast.success(t('SubcategoryForm.editedSuccess', { id: edited.id }));
       } else {
-        const createdSubcategory = await createSubcategory(formData);
-        setCreatedSubcategory(createdSubcategory);
-        if (cb) cb();
+        const created = await createSubcategory(data);
+        addSubcategory(created);
+        toast.success(t('SubcategoryForm.createdSuccess', { id: created.id }));
       }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast.danger(error.message);
-      } else {
-        toast.danger(t('AccountForm.unexpectedError'));
-      }
-      setEditedSubcategory(null);
-      setCreatedSubcategory(null);
-      setProcessing(false);
       clearForm();
-      if (cb) cb();
+      overlayState.close();
+    } catch (error) {
+      toast.danger(error instanceof Error ? error.message : t('SubcategoryForm.unexpectedError'));
     }
   };
 
@@ -78,55 +74,72 @@ export const SubcategoryForm = () => {
               {isEditMode ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.subcategory')}
             </Modal.Heading>
           </Modal.Header>
-          <form onSubmit={(e) => submitHandler(e, () => overlayState.close())}>
+          <form onSubmit={handleSubmit(onValid)}>
             <Modal.Body className="flex flex-col gap-4">
-              {isEditMode && (
-                <input id="id" name="id" type="hidden" value={`${subcategoryFormData?.id}`} readOnly />
-              )}
-              <TextField name="name" isRequired defaultValue={trySystemTranslation(subcategoryFormData?.name ?? '')} fullWidth>
-                <Label>{t('CategoryForm.name')}</Label>
-                <InputGroup variant="secondary">
-                  <InputGroup.Input id="name" type="text" />
-                </InputGroup>
-              </TextField>
-              <Select
-                id="parentCategoryId"
+              <Controller
+                control={control}
+                name="name"
+                render={({ field, fieldState }) => (
+                  <TextField
+                    isRequired
+                    fullWidth
+                    isInvalid={fieldState.invalid}
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                  >
+                    <Label>{t('CategoryForm.name')}</Label>
+                    <InputGroup variant="secondary">
+                      <InputGroup.Input type="text" />
+                    </InputGroup>
+                    {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
+                  </TextField>
+                )}
+              />
+              <Controller
+                control={control}
                 name="parentCategoryId"
-                defaultSelectedKey={
-                  subcategoryFormData ? subcategoryFormData.parentCategoryId.toString() : undefined
-                }
-                isRequired
-                placeholder={t('TransactionForm.selectCategory')}
-                variant="secondary"
-              >
-                <Label>{t('SubcategoryForm.belongsTo')}</Label>
-                <Select.Trigger>
-                  <Select.Value />
-                  <Select.Indicator />
-                </Select.Trigger>
-                <Select.Popover>
-                  <ListBox>
-                    {categories.map((category) => (
-                      <ListBox.Item
-                        key={category.id}
-                        id={category.id.toString()}
-                        textValue={category.name}
-                        hidden={category.readOnly}
-                      >
-                        {category.name}
-                      </ListBox.Item>
-                    ))}
-                  </ListBox>
-                </Select.Popover>
-              </Select>
+                render={({ field, fieldState }) => (
+                  <Select
+                    isRequired
+                    placeholder={t('TransactionForm.selectCategory')}
+                    variant="secondary"
+                    isInvalid={fieldState.invalid}
+                    selectedKey={field.value ? field.value.toString() : undefined}
+                    onSelectionChange={(key) => field.onChange(key ? Number(key) : undefined)}
+                    onBlur={field.onBlur}
+                  >
+                    <Label>{t('SubcategoryForm.belongsTo')}</Label>
+                    <Select.Trigger>
+                      <Select.Value />
+                      <Select.Indicator />
+                    </Select.Trigger>
+                    <Select.Popover>
+                      <ListBox>
+                        {categories.map((category) => (
+                          <ListBox.Item
+                            key={category.id}
+                            id={category.id.toString()}
+                            textValue={category.name}
+                            hidden={category.readOnly}
+                          >
+                            {category.name}
+                          </ListBox.Item>
+                        ))}
+                      </ListBox>
+                    </Select.Popover>
+                    {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
+                  </Select>
+                )}
+              />
             </Modal.Body>
             <Modal.Footer>
-              {!processing && (
+              {!isSubmitting && (
                 <Button type="submit" variant="primary" fullWidth>
                   {isEditMode ? t('Generics.edit') : t('Generics.save')}
                 </Button>
               )}
-              {processing && (
+              {isSubmitting && (
                 <Button type="button" isDisabled fullWidth>
                   {isEditMode ? t('Generics.editing') : t('Generics.saving')}...
                 </Button>

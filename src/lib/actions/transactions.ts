@@ -2,19 +2,16 @@
 
 import { revalidatePath, unstable_noStore } from 'next/cache';
 import { backendFetch } from '@/lib/api/backendFetch';
-import { parseCalendarDateOnly, toBackendPath } from '@/lib/utils/date';
+import { toBackendPath } from '@/lib/utils/date';
+import { transactionServerSchema } from '@/schemas/transaction';
 import { CurrencySummaryResponse, TransactionRequest, TransactionResponse } from '@/types/dto';
 import { PagedResponse } from '@/types/dto/pageable';
-import { TransactionType } from '@/types/enums/transactionType';
 import { ActionResult } from '@/types/viewModel/actionResult';
 import { TransactionFilters, transactionFiltersToQueryParams } from '@/types/viewModel/transactionFilters';
 
 // Cache invariant: every read below uses `next: { revalidate: 3600 }` (1h). Any mutation that
 // touches transactions MUST call revalidatePath for every affected page (dashboard/transactions
 // /manage) below, or reads will keep serving stale data for up to an hour.
-
-// TODO: remove this once BE ignores time (TX will care only about date)
-const parseEventDate = parseCalendarDateOnly;
 
 export const getTransactions = async (url: string): Promise<PagedResponse<TransactionResponse>> => {
   const response = await backendFetch(toBackendPath(url), { revalidate: 3600 });
@@ -69,20 +66,14 @@ export const getTransactionById = async (id: number): Promise<TransactionRespons
   return await response.json();
 };
 
-export const createTransaction = async (formData: FormData): Promise<TransactionResponse> => {
+export const createTransaction = async (data: TransactionRequest): Promise<TransactionResponse> => {
   unstable_noStore();
-  const data = Object.fromEntries(formData);
-  const payload: TransactionRequest = {
-    eventDate: parseEventDate(data.eventDate ? String(data.eventDate) : null),
-    amount: Math.abs(Number(data.amount)),
-    description: String(data.description),
-    accountId: Number(data.account),
-    categoryId: Number(data.category),
-    subcategoryId: Number(data.subcategory),
-    type: data.type as TransactionType,
-    destinationAccountId: data.destinationAccount ? Number(data.destinationAccount) : undefined,
-    excludeFromTotals: data.excludeFromTotals === 'on',
-  };
+  const parsed = transactionServerSchema.safeParse(data);
+  if (!parsed.success) {
+    throw new Error('Invalid transaction data');
+  }
+
+  const payload: TransactionRequest = parsed.data;
   const response = await backendFetch('/transaction', { method: 'POST', body: payload });
 
   if (!response.ok) {
@@ -95,25 +86,18 @@ export const createTransaction = async (formData: FormData): Promise<Transaction
   return await response.json();
 };
 
-export const editTransaction = async (formData: FormData): Promise<TransactionResponse> => {
+export const editTransaction = async (data: TransactionRequest): Promise<TransactionResponse> => {
   unstable_noStore();
-  const data = Object.fromEntries(formData);
+  const parsed = transactionServerSchema.safeParse(data);
+  if (!parsed.success || !parsed.data.id) {
+    throw new Error('Invalid transaction data');
+  }
 
-  const payload: TransactionRequest = {
-    eventDate: parseEventDate(data.eventDate ? String(data.eventDate) : null),
-    amount: Math.abs(Number(data.amount)),
-    description: String(data.description),
-    accountId: Number(data.account),
-    categoryId: Number(data.category),
-    subcategoryId: Number(data.subcategory),
-    type: data.type as TransactionType,
-    destinationAccountId: data.destinationAccount ? Number(data.destinationAccount) : undefined,
-    excludeFromTotals: data.excludeFromTotals === 'on',
-  };
-  const response = await backendFetch(`/transaction/${data.id}`, { method: 'PUT', body: payload });
+  const payload: TransactionRequest = parsed.data;
+  const response = await backendFetch(`/transaction/${parsed.data.id}`, { method: 'PUT', body: payload });
 
   if (!response.ok) {
-    throw new Error(`Failed to edit transaction ${data.id}. Please try again later.`);
+    throw new Error(`Failed to edit transaction ${parsed.data.id}. Please try again later.`);
   }
 
   revalidatePath('/dashboard');

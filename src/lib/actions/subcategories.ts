@@ -2,6 +2,7 @@
 
 import { revalidatePath, unstable_noStore } from 'next/cache';
 import { backendFetch } from '@/lib/api/backendFetch';
+import { subcategoryFormSchema, SubcategoryFormValues } from '@/schemas/subcategory';
 import { SubCategoryResponse } from '@/types/dto';
 import { SubCategoryRequest } from '@/types/dto/subcategoryRequest';
 import { ActionResult } from '@/types/viewModel/actionResult';
@@ -18,14 +19,16 @@ export const getSubcategories = async (): Promise<SubCategoryResponse[]> => {
   return await response.json();
 };
 
-export const createSubcategory = async (formData: FormData): Promise<SubCategoryResponse> => {
+export const createSubcategory = async (data: SubcategoryFormValues): Promise<SubCategoryResponse> => {
   unstable_noStore();
-  const data = Object.fromEntries(formData);
+  const parsed = subcategoryFormSchema.safeParse(data);
+  if (!parsed.success) {
+    throw new Error('Invalid subcategory data');
+  }
 
   const payload: SubCategoryRequest = {
-    id: Number(data.id),
-    name: String(data.name),
-    parentCategoryId: Number(data.parentCategoryId),
+    name: parsed.data.name,
+    parentCategoryId: parsed.data.parentCategoryId,
     readOnly: false, // read only is only for system categories
   };
 
@@ -41,16 +44,19 @@ export const createSubcategory = async (formData: FormData): Promise<SubCategory
   return await response.json();
 };
 
-export const editSubcategory = async (formData: FormData): Promise<SubCategoryResponse> => {
+export const editSubcategory = async (data: SubcategoryFormValues): Promise<SubCategoryResponse> => {
   unstable_noStore();
-  const data = Object.fromEntries(formData);
+  const parsed = subcategoryFormSchema.safeParse(data);
+  if (!parsed.success || !parsed.data.id) {
+    throw new Error('Invalid subcategory data');
+  }
 
   const payload: SubCategoryRequest = {
-    name: String(data.name),
-    parentCategoryId: Number(data.parentCategoryId),
+    name: parsed.data.name,
+    parentCategoryId: parsed.data.parentCategoryId,
   };
 
-  const response = await backendFetch(`/subcategory/${data.id}`, { method: 'PUT', body: payload });
+  const response = await backendFetch(`/subcategory/${parsed.data.id}`, { method: 'PUT', body: payload });
 
   if (!response.ok) {
     throw new Error(`Failed to edit Subcategory`);

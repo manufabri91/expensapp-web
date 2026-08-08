@@ -2,6 +2,7 @@
 
 import { revalidatePath, unstable_noStore } from 'next/cache';
 import { backendFetch } from '@/lib/api/backendFetch';
+import { accountFormSchema, AccountFormValues } from '@/schemas/account';
 import { AccountRequest, AccountResponse } from '@/types/dto';
 import { ActionResult } from '@/types/viewModel/actionResult';
 
@@ -17,14 +18,17 @@ export const getAccounts = async (): Promise<AccountResponse[]> => {
   return await response.json();
 };
 
-export const createAccount = async (formData: FormData): Promise<AccountResponse> => {
+export const createAccount = async (data: AccountFormValues): Promise<AccountResponse> => {
   unstable_noStore();
-  const data = Object.fromEntries(formData);
+  const parsed = accountFormSchema.safeParse(data);
+  if (!parsed.success) {
+    throw new Error('Invalid account data');
+  }
 
   const payload: AccountRequest = {
-    name: String(data.name),
-    currency: String(data.currency),
-    initialBalance: Number(data.initialBalance),
+    name: parsed.data.name,
+    currency: parsed.data.currency,
+    initialBalance: parsed.data.initialBalance,
   };
   const response = await backendFetch('/account', { method: 'POST', body: payload });
 
@@ -38,17 +42,20 @@ export const createAccount = async (formData: FormData): Promise<AccountResponse
   return await response.json();
 };
 
-export const editAccount = async (formData: FormData): Promise<AccountResponse> => {
+export const editAccount = async (data: AccountFormValues): Promise<AccountResponse> => {
   unstable_noStore();
-  const data = Object.fromEntries(formData);
+  const parsed = accountFormSchema.safeParse(data);
+  if (!parsed.success) {
+    throw new Error('Invalid account data');
+  }
 
   const payload: AccountRequest = {
-    id: Number(data.id),
-    name: String(data.name),
-    currency: String(data.currency),
-    initialBalance: Number(data.initialBalance),
+    id: parsed.data.id,
+    name: parsed.data.name,
+    currency: parsed.data.currency,
+    initialBalance: parsed.data.initialBalance,
   };
-  const response = await backendFetch(`/account/${data.id}`, { method: 'PUT', body: payload });
+  const response = await backendFetch(`/account/${parsed.data.id}`, { method: 'PUT', body: payload });
 
   if (!response.ok) {
     throw new Error(`Failed to edit account`);

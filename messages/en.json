@@ -334,6 +334,19 @@
     },
     "unexpectedError": "Something went wrong! Couldn't save recurring transaction"
   },
+  "Validation": {
+    "required": "This field is required",
+    "invalidNumber": "Enter a valid number",
+    "invalidEmail": "Enter a valid email address",
+    "positiveNumber": "Enter a number greater than zero",
+    "passwordsDontMatch": "Passwords do not match",
+    "transferSameAccount": "Destination account must be different from the origin account",
+    "transferDestinationRequired": "Select a destination account",
+    "endDateBeforeStart": "End date must be after the start date",
+    "invalidColor": "Enter a valid color",
+    "intervalDaysRequired": "Enter the interval in days",
+    "daysOfMonthRequired": "Select at least one day of the month"
+  },
   "ProgrammedTransactions": {
     "title": {
       "payments": "Programmed Payments",

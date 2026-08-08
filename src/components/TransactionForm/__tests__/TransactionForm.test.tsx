@@ -252,7 +252,7 @@ describe('TransactionForm - excludeFromTotals switch (pending-transaction defaul
     expect(getExcludeFromTotalsSwitch().checked).toBe(false);
   });
 
-  it('still carries excludeFromTotals through native FormData submission now that the switch is controlled', async () => {
+  it('does not call createTransaction when required fields are left empty (client-side validation blocks submit)', async () => {
     mockedUseTransactionForm.mockReturnValue({
       overlayState: openOverlay,
       transactionFormData: undefined,
@@ -263,44 +263,12 @@ describe('TransactionForm - excludeFromTotals switch (pending-transaction defaul
     mockedCreateTransaction.mockResolvedValue(undefined);
 
     render(<TransactionForm />);
-
-    // The Modal renders its content through a portal, so the <form> lives outside the render container.
     const form = document.querySelector('form') as HTMLFormElement;
-
-    fireEvent.click(getExcludeFromTotalsSwitch());
-    expect(getExcludeFromTotalsSwitch().checked).toBe(true);
 
     await act(async () => {
       fireEvent.submit(form);
     });
 
-    expect(mockedCreateTransaction).toHaveBeenCalledTimes(1);
-    const submittedFormData = mockedCreateTransaction.mock.calls[0][0] as FormData;
-    expect(submittedFormData.get('excludeFromTotals')).toBe('on');
-  });
-
-  it('omits excludeFromTotals from the submitted FormData when the switch is left unchecked', async () => {
-    mockedUseTransactionForm.mockReturnValue({
-      overlayState: openOverlay,
-      transactionFormData: undefined,
-      recurringFormData: undefined,
-      formMode: 'oneTime',
-      clearForm: jest.fn(),
-    });
-    mockedCreateTransaction.mockResolvedValue(undefined);
-
-    render(<TransactionForm />);
-
-    const form = document.querySelector('form') as HTMLFormElement;
-
-    expect(getExcludeFromTotalsSwitch().checked).toBe(false);
-
-    await act(async () => {
-      fireEvent.submit(form);
-    });
-
-    expect(mockedCreateTransaction).toHaveBeenCalledTimes(1);
-    const submittedFormData = mockedCreateTransaction.mock.calls[0][0] as FormData;
-    expect(submittedFormData.get('excludeFromTotals')).toBeNull();
+    expect(mockedCreateTransaction).not.toHaveBeenCalled();
   });
 });

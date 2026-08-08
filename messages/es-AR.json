@@ -334,6 +334,19 @@
     },
     "unexpectedError": "Algo salió mal! No se pudo guardar la transacción programada"
   },
+  "Validation": {
+    "required": "Este campo es obligatorio",
+    "invalidNumber": "Ingresá un número válido",
+    "invalidEmail": "Ingresá un correo electrónico válido",
+    "positiveNumber": "Ingresá un número mayor a cero",
+    "passwordsDontMatch": "Las contraseñas no coinciden",
+    "transferSameAccount": "La cuenta destino debe ser diferente de la cuenta origen",
+    "transferDestinationRequired": "Seleccioná una cuenta destino",
+    "endDateBeforeStart": "La fecha de fin debe ser posterior a la fecha de inicio",
+    "invalidColor": "Ingresá un color válido",
+    "intervalDaysRequired": "Ingresá el intervalo en días",
+    "daysOfMonthRequired": "Seleccioná al menos un día del mes"
+  },
   "ProgrammedTransactions": {
     "title": {
       "payments": "Pagos programados",

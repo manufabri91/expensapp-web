@@ -1,12 +1,15 @@
 'use client';
 
-import { Alert, Checkbox, Form, InputGroup, Label, Modal, TextField } from '@heroui/react';
+import { Alert, Checkbox, FieldError, InputGroup, Label, Modal, TextField } from '@heroui/react';
+import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { useActionState, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { HiEnvelope, HiEye, HiEyeSlash, HiKey } from 'react-icons/hi2';
 import { CTAButton } from '@/components/LoginForm/components/CTAButton';
 import { handleLoginAction, handleRegisterAction } from '@/lib/actions/auth';
+import { LoginFormValues, loginSchema, RegisterFormValues, registerSchema } from '@/schemas/auth';
 
 type FormMode = 'login' | 'register';
 
@@ -15,30 +18,54 @@ interface Props {
   callback?: () => void;
 }
 
+const loginDefaultValues: LoginFormValues = { email: '', password: '', remember: false };
+const registerDefaultValues: RegisterFormValues = {
+  ...loginDefaultValues,
+  firstName: '',
+  lastName: '',
+  userName: '',
+  passwordRepeat: '',
+};
+
 export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
   const t = useTranslations('Auth');
+  const tValidation = useTranslations();
   const [formMode, setFormMode] = useState<FormMode>(mode);
 
   const [isVisible, setIsVisible] = useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
   const isLoginMode = formMode === 'login';
-  const actionFn = isLoginMode ? handleLoginAction : handleRegisterAction;
-  const [actionState, action] = useActionState(actionFn, null);
   const [error, setError] = useState<string | null>(null);
-  const formData = actionState && actionState.payload;
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = useForm<LoginFormValues | RegisterFormValues>({
+    resolver: zodResolver(isLoginMode ? loginSchema : registerSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
+    defaultValues: isLoginMode ? loginDefaultValues : registerDefaultValues,
+  });
 
   useEffect(() => {
     setError(null);
-  }, [formMode]);
+    reset(isLoginMode ? loginDefaultValues : registerDefaultValues);
+  }, [formMode, isLoginMode, reset]);
 
-  useEffect(() => {
-    if (actionState?.succeded) {
+  const onValid = async (data: LoginFormValues | RegisterFormValues) => {
+    const actionResult = isLoginMode
+      ? await handleLoginAction(data as LoginFormValues)
+      : await handleRegisterAction(data as RegisterFormValues);
+
+    if (actionResult?.succeded) {
       setError(null);
       callback();
-    } else if (actionState?.error) {
-      setError(actionState.error);
+    } else if (actionResult?.error) {
+      setError(actionResult.error);
     }
-  }, [actionState, callback]);
+  };
 
   const handleLoginClicked = () => {
     setError(null);
@@ -59,95 +86,128 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
           )}
         </Modal.Heading>
       </Modal.Header>
-      <Form action={action}>
+      <form onSubmit={handleSubmit(onValid)}>
         <Modal.Body className="flex w-full flex-col gap-4 py-4">
           {!isLoginMode && (
             <>
-              <TextField
+              <Controller
+                control={control}
                 name="firstName"
-                isRequired
-                defaultValue={(formData?.get('firstName') || '') as string}
-                fullWidth
-              >
-                <Label>{t('form.name')}</Label>
-                <InputGroup variant="secondary">
-                  <InputGroup.Input type="text" />
-                </InputGroup>
-              </TextField>
-              <TextField
+                render={({ field, fieldState }) => (
+                  <TextField isRequired fullWidth isInvalid={fieldState.invalid} value={field.value} onChange={field.onChange} onBlur={field.onBlur}>
+                    <Label>{t('form.name')}</Label>
+                    <InputGroup variant="secondary">
+                      <InputGroup.Input type="text" />
+                    </InputGroup>
+                    {fieldState.error?.message && <FieldError>{tValidation(fieldState.error.message)}</FieldError>}
+                  </TextField>
+                )}
+              />
+              <Controller
+                control={control}
                 name="lastName"
-                isRequired
-                defaultValue={(formData?.get('lastName') || '') as string}
-                fullWidth
-              >
-                <Label>{t('form.surname')}</Label>
-                <InputGroup variant="secondary">
-                  <InputGroup.Input type="text" />
-                </InputGroup>
-              </TextField>
-              <TextField
+                render={({ field, fieldState }) => (
+                  <TextField isRequired fullWidth isInvalid={fieldState.invalid} value={field.value} onChange={field.onChange} onBlur={field.onBlur}>
+                    <Label>{t('form.surname')}</Label>
+                    <InputGroup variant="secondary">
+                      <InputGroup.Input type="text" />
+                    </InputGroup>
+                    {fieldState.error?.message && <FieldError>{tValidation(fieldState.error.message)}</FieldError>}
+                  </TextField>
+                )}
+              />
+              <Controller
+                control={control}
                 name="userName"
-                isRequired
-                defaultValue={(formData?.get('userName') || '') as string}
-                fullWidth
-              >
-                <Label>{t('form.username')}</Label>
-                <InputGroup variant="secondary">
-                  <InputGroup.Input type="text" />
-                </InputGroup>
-              </TextField>
+                render={({ field, fieldState }) => (
+                  <TextField isRequired fullWidth isInvalid={fieldState.invalid} value={field.value} onChange={field.onChange} onBlur={field.onBlur}>
+                    <Label>{t('form.username')}</Label>
+                    <InputGroup variant="secondary">
+                      <InputGroup.Input type="text" />
+                    </InputGroup>
+                    {fieldState.error?.message && <FieldError>{tValidation(fieldState.error.message)}</FieldError>}
+                  </TextField>
+                )}
+              />
             </>
           )}
-          <TextField name="email" isRequired defaultValue={(formData?.get('email') || '') as string} fullWidth>
-            <Label>{t('form.email')}</Label>
-            <InputGroup variant="secondary">
-              {isLoginMode && (
-                <InputGroup.Prefix>
-                  <HiEnvelope />
-                </InputGroup.Prefix>
-              )}
-              <InputGroup.Input type="email" placeholder="john_doe@email.com" />
-            </InputGroup>
-          </TextField>
-          <TextField name="password" isRequired fullWidth>
-            <Label>{t('form.password')}</Label>
-            <InputGroup variant="secondary">
-              {isLoginMode && (
-                <InputGroup.Prefix>
-                  <HiKey />
-                </InputGroup.Prefix>
-              )}
-              <InputGroup.Input type={isVisible ? 'text' : 'password'} />
-              <InputGroup.Suffix>
-                <button
-                  aria-label="toggle password visibility"
-                  className="outline-transparent focus:outline-solid"
-                  type="button"
-                  onClick={toggleVisibility}
-                >
-                  {isVisible ? <HiEyeSlash className="text-2xl" /> : <HiEye className="text-2xl" />}
-                </button>
-              </InputGroup.Suffix>
-            </InputGroup>
-          </TextField>
+          <Controller
+            control={control}
+            name="email"
+            render={({ field, fieldState }) => (
+              <TextField isRequired fullWidth isInvalid={fieldState.invalid} value={field.value} onChange={field.onChange} onBlur={field.onBlur}>
+                <Label>{t('form.email')}</Label>
+                <InputGroup variant="secondary">
+                  {isLoginMode && (
+                    <InputGroup.Prefix>
+                      <HiEnvelope />
+                    </InputGroup.Prefix>
+                  )}
+                  <InputGroup.Input type="email" placeholder="john_doe@email.com" />
+                </InputGroup>
+                {fieldState.error?.message && <FieldError>{tValidation(fieldState.error.message)}</FieldError>}
+              </TextField>
+            )}
+          />
+          <Controller
+            control={control}
+            name="password"
+            render={({ field, fieldState }) => (
+              <TextField isRequired fullWidth isInvalid={fieldState.invalid} value={field.value} onChange={field.onChange} onBlur={field.onBlur}>
+                <Label>{t('form.password')}</Label>
+                <InputGroup variant="secondary">
+                  {isLoginMode && (
+                    <InputGroup.Prefix>
+                      <HiKey />
+                    </InputGroup.Prefix>
+                  )}
+                  <InputGroup.Input type={isVisible ? 'text' : 'password'} />
+                  <InputGroup.Suffix>
+                    <button
+                      aria-label="toggle password visibility"
+                      className="outline-transparent focus:outline-solid"
+                      type="button"
+                      onClick={toggleVisibility}
+                    >
+                      {isVisible ? <HiEyeSlash className="text-2xl" /> : <HiEye className="text-2xl" />}
+                    </button>
+                  </InputGroup.Suffix>
+                </InputGroup>
+                {fieldState.error?.message && <FieldError>{tValidation(fieldState.error.message)}</FieldError>}
+              </TextField>
+            )}
+          />
           {!isLoginMode && (
-            <TextField name="passwordRepeat" isRequired fullWidth>
-              <Label>{t('form.confirmPassword')}</Label>
-              <InputGroup variant="secondary">
-                <InputGroup.Input type="password" />
-              </InputGroup>
-            </TextField>
+            <Controller
+              control={control}
+              name="passwordRepeat"
+              render={({ field, fieldState }) => (
+                <TextField isRequired fullWidth isInvalid={fieldState.invalid} value={field.value} onChange={field.onChange} onBlur={field.onBlur}>
+                  <Label>{t('form.confirmPassword')}</Label>
+                  <InputGroup variant="secondary">
+                    <InputGroup.Input type="password" />
+                  </InputGroup>
+                  {fieldState.error?.message && <FieldError>{tValidation(fieldState.error.message)}</FieldError>}
+                </TextField>
+              )}
+            />
           )}
           {isLoginMode && (
             <div className="flex justify-between">
-              <Checkbox name="remember" variant="secondary">
-                <Checkbox.Content>
-                  <Checkbox.Control>
-                    <Checkbox.Indicator />
-                  </Checkbox.Control>
-                  <span>{t('form.rememberMe')}</span>
-                </Checkbox.Content>
-              </Checkbox>
+              <Controller
+                control={control}
+                name="remember"
+                render={({ field }) => (
+                  <Checkbox variant="secondary" isSelected={field.value} onChange={field.onChange}>
+                    <Checkbox.Content>
+                      <Checkbox.Control>
+                        <Checkbox.Indicator />
+                      </Checkbox.Control>
+                      <span>{t('form.rememberMe')}</span>
+                    </Checkbox.Content>
+                  </Checkbox>
+                )}
+              />
               <Link
                 href="/auth/forgot-password"
                 onClick={() => callback()}
@@ -159,7 +219,7 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
           )}
         </Modal.Body>
         <Modal.Footer className="flex w-full flex-col gap-3">
-          <CTAButton handleLoginClicked={handleLoginClicked} isLoginMode={isLoginMode} />
+          <CTAButton handleLoginClicked={handleLoginClicked} isLoginMode={isLoginMode} isSubmitting={isSubmitting} />
           <div className="flex text-sm">
             {isLoginMode && (
               <>
@@ -185,7 +245,7 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
             )}
           </div>
         </Modal.Footer>
-      </Form>
+      </form>
     </>
   );
 };
