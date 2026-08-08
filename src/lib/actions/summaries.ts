@@ -1,7 +1,13 @@
 'use server';
 
 import { backendFetch } from '@/lib/api/backendFetch';
-import { CategorySummaryResponse, CurrencySummaryResponse, MonthlyBalanceSummaryResponse } from '@/types/dto';
+import {
+  CategorySummaryResponse,
+  CurrencySummaryResponse,
+  MonthlyBalanceSummaryResponse,
+  ProgrammedTransactionsResponse,
+  UpcomingTransactionsResponse,
+} from '@/types/dto';
 import { AmountPerCurrencyDto } from '@/types/dto/amountPerCurrencyDto';
 
 // Cache invariant: every read below uses `next: { revalidate: 3600 }` (1h). These are all
@@ -90,8 +96,13 @@ export const getMonthlyExpenses = async (year: number, month: number): Promise<A
   return await response.json();
 };
 
-export const getMonthlyHistory = async (months = 6): Promise<MonthlyBalanceSummaryResponse[]> => {
-  const response = await backendFetch(`${SUMMARY_PATH}/monthly-history/${months}`, { revalidate: 3600 });
+export const getMonthlyHistory = async (
+  months = 6,
+  includePending: boolean = true
+): Promise<MonthlyBalanceSummaryResponse[]> => {
+  const response = await backendFetch(`${SUMMARY_PATH}/monthly-history/${months}?includePending=${includePending}`, {
+    revalidate: 3600,
+  });
   if (!response.ok) {
     throw new Error('Failed to fetch Monthly history');
   }
@@ -104,6 +115,22 @@ export const getMonthlyIncomes = async (year: number, month: number): Promise<Am
   });
   if (!response.ok) {
     throw new Error('Failed to fetch transactions');
+  }
+  return await response.json();
+};
+
+export const getUpcomingTransactions = async (): Promise<UpcomingTransactionsResponse> => {
+  const response = await backendFetch(`${SUMMARY_PATH}/upcoming-transactions`, { revalidate: 3600 });
+  if (!response.ok) {
+    throw new Error('Failed to fetch upcoming transactions');
+  }
+  return await response.json();
+};
+
+export const getProgrammedTransactions = async (): Promise<ProgrammedTransactionsResponse> => {
+  const response = await backendFetch(`${SUMMARY_PATH}/programmed-transactions`, { revalidate: 3600 });
+  if (!response.ok) {
+    throw new Error('Failed to fetch programmed transactions');
   }
   return await response.json();
 };

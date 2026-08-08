@@ -83,7 +83,8 @@
           "title": "Current balance"
         },
         "lastMonths": {
-          "title": "Performance ({currencyCode})"
+          "title": "Performance ({currencyCode})",
+          "includePending": "Include scheduled"
         }
       },
       "totalsPerCategory": {
@@ -332,5 +333,21 @@
       "body": "This cannot be undone. Already-generated transactions are not affected."
     },
     "unexpectedError": "Something went wrong! Couldn't save recurring transaction"
+  },
+  "ProgrammedTransactions": {
+    "title": {
+      "payments": "Programmed Payments",
+      "incomes": "Programmed Incomes"
+    },
+    "noProgrammed": "No programmed transactions yet",
+    "actions": {
+      "confirm": "Confirm",
+      "remove": "Remove"
+    },
+    "removeConfirm": {
+      "title": "Remove this transaction?",
+      "body": "This cannot be undone."
+    },
+    "unexpectedError": "Something went wrong! Couldn't update the programmed transaction"
   }
 }

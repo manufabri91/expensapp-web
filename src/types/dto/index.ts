@@ -12,3 +12,4 @@ export * from './recurringTransactionRequest';
 export * from './recurringTransactionResponse';
 export * from './userSettingsRequest';
 export * from './userSettingsResponse';
+export * from './upcomingTransactionResponse';

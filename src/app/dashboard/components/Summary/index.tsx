@@ -3,7 +3,7 @@ import { CurrencySummaryCard } from '@/components';
 import CategoriesSummaryPie from './CategoriesSummaryPie';
 import { getDashboardSummaryData } from './getDashboardSummaryData';
 import RecentMonthsBalanceChart from './RecentMonthsBalanceChart';
-import { UpcomingRecurringCard } from './UpcomingRecurringCard';
+import { UpcomingTransactionsCard } from './UpcomingTransactionsCard';
 
 export const Summary = async () => {
   const locale = await getLocale();
@@ -29,21 +29,23 @@ export const Summary = async () => {
           {(upcomingExpenses.length > 0 || upcomingIncomes.length > 0) && (
             <div className="flex flex-col gap-4">
               {upcomingExpenses.map((group) => (
-                <UpcomingRecurringCard
+                <UpcomingTransactionsCard
                   key={`expenses-${group.currency}`}
                   title={t('expenses.title')}
                   currency={group.currency}
                   total={group.total}
                   items={group.items}
+                  footerHref="/transactions#programmed-payments"
                 />
               ))}
               {upcomingIncomes.map((group) => (
-                <UpcomingRecurringCard
+                <UpcomingTransactionsCard
                   key={`incomes-${group.currency}`}
                   title={t('incomes.title')}
                   currency={group.currency}
                   total={group.total}
                   items={group.items}
+                  footerHref="/transactions#programmed-incomes"
                 />
               ))}
             </div>

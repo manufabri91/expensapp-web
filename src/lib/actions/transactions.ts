@@ -53,6 +53,22 @@ export const getTransactionsByMonthAndYear = async (month: number, year: number)
   return await response.json();
 };
 
+// Fetches the full record for a single transaction - e.g. to populate the edit form for a pending
+// one-time item, whose flat UpcomingTransactionItem shape doesn't carry enough fields (category,
+// subcategory, currency, ...) to seed TransactionForm on its own. Deliberately uncached
+// (unstable_noStore) since this always runs right before showing the user the current state of
+// the record they're about to edit.
+export const getTransactionById = async (id: number): Promise<TransactionResponse> => {
+  unstable_noStore();
+  const response = await backendFetch(`/transaction/${id}`);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch transaction ${id}`);
+  }
+
+  return await response.json();
+};
+
 export const createTransaction = async (formData: FormData): Promise<TransactionResponse> => {
   unstable_noStore();
   const data = Object.fromEntries(formData);
@@ -103,6 +119,17 @@ export const editTransaction = async (formData: FormData): Promise<TransactionRe
   revalidatePath('/dashboard');
   revalidatePath('/transactions');
   revalidatePath('/manage');
+  return await response.json();
+};
+
+export const confirmTransaction = async (id: number): Promise<TransactionResponse> => {
+  unstable_noStore();
+  const response = await backendFetch(`/transaction/${id}/confirm`, { method: 'PATCH' });
+  if (!response.ok) {
+    throw new Error(`Failed to confirm transaction ${id}`);
+  }
+  revalidatePath('/dashboard');
+  revalidatePath('/transactions');
   return await response.json();
 };
 

@@ -4,16 +4,32 @@ import { useTranslations } from 'next-intl';
 import { FC, useState } from 'react';
 import { Button } from '@/components';
 
+const DEFAULT_NAMESPACE = 'RecurringTransactions';
+
 interface ConfirmActionButtonProps {
   label: string;
   icon: FC<React.SVGProps<SVGSVGElement>>;
   titleKey: string;
   bodyKey: string;
   onConfirm: () => Promise<void>;
+  /**
+   * i18n namespace that `titleKey`, `bodyKey` and the `unexpectedError` fallback are resolved
+   * against. Defaults to the recurring-transaction namespace this dialog was originally written
+   * for, so existing callers keep working untouched; one-time pending rows pass
+   * `ProgrammedTransactions` instead.
+   */
+  namespace?: string;
 }
 
-export const ConfirmActionButton = ({ label, icon: Icon, titleKey, bodyKey, onConfirm }: ConfirmActionButtonProps) => {
-  const t = useTranslations('RecurringTransactions');
+export const ConfirmActionButton = ({
+  label,
+  icon: Icon,
+  titleKey,
+  bodyKey,
+  onConfirm,
+  namespace = DEFAULT_NAMESPACE,
+}: ConfirmActionButtonProps) => {
+  const t = useTranslations(namespace);
   const tGenerics = useTranslations('Generics');
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
