@@ -2,38 +2,35 @@
  * @jest-environment node
  */
 import { getDashboardSummaryData } from '@/app/dashboard/components/Summary/getDashboardSummaryData';
-import { getAccounts } from '@/lib/actions/accounts';
-import { getRecurringTransactions } from '@/lib/actions/recurringTransactions';
-import { getMonthlyHistory, getMonthSummary, getTotalsByCategory } from '@/lib/actions/summaries';
-import { RecurrenceStatus } from '@/types/enums/recurrenceStatus';
-import { TransactionType } from '@/types/enums/transactionType';
-import { buildRecurrence } from '@/utils/testFixtures/buildRecurrence';
+import {
+  getMonthlyHistory,
+  getMonthSummary,
+  getTotalsByCategory,
+  getUpcomingTransactions,
+} from '@/lib/actions/summaries';
 
-jest.mock('@/lib/actions/accounts', () => ({ getAccounts: jest.fn() }));
-jest.mock('@/lib/actions/recurringTransactions', () => ({ getRecurringTransactions: jest.fn() }));
 jest.mock('@/lib/actions/summaries', () => ({
   getMonthSummary: jest.fn(),
   getTotalsByCategory: jest.fn(),
   getMonthlyHistory: jest.fn(),
+  getUpcomingTransactions: jest.fn(),
 }));
 
-const mockedGetAccounts = getAccounts as jest.Mock;
-const mockedGetRecurringTransactions = getRecurringTransactions as jest.Mock;
 const mockedGetMonthSummary = getMonthSummary as jest.Mock;
 const mockedGetTotalsByCategory = getTotalsByCategory as jest.Mock;
 const mockedGetMonthlyHistory = getMonthlyHistory as jest.Mock;
+const mockedGetUpcomingTransactions = getUpcomingTransactions as jest.Mock;
 
 const REFERENCE_DATE = new Date('2024-06-10T12:00:00.000Z');
 
 describe('getDashboardSummaryData', () => {
   beforeEach(() => {
-    mockedGetAccounts.mockResolvedValue([{ id: 1, name: 'Checking', currency: 'USD', accountBalance: 0, initialBalance: 0 }]);
-    mockedGetRecurringTransactions.mockResolvedValue([]);
     mockedGetMonthSummary.mockResolvedValue([{ currency: 'USD', totalBalance: 100, incomes: 200, expenses: 100 }]);
     mockedGetTotalsByCategory.mockResolvedValue([
       { id: 1, name: 'Subscriptions', color: '#fff', totals: { USD: -9.99 }, subTotalsPerSubCategory: [] },
     ]);
     mockedGetMonthlyHistory.mockResolvedValue([{ year: 2024, month: 6, currency: 'USD', incomes: 200, expenses: 100 }]);
+    mockedGetUpcomingTransactions.mockResolvedValue({ expenses: [], incomes: [] });
   });
 
   it('fetches every read in parallel and returns them unchanged', async () => {
@@ -63,27 +60,14 @@ describe('getDashboardSummaryData', () => {
     expect(data.categoryCurrencies).toEqual([]);
   });
 
-  it('groups upcoming recurring transactions into expenses and incomes', async () => {
-    mockedGetRecurringTransactions.mockResolvedValue([
-      buildRecurrence({
-        id: 1,
-        type: TransactionType.EXPENSE,
-        status: RecurrenceStatus.ACTIVE,
-        accountId: 1,
-        nextDueDate: '2024-06-15T00:00:00.000Z',
-      }),
-      buildRecurrence({
-        id: 2,
-        type: TransactionType.INCOME,
-        status: RecurrenceStatus.ACTIVE,
-        accountId: 1,
-        nextDueDate: '2024-06-20T00:00:00.000Z',
-      }),
-    ]);
+  it('passes the upcoming transactions endpoint groups through as expenses and incomes', async () => {
+    const expenses = [{ currency: 'USD', total: -9.99, items: [] }];
+    const incomes = [{ currency: 'USD', total: 200, items: [] }];
+    mockedGetUpcomingTransactions.mockResolvedValue({ expenses, incomes });
 
     const data = await getDashboardSummaryData(REFERENCE_DATE);
 
-    expect(data.upcomingExpenses).toHaveLength(1);
-    expect(data.upcomingIncomes).toHaveLength(1);
+    expect(data.upcomingExpenses).toBe(expenses);
+    expect(data.upcomingIncomes).toBe(incomes);
   });
 });
