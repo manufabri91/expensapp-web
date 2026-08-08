@@ -40,7 +40,7 @@ describe('getDashboardSummaryData', () => {
     expect(data.categorySummaries).toEqual(await mockedGetTotalsByCategory.mock.results[0].value);
     expect(data.monthlyHistory).toEqual(await mockedGetMonthlyHistory.mock.results[0].value);
     expect(mockedGetTotalsByCategory).toHaveBeenCalledWith(2024, 6);
-    expect(mockedGetMonthlyHistory).toHaveBeenCalledWith(6);
+    expect(mockedGetMonthlyHistory).toHaveBeenCalledWith(6, true);
   });
 
   it('derives category and history currencies present in the fetched summaries', async () => {

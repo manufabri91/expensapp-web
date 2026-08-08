@@ -83,7 +83,8 @@
           "title": "Current balance"
         },
         "lastMonths": {
-          "title": "Performance ({currencyCode})"
+          "title": "Performance ({currencyCode})",
+          "includePending": "Include scheduled"
         }
       },
       "totalsPerCategory": {

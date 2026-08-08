@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Tag, TagGroup } from '@heroui/react';
+import { Card, Switch, Tag, TagGroup } from '@heroui/react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import useSWR from 'swr';
@@ -25,21 +25,24 @@ const RANGE_OPTIONS = [
 export default function RecentMonthsBalanceChart({ data, currency, locale }: Props) {
   const t = useTranslations();
   const [months, setMonths] = useState(DEFAULT_MONTHS);
+  const [includePending, setIncludePending] = useState(true);
+
+  const matchesServerFetchedState = months === DEFAULT_MONTHS && includePending === true;
 
   const {
     data: history,
     isValidating,
     mutate,
-  } = useSWR(['monthly-history', months], () => getMonthlyHistory(months), {
-    fallbackData: months === DEFAULT_MONTHS ? data : undefined,
+  } = useSWR(['monthly-history', months, includePending], () => getMonthlyHistory(months, includePending), {
+    fallbackData: matchesServerFetchedState ? data : undefined,
     keepPreviousData: true,
   });
 
   useEffect(() => {
-    if (months === DEFAULT_MONTHS) {
+    if (matchesServerFetchedState) {
       mutate(data, { revalidate: false });
     }
-  }, [data, months, mutate]);
+  }, [data, matchesServerFetchedState, mutate]);
 
   const buildChartData = (source: MonthlyBalanceSummaryResponse[], monthsToShow: number): MonthPoint[] => {
     const now = new Date();
@@ -102,32 +105,44 @@ export default function RecentMonthsBalanceChart({ data, currency, locale }: Pro
   return (
     <Card className="h-min w-full min-w-xs md:max-w-md">
       <Card.Header>
-        <div className="flex w-full items-center justify-between gap-4">
-          <Card.Title>
-            {t('Dashboard.summary.balance.lastMonths.title', {
-              months,
-              currencyCode: t(`Generics.currencies.${currency}.plural`),
-            })}
-          </Card.Title>
-          <TagGroup
-            selectionMode="single"
-            disallowEmptySelection
-            selectedKeys={new Set([String(months)])}
-            onSelectionChange={(keys) => {
-              if (keys === 'all') return;
-              const key = Array.from(keys)[0];
-              const option = RANGE_OPTIONS.find((range) => range.key === key);
-              if (option) setMonths(option.months);
-            }}
-          >
-            <TagGroup.List>
-              {RANGE_OPTIONS.map((option) => (
-                <Tag key={option.key} id={option.key}>
-                  {option.label}
-                </Tag>
-              ))}
-            </TagGroup.List>
-          </TagGroup>
+        <div className="flex w-full flex-col gap-2">
+          <div className="flex w-full items-center justify-between gap-4">
+            <Card.Title>
+              {t('Dashboard.summary.balance.lastMonths.title', {
+                months,
+                currencyCode: t(`Generics.currencies.${currency}.plural`),
+              })}
+            </Card.Title>
+            <TagGroup
+              selectionMode="single"
+              disallowEmptySelection
+              selectedKeys={new Set([String(months)])}
+              onSelectionChange={(keys) => {
+                if (keys === 'all') return;
+                const key = Array.from(keys)[0];
+                const option = RANGE_OPTIONS.find((range) => range.key === key);
+                if (option) setMonths(option.months);
+              }}
+            >
+              <TagGroup.List>
+                {RANGE_OPTIONS.map((option) => (
+                  <Tag key={option.key} id={option.key}>
+                    {option.label}
+                  </Tag>
+                ))}
+              </TagGroup.List>
+            </TagGroup>
+          </div>
+          <div className="flex justify-end">
+            <Switch size="sm" isSelected={includePending} onChange={(selected: boolean) => setIncludePending(selected)}>
+              <Switch.Content>
+                <Switch.Control>
+                  <Switch.Thumb />
+                </Switch.Control>
+                <span>{t('Dashboard.summary.balance.lastMonths.includePending')}</span>
+              </Switch.Content>
+            </Switch>
+          </div>
         </div>
       </Card.Header>
       <Card.Content>

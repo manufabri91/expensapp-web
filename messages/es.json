@@ -83,7 +83,8 @@
           "title": "Balance actual"
         },
         "lastMonths": {
-          "title": "Rendimiento ({currencyCode})"
+          "title": "Rendimiento ({currencyCode})",
+          "includePending": "Incluir programados"
         }
       },
       "totalsPerCategory": {

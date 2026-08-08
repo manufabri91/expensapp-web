@@ -96,8 +96,13 @@ export const getMonthlyExpenses = async (year: number, month: number): Promise<A
   return await response.json();
 };
 
-export const getMonthlyHistory = async (months = 6): Promise<MonthlyBalanceSummaryResponse[]> => {
-  const response = await backendFetch(`${SUMMARY_PATH}/monthly-history/${months}`, { revalidate: 3600 });
+export const getMonthlyHistory = async (
+  months = 6,
+  includePending: boolean = true
+): Promise<MonthlyBalanceSummaryResponse[]> => {
+  const response = await backendFetch(`${SUMMARY_PATH}/monthly-history/${months}?includePending=${includePending}`, {
+    revalidate: 3600,
+  });
   if (!response.ok) {
     throw new Error('Failed to fetch Monthly history');
   }

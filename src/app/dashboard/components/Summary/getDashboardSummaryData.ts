@@ -34,7 +34,7 @@ export const getDashboardSummaryData = async (referenceDate: Date): Promise<Dash
   const [summaries, categorySummaries, monthlyHistory, upcomingTransactions] = await Promise.all([
     getMonthSummary(),
     getTotalsByCategory(year, month),
-    getMonthlyHistory(6),
+    getMonthlyHistory(6, true),
     getUpcomingTransactions(),
   ]);
 
