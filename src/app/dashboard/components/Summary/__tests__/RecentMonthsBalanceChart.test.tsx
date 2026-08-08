@@ -6,12 +6,6 @@ import { MonthlyBalanceSummaryResponse } from '@/types/dto';
 
 jest.mock('swr');
 jest.mock('@/lib/actions/summaries', () => ({ getMonthlyHistory: jest.fn() }));
-// RecentMonthsBalanceChart imports Money via the `@/components` barrel, which also re-exports
-// Navbar/LocaleSwitcher and transitively next-auth - that pulls in a `Request` global that isn't
-// polyfilled in the jsdom test environment. Stub the barrel down to just what this component uses.
-jest.mock('@/components', () => ({
-  Money: ({ amount, className }: { amount: number; className?: string }) => <div className={className}>{amount}</div>,
-}));
 jest.mock('@/components/BalanceAreaChart', () => ({
   BalanceAreaChart: () => <div data-testid="balance-area-chart" />,
   INCOME_COLOR: '#000',
