@@ -4,16 +4,20 @@
 import { revalidatePath } from 'next/cache';
 import { createCategory, deleteCategoryById, editCategory, getCategories } from '@/lib/actions/categories';
 import { auth } from '@/lib/auth';
+import { CategoryFormValues } from '@/schemas/category';
+import { Icon } from '@/types/enums/icon';
+import { TransactionType } from '@/types/enums/transactionType';
 
 jest.mock('@/lib/auth', () => ({ auth: jest.fn() }));
 jest.mock('next/cache', () => ({ revalidatePath: jest.fn(), unstable_noStore: jest.fn() }));
 
 const mockedAuth = auth as unknown as jest.Mock;
 
-const buildFormData = (fields: Record<string, string>): FormData => {
-  const formData = new FormData();
-  Object.entries(fields).forEach(([key, value]) => formData.set(key, value));
-  return formData;
+const validCategory: CategoryFormValues = {
+  name: 'Groceries',
+  color: '#ffffff',
+  iconName: Icon.NONE,
+  type: TransactionType.EXPENSE,
 };
 
 const lastFetchRequest = () => {
@@ -55,9 +59,8 @@ describe('categories actions', () => {
   describe('createCategory', () => {
     it('posts the payload and revalidates dashboard, transactions, and manage', async () => {
       (global.fetch as jest.Mock).mockResolvedValue(new Response('{"id":1}', { status: 201 }));
-      const formData = buildFormData({ name: 'Groceries', color: '#fff', iconName: 'NONE', type: 'EXPENSE' });
 
-      const result = await createCategory(formData);
+      const result = await createCategory(validCategory);
 
       expect(result).toEqual({ id: 1 });
       const { url, init } = lastFetchRequest();
@@ -70,18 +73,21 @@ describe('categories actions', () => {
 
     it('throws when the backend rejects the request', async () => {
       (global.fetch as jest.Mock).mockResolvedValue(new Response('', { status: 400 }));
-      const formData = buildFormData({ name: 'Groceries', color: '#fff', iconName: 'NONE', type: 'EXPENSE' });
 
-      await expect(createCategory(formData)).rejects.toThrow('Failed to create category');
+      await expect(createCategory(validCategory)).rejects.toThrow('Failed to create category');
+    });
+
+    it('throws when the data fails server-side validation', async () => {
+      await expect(createCategory({ ...validCategory, name: '' })).rejects.toThrow('Invalid category data');
+      expect(global.fetch).not.toHaveBeenCalled();
     });
   });
 
   describe('editCategory', () => {
     it('puts the payload and revalidates dashboard, transactions, and manage', async () => {
       (global.fetch as jest.Mock).mockResolvedValue(new Response('{"id":1}', { status: 200 }));
-      const formData = buildFormData({ id: '1', name: 'Groceries', color: '#fff', iconName: 'NONE', type: 'EXPENSE' });
 
-      await editCategory(formData);
+      await editCategory({ ...validCategory, id: 1 });
 
       const { url, init } = lastFetchRequest();
       expect(url).toBe('https://backend.test/category/1');

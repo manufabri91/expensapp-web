@@ -4,6 +4,7 @@
 import { handleRegisterAction } from '@/lib/actions/auth';
 import { signIn } from '@/lib/auth';
 import { register } from '@/lib/auth/handlers';
+import { RegisterFormValues } from '@/schemas/auth';
 
 jest.mock('@/lib/auth', () => ({
   signIn: jest.fn(),
@@ -21,20 +22,17 @@ jest.mock('next-intl/server', () => ({
 const mockedSignIn = signIn as jest.Mock;
 const mockedRegister = register as jest.Mock;
 
-const buildFormData = (overrides: Record<string, string> = {}, includeAcceptedTerms = true) => {
-  const formData = new FormData();
-  formData.set('email', 'john@example.com');
-  formData.set('password', 'password1');
-  formData.set('passwordRepeat', 'password1');
-  formData.set('userName', 'johndoe');
-  formData.set('firstName', 'John');
-  formData.set('lastName', 'Doe');
-  if (includeAcceptedTerms) {
-    formData.set('acceptedTerms', 'on');
-  }
-  Object.entries(overrides).forEach(([key, value]) => formData.set(key, value));
-  return formData;
-};
+const buildRegisterData = (overrides: Partial<RegisterFormValues> = {}): RegisterFormValues => ({
+  email: 'john@example.com',
+  password: 'password1',
+  passwordRepeat: 'password1',
+  userName: 'johndoe',
+  firstName: 'John',
+  lastName: 'Doe',
+  remember: false,
+  acceptedTerms: true,
+  ...overrides,
+});
 
 describe('handleRegisterAction', () => {
   beforeEach(() => {
@@ -42,10 +40,10 @@ describe('handleRegisterAction', () => {
     mockedSignIn.mockReset();
   });
 
-  it('returns a TERMS_NOT_ACCEPTED error without registering when the checkbox is unchecked', async () => {
-    const result = await handleRegisterAction(null, buildFormData({}, false));
+  it('returns an INVALID_DATA_PROVIDED error without registering when the terms checkbox is unchecked', async () => {
+    const result = await handleRegisterAction(buildRegisterData({ acceptedTerms: false }));
 
-    expect(result?.error).toBe('System.ERRORS.TERMS_NOT_ACCEPTED');
+    expect(result?.error).toBe('System.ERRORS.INVALID_DATA_PROVIDED');
     expect(mockedRegister).not.toHaveBeenCalled();
   });
 
@@ -53,7 +51,7 @@ describe('handleRegisterAction', () => {
     mockedRegister.mockResolvedValue(undefined);
     mockedSignIn.mockResolvedValue(undefined);
 
-    const result = await handleRegisterAction(null, buildFormData());
+    const result = await handleRegisterAction(buildRegisterData());
 
     expect(mockedRegister).toHaveBeenCalledWith('johndoe', 'john@example.com', 'password1', 'John', 'Doe', true);
     expect(result?.succeded).toBe(true);

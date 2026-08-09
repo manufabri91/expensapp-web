@@ -3,6 +3,7 @@ import { CredentialsSignin as CredentialsSigninError } from 'next-auth';
 import { getTranslations } from 'next-intl/server';
 import { signIn, signOut } from '@/lib/auth';
 import { register } from '@/lib/auth/handlers';
+import { LoginFormValues, loginSchema, RegisterFormValues, registerSchema } from '@/schemas/auth';
 import { RegisterError } from '@/types/exceptions/RegisterError';
 import { UnreachableLoginError } from '@/types/exceptions/unreachableLogin';
 
@@ -10,58 +11,50 @@ export const handleLogoutAction = async () => {
   await signOut({ redirectTo: '/' });
 };
 
-type RegisterUserData = {
-  email: string;
-  password: string;
-  userName: string;
-  passwordRepeat: string;
-  firstName: string;
-  lastName: string;
-};
-type ActionState = { error: string | null; payload?: FormData; succeded: boolean } | void;
+type ActionState = { error: string | null; succeded: boolean } | void;
 
-export const handleRegisterAction = async (_: unknown, formData: FormData): Promise<ActionState> => {
+export const handleRegisterAction = async (data: RegisterFormValues): Promise<ActionState> => {
   const t = await getTranslations();
-  const { email, password, userName, passwordRepeat, firstName, lastName } = Object.fromEntries(
-    formData
-  ) as RegisterUserData;
-  if (password !== passwordRepeat) {
-    return { error: t('System.ERRORS.PASSWORDS_NOT_MATCH'), payload: formData, succeded: false };
+  const parsed = registerSchema.safeParse(data);
+  if (!parsed.success) {
+    return { error: t('System.ERRORS.INVALID_DATA_PROVIDED'), succeded: false };
   }
-  if (!formData.get('acceptedTerms')) {
-    return { error: t('System.ERRORS.TERMS_NOT_ACCEPTED'), payload: formData, succeded: false };
-  }
+  const { email, password, userName, firstName, lastName, acceptedTerms } = parsed.data;
   try {
-    await register(userName, email, password, firstName, lastName, true);
+    await register(userName, email, password, firstName, lastName, acceptedTerms);
     await signIn('credentials', { email, password, redirectTo: '/dashboard' });
-    return { succeded: true, error: null, payload: formData };
+    return { succeded: true, error: null };
   } catch (err: unknown) {
     if (err instanceof RegisterError) {
-      return { error: t(err.message), payload: formData, succeded: false };
+      return { error: t(err.message), succeded: false };
     } else if (err instanceof Error && err.message === 'NEXT_REDIRECT') {
       throw err;
     } else if (err instanceof UnreachableLoginError) {
-      return { error: t('System.ERRORS.SERVICE_UNAVAILABLE'), payload: formData, succeded: false };
+      return { error: t('System.ERRORS.SERVICE_UNAVAILABLE'), succeded: false };
     }
-    return { error: t('System.ERRORS.REGISTRATION_FAILED'), payload: formData, succeded: false };
+    return { error: t('System.ERRORS.REGISTRATION_FAILED'), succeded: false };
   }
 };
 
-export const handleLoginAction = async (_: unknown, formData: FormData): Promise<ActionState> => {
+export const handleLoginAction = async (data: LoginFormValues): Promise<ActionState> => {
   const t = await getTranslations();
-  const { email, password } = Object.fromEntries(formData);
+  const parsed = loginSchema.safeParse(data);
+  if (!parsed.success) {
+    return { error: t('System.ERRORS.INVALID_DATA_PROVIDED'), succeded: false };
+  }
+  const { email, password } = parsed.data;
 
   try {
     await signIn('credentials', { email, password, redirectTo: '/dashboard' });
-    return { error: null, payload: formData, succeded: true };
+    return { error: null, succeded: true };
   } catch (err: unknown) {
     if (err instanceof UnreachableLoginError) {
-      return { error: t('System.ERRORS.SERVICE_UNAVAILABLE'), payload: formData, succeded: false };
+      return { error: t('System.ERRORS.SERVICE_UNAVAILABLE'), succeded: false };
     } else if (err instanceof CredentialsSigninError) {
-      return { error: t('System.ERRORS.WRONG_CREDENTIALS'), payload: formData, succeded: false };
+      return { error: t('System.ERRORS.WRONG_CREDENTIALS'), succeded: false };
     } else if (err instanceof Error && err.message === 'NEXT_REDIRECT') {
       throw err;
     }
-    return { error: t('System.ERRORS.LOGIN_FAILED'), payload: formData, succeded: false };
+    return { error: t('System.ERRORS.LOGIN_FAILED'), succeded: false };
   }
 };

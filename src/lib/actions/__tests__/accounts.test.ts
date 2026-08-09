@@ -10,12 +10,6 @@ jest.mock('next/cache', () => ({ revalidatePath: jest.fn(), unstable_noStore: je
 
 const mockedAuth = auth as unknown as jest.Mock;
 
-const buildFormData = (fields: Record<string, string>): FormData => {
-  const formData = new FormData();
-  Object.entries(fields).forEach(([key, value]) => formData.set(key, value));
-  return formData;
-};
-
 const lastFetchRequest = () => {
   const [url, init] = (global.fetch as jest.Mock).mock.calls[0];
   return { url, init, body: init.body ? JSON.parse(init.body) : undefined };
@@ -55,9 +49,8 @@ describe('accounts actions', () => {
   describe('createAccount', () => {
     it('posts the payload and revalidates dashboard, transactions, and manage', async () => {
       (global.fetch as jest.Mock).mockResolvedValue(new Response('{"id":1}', { status: 201 }));
-      const formData = buildFormData({ name: 'Checking', currency: 'USD', initialBalance: '100' });
 
-      const result = await createAccount(formData);
+      const result = await createAccount({ name: 'Checking', currency: 'USD', initialBalance: 100 });
 
       expect(result).toEqual({ id: 1 });
       const { url, init } = lastFetchRequest();
@@ -70,18 +63,25 @@ describe('accounts actions', () => {
 
     it('throws when the backend rejects the request', async () => {
       (global.fetch as jest.Mock).mockResolvedValue(new Response('', { status: 400 }));
-      const formData = buildFormData({ name: 'Checking', currency: 'USD', initialBalance: '100' });
 
-      await expect(createAccount(formData)).rejects.toThrow('Failed to create account');
+      await expect(createAccount({ name: 'Checking', currency: 'USD', initialBalance: 100 })).rejects.toThrow(
+        'Failed to create account'
+      );
+    });
+
+    it('throws when the data fails server-side validation', async () => {
+      await expect(
+        createAccount({ name: '', currency: 'USD', initialBalance: 100 })
+      ).rejects.toThrow('Invalid account data');
+      expect(global.fetch).not.toHaveBeenCalled();
     });
   });
 
   describe('editAccount', () => {
     it('puts the payload and revalidates dashboard, transactions, and manage', async () => {
       (global.fetch as jest.Mock).mockResolvedValue(new Response('{"id":1}', { status: 200 }));
-      const formData = buildFormData({ id: '1', name: 'Checking', currency: 'USD', initialBalance: '100' });
 
-      await editAccount(formData);
+      await editAccount({ id: 1, name: 'Checking', currency: 'USD', initialBalance: 100 });
 
       const { url, init } = lastFetchRequest();
       expect(url).toBe('https://backend.test/account/1');
