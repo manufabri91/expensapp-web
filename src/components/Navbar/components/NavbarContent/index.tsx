@@ -20,7 +20,7 @@ import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 import { LoginButtons } from '@/components/Navbar/components/LoginButtons';
 import { MobileNavbar } from '@/components/Navbar/components/MobileNavbar/MobileNavbar';
 import { SettingsDrawer } from '@/components/Navbar/components/SettingsDrawer';
-import { handleLogoutAction } from '@/lib/actions/auth';
+import { clientLogout } from '@/lib/auth/clientLogout';
 
 interface Props {
   session: Session | null;
@@ -99,7 +99,7 @@ export const NavbarContent = ({ session }: Props) => {
 
   const menuActionHandler = (key: Key) => {
     const actionMappings = {
-      logout: handleLogoutAction,
+      logout: clientLogout,
     };
     const action = actionMappings[key as keyof typeof actionMappings];
     if (action) {

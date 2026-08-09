@@ -1,7 +1,7 @@
 import { toast } from '@heroui/react';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { DeleteAccountButton } from '@/components/Navbar/components/SettingsDrawer/DeleteAccountButton';
-import { handleLogoutAction } from '@/lib/actions/auth';
+import { clientLogout } from '@/lib/auth/clientLogout';
 
 jest.mock('next-intl', () => ({
   useTranslations: (namespace?: string) => (key: string) => (namespace ? `${namespace}.${key}` : key),
@@ -16,9 +16,9 @@ jest.mock('@heroui/react', () => {
   return { ...actual, toast: { success: jest.fn(), danger: jest.fn() } };
 });
 
-jest.mock('@/lib/actions/auth', () => ({ handleLogoutAction: jest.fn() }));
+jest.mock('@/lib/auth/clientLogout', () => ({ clientLogout: jest.fn() }));
 
-const mockedHandleLogoutAction = handleLogoutAction as jest.Mock;
+const mockedHandleLogoutAction = clientLogout as jest.Mock;
 
 describe('DeleteAccountButton', () => {
   beforeEach(() => {

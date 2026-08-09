@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, ReactNode, useContext, useState } from 'react';
+import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
 import { getCategories } from '@/lib/actions/categories';
 import { getSubcategories } from '@/lib/actions/subcategories';
@@ -43,6 +43,16 @@ const CategoriesProvider: React.FC<{
 }> = ({ children, initialCategories, initialSubcategories }) => {
   const [categories, setCategories] = useState<CategoryResponse[]>(initialCategories);
   const [subcategories, setSubcategories] = useState<SubCategoryResponse[]>(initialSubcategories);
+
+  useEffect(() => {
+    setCategories(initialCategories);
+    // initialCategories/initialSubcategories are re-fetched per request in AppProviders (e.g. on
+    // login/logout) - resync whenever they change instead of only using them on first mount.
+  }, [initialCategories]);
+
+  useEffect(() => {
+    setSubcategories(initialSubcategories);
+  }, [initialSubcategories]);
 
   const addCategory = (category: CategoryResponse) => {
     setCategories((prev) => [...prev, category]);

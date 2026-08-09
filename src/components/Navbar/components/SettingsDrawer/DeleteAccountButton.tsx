@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { HiTrash } from 'react-icons/hi2';
 import { Button } from '@/components';
-import { handleLogoutAction } from '@/lib/actions/auth';
+import { clientLogout } from '@/lib/auth/clientLogout';
 
 export const DeleteAccountButton = () => {
   const t = useTranslations('Settings');
@@ -19,7 +19,7 @@ export const DeleteAccountButton = () => {
       if (!response.ok) {
         throw new Error(t('deleteAccountFailed'));
       }
-      await handleLogoutAction();
+      await clientLogout();
     } catch (error) {
       toast.danger(error instanceof Error ? error.message : t('deleteAccountFailed'));
       setIsSubmitting(false);
