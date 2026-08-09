@@ -26,6 +26,7 @@ export const handleRegisterAction = async (data: RegisterFormValues): Promise<Ac
     return { succeded: true, error: null };
   } catch (err: unknown) {
     if (err instanceof RegisterError) {
+      console.log('RegisterError', err.message);
       return { error: t(err.message), succeded: false };
     } else if (err instanceof Error && err.message === 'NEXT_REDIRECT') {
       throw err;

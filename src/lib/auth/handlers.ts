@@ -71,17 +71,17 @@ export async function register(
     },
   });
   if (response.status === 424) {
-    throw new RegisterError('System.ERRORS.USER_EXISTS');
+    throw new RegisterError('USER_EXISTS');
   }
   if (response.status === 400) {
-    throw new RegisterError('System.ERRORS.INVALID_DATA_PROVIDED');
+    throw new RegisterError('INVALID_DATA_PROVIDED');
   }
   if (response.status === 500) {
-    throw new RegisterError('System.ERRORS.UNHANDLED_EXCEPTION');
+    throw new RegisterError('UNHANDLED_EXCEPTION');
   }
 
   if (!response.ok) {
-    throw new RegisterError('System.ERRORS.USER_CREATION_FAIL');
+    throw new RegisterError('USER_CREATION_FAIL');
   }
 
   return await response.json();

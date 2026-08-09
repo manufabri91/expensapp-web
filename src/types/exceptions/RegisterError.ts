@@ -1,6 +1,6 @@
 export class RegisterError extends Error {
   constructor(reason: string) {
-    super(`Registration failed: ${reason}`);
+    super(`System.ERRORS.${reason}`);
     this.name = 'RegisterError';
   }
 }
