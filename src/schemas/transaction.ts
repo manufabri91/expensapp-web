@@ -1,9 +1,14 @@
 import { formatISO } from 'date-fns';
 import { z } from 'zod';
+import { parseCalendarDateOnly } from '@/lib/utils/date';
 import { RecurrenceFrequency } from '@/types/enums/recurrenceFrequency';
 import { TransactionType } from '@/types/enums/transactionType';
 
-const isoDate = (date: Date) => formatISO(date, { representation: 'date' });
+// The backend deserializes eventDate/startDate/endDate into a Java OffsetDateTime, which requires
+// a full timestamp with an offset - a bare "YYYY-MM-DD" fails Jackson deserialization with a 400
+// ("Failed to read request"). Route through the same UTC-midnight-anchored helper the rest of the
+// app already uses (see parseCalendarDateOnly's own comment) instead of a plain date-only string.
+const isoDate = (date: Date) => parseCalendarDateOnly(formatISO(date, { representation: 'date' })) as string;
 
 const baseTransactionShape = {
   id: z.number().optional(),
@@ -56,7 +61,11 @@ export const oneTimeTransactionSchema = z
     id: data.id,
     amount: Math.abs(data.amount),
     eventDate: isoDate(data.eventDate),
-    description: data.type === TransactionType.TRANSFER ? undefined : data.description,
+    // The backend requires a non-blank description on every transaction (@NotBlank on
+    // TransactionRequestDto), even though it immediately overwrites this value with the same
+    // "TRANSFER.OUT.DESCRIPTION" system key server-side for transfers - so this placeholder only
+    // needs to satisfy that validation, not carry real content.
+    description: data.type === TransactionType.TRANSFER ? 'TRANSFER.OUT.DESCRIPTION' : data.description,
     accountId: data.account,
     categoryId: data.type === TransactionType.TRANSFER ? undefined : data.category,
     subcategoryId: data.type === TransactionType.TRANSFER ? undefined : data.subcategory,
@@ -116,7 +125,7 @@ export const transactionServerSchema = z.object({
   id: z.number().optional(),
   amount: z.number().positive(),
   eventDate: z.string().optional(),
-  description: z.string().optional(),
+  description: z.string().min(1),
   accountId: z.number(),
   categoryId: z.number().optional(),
   subcategoryId: z.number().optional(),

@@ -28,7 +28,8 @@ export const getTransactions = async (url: string): Promise<PagedResponse<Transa
 // call site isn't duplicated across pages.
 export const getInitialTransactionsPage = async (
   filters: TransactionFilters
-): Promise<PagedResponse<TransactionResponse>> => getTransactions(`/api/transaction${transactionFiltersToQueryParams(filters)}`);
+): Promise<PagedResponse<TransactionResponse>> =>
+  getTransactions(`/api/transaction${transactionFiltersToQueryParams(filters)}`);
 
 export const getFilteredTotals = async (url: string): Promise<CurrencySummaryResponse[]> => {
   const response = await backendFetch(toBackendPath(url), { revalidate: 3600 });

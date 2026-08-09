@@ -63,6 +63,24 @@ Run /simplify before presenting code to the user.
 
 <!-- END:component-organization -->
 
+<!-- BEGIN:clean-code-principles -->
+
+## Clean Code Principles
+
+- **SRP**: a component or function should have one reason to change. If a component is fetching data, managing
+  form state, deriving multiple unrelated view models, *and* rendering several independent sections, it has too
+  many responsibilities - split it into a container plus focused subcomponents/hooks, each named for the one
+  thing it does.
+- **YAGNI**: don't add props, config options, abstraction layers, or generality for a use case that doesn't
+  exist yet. Build for the requirement in front of you, not a hypothetical future one.
+- **KISS**: prefer the straightforward implementation over the clever one. If a simpler version does the same
+  job with less indirection, use the simpler version.
+- As a rough guardrail, a component file pushing past ~300 lines is a signal it's carrying more than one
+  responsibility - look for a natural seam (a field group, a data-fetching concern, a submit-handling concern)
+  and extract it, rather than letting the file keep growing.
+
+<!-- END:clean-code-principles -->
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 # Next.js: ALWAYS read docs before coding

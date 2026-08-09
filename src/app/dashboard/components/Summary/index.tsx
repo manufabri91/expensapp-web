@@ -20,53 +20,57 @@ export const Summary = async () => {
 
   return (
     <>
-      <div className="mb-4 flex flex-col items-center justify-center gap-4 md:flex-row">
-        <div className="flex h-min w-full flex-col justify-center gap-4">
-          {summaries.map((currencySummary) => (
-            <CurrencySummaryCard key={currencySummary.currency} currencySummary={currencySummary} locale={locale} />
-          ))}
-
-          {(upcomingExpenses.length > 0 || upcomingIncomes.length > 0) && (
-            <div className="flex flex-col gap-4">
-              {upcomingExpenses.map((group) => (
-                <UpcomingTransactionsCard
-                  key={`expenses-${group.currency}`}
-                  title={t('expenses.title')}
-                  currency={group.currency}
-                  total={group.total}
-                  items={group.items}
-                  footerHref="/transactions#programmed-payments"
-                />
-              ))}
-              {upcomingIncomes.map((group) => (
-                <UpcomingTransactionsCard
-                  key={`incomes-${group.currency}`}
-                  title={t('incomes.title')}
-                  currency={group.currency}
-                  total={group.total}
-                  items={group.items}
-                  footerHref="/transactions#programmed-incomes"
-                />
-              ))}
-            </div>
-          )}
-        </div>
-        {historyCurrencies.length > 0 && (
-          <>
-            {historyCurrencies.map((currency) => (
-              <RecentMonthsBalanceChart key={currency} data={monthlyHistory} currency={currency} locale={locale} />
+      <div className="mb-4 flex w-full flex-col items-center justify-center gap-4 md:flex-row md:justify-center">
+        <div className="flex h-min w-full flex-col justify-center gap-4 md:flex-row md:justify-center">
+          <div className="flex flex-col gap-4">
+            {summaries.map((currencySummary) => (
+              <CurrencySummaryCard key={currencySummary.currency} currencySummary={currencySummary} locale={locale} />
             ))}
-          </>
-        )}
-        {categoryCurrencies.length > 0 &&
-          categoryCurrencies.map((currency) => (
-            <CategoriesSummaryPie
-              key={currency}
-              categorySummaries={categorySummaries}
-              currency={currency}
-              locale={locale}
-            />
-          ))}
+
+            {(upcomingExpenses.length > 0 || upcomingIncomes.length > 0) && (
+              <div className="flex flex-col gap-4">
+                {upcomingExpenses.map((group) => (
+                  <UpcomingTransactionsCard
+                    key={`expenses-${group.currency}`}
+                    title={t('expenses.title')}
+                    currency={group.currency}
+                    total={group.total}
+                    items={group.items}
+                    footerHref="/transactions#programmed-payments"
+                  />
+                ))}
+                {upcomingIncomes.map((group) => (
+                  <UpcomingTransactionsCard
+                    key={`incomes-${group.currency}`}
+                    title={t('incomes.title')}
+                    currency={group.currency}
+                    total={group.total}
+                    items={group.items}
+                    footerHref="/transactions#programmed-incomes"
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="flex flex-1 flex-col gap-4 md:flex-row">
+            {historyCurrencies.length > 0 && (
+              <>
+                {historyCurrencies.map((currency) => (
+                  <RecentMonthsBalanceChart key={currency} data={monthlyHistory} currency={currency} locale={locale} />
+                ))}
+              </>
+            )}
+            {categoryCurrencies.length > 0 &&
+              categoryCurrencies.map((currency) => (
+                <CategoriesSummaryPie
+                  key={currency}
+                  categorySummaries={categorySummaries}
+                  currency={currency}
+                  locale={locale}
+                />
+              ))}
+          </div>
+        </div>
       </div>
     </>
   );

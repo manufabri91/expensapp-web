@@ -19,11 +19,13 @@ describe('oneTimeTransactionSchema', () => {
     eventDate: new Date('2024-01-15'),
   };
 
-  it('accepts a valid expense and transforms eventDate to an ISO date string', () => {
+  it('accepts a valid expense and transforms eventDate to a UTC-midnight ISO timestamp', () => {
     const result = oneTimeTransactionSchema.safeParse(validExpense);
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.eventDate).toBe('2024-01-15');
+      // Bare "YYYY-MM-DD" fails Jackson deserialization into the backend's OffsetDateTime field -
+      // it must be a full timestamp with an offset.
+      expect(result.data.eventDate).toBe('2024-01-15T00:00:00.000Z');
       expect(result.data.categoryId).toBe(2);
       expect(result.data.subcategoryId).toBe(3);
     }
@@ -75,7 +77,7 @@ describe('oneTimeTransactionSchema', () => {
     expect(result.success).toBe(false);
   });
 
-  it('accepts a valid transfer and omits category/subcategory/description from the output', () => {
+  it('accepts a valid transfer, omits category/subcategory, and fills a placeholder description', () => {
     const result = oneTimeTransactionSchema.safeParse({
       ...validExpense,
       type: TransactionType.TRANSFER,
@@ -89,6 +91,9 @@ describe('oneTimeTransactionSchema', () => {
       expect(result.data.categoryId).toBeUndefined();
       expect(result.data.subcategoryId).toBeUndefined();
       expect(result.data.destinationAccountId).toBe(2);
+      // The backend requires a non-blank description on every transaction (@NotBlank) even
+      // though it immediately overwrites this value server-side for transfers.
+      expect(result.data.description).toBe('TRANSFER.OUT.DESCRIPTION');
     }
   });
 });
@@ -113,7 +118,7 @@ describe('recurringTransactionSchema', () => {
     const result = recurringTransactionSchema.safeParse(validRecurring);
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.startDate).toBe('2024-01-01');
+      expect(result.data.startDate).toBe('2024-01-01T00:00:00.000Z');
       expect(result.data.endDate).toBeNull();
       expect(result.data.intervalDays).toBe(30);
       expect(result.data.daysOfMonth).toBeUndefined();
@@ -164,7 +169,7 @@ describe('recurringTransactionSchema', () => {
     });
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.endDate).toBe('2024-06-01');
+      expect(result.data.endDate).toBe('2024-06-01T00:00:00.000Z');
     }
   });
 });
