@@ -65,89 +65,91 @@ export const SubcategoryForm = () => {
   if (!overlayState.isOpen) return null;
 
   return (
-    <Modal.Backdrop variant="blur" isOpen={overlayState.isOpen} onOpenChange={overlayState.setOpen}>
-      <Modal.Container>
-        <Modal.Dialog>
-          <Modal.CloseTrigger />
-          <Modal.Header>
-            <Modal.Heading>
-              {isEditMode ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.subcategory')}
-            </Modal.Heading>
-          </Modal.Header>
-          <form onSubmit={handleSubmit(onValid)}>
-            <Modal.Body className="flex flex-col gap-4">
-              <Controller
-                control={control}
-                name="name"
-                render={({ field, fieldState }) => (
-                  <TextField
-                    isRequired
-                    fullWidth
-                    isInvalid={fieldState.invalid}
-                    value={field.value}
-                    onChange={field.onChange}
-                    onBlur={field.onBlur}
-                  >
-                    <Label>{t('CategoryForm.name')}</Label>
-                    <InputGroup variant="secondary">
-                      <InputGroup.Input type="text" />
-                    </InputGroup>
-                    {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
-                  </TextField>
+    <Modal>
+      <Modal.Backdrop variant="blur" isOpen={overlayState.isOpen} onOpenChange={overlayState.setOpen}>
+        <Modal.Container>
+          <Modal.Dialog>
+            <Modal.CloseTrigger />
+            <Modal.Header>
+              <Modal.Heading>
+                {isEditMode ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.subcategory')}
+              </Modal.Heading>
+            </Modal.Header>
+            <form onSubmit={handleSubmit(onValid)}>
+              <Modal.Body className="flex flex-col gap-4">
+                <Controller
+                  control={control}
+                  name="name"
+                  render={({ field, fieldState }) => (
+                    <TextField
+                      isRequired
+                      fullWidth
+                      isInvalid={fieldState.invalid}
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                    >
+                      <Label>{t('CategoryForm.name')}</Label>
+                      <InputGroup variant="secondary">
+                        <InputGroup.Input type="text" />
+                      </InputGroup>
+                      {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
+                    </TextField>
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name="parentCategoryId"
+                  render={({ field, fieldState }) => (
+                    <Select
+                      isRequired
+                      placeholder={t('TransactionForm.selectCategory')}
+                      variant="secondary"
+                      isInvalid={fieldState.invalid}
+                      selectedKey={field.value ? field.value.toString() : undefined}
+                      onSelectionChange={(key) => field.onChange(key ? Number(key) : undefined)}
+                      onBlur={field.onBlur}
+                    >
+                      <Label>{t('SubcategoryForm.belongsTo')}</Label>
+                      <Select.Trigger>
+                        <Select.Value />
+                        <Select.Indicator />
+                      </Select.Trigger>
+                      <Select.Popover>
+                        <ListBox>
+                          {categories.map((category) => (
+                            <ListBox.Item
+                              key={category.id}
+                              id={category.id.toString()}
+                              textValue={category.name}
+                              hidden={category.readOnly}
+                            >
+                              {category.name}
+                            </ListBox.Item>
+                          ))}
+                        </ListBox>
+                      </Select.Popover>
+                      {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
+                    </Select>
+                  )}
+                />
+              </Modal.Body>
+              <Modal.Footer>
+                {!isSubmitting && (
+                  <Button type="submit" variant="primary" fullWidth>
+                    {isEditMode ? t('Generics.edit') : t('Generics.save')}
+                  </Button>
                 )}
-              />
-              <Controller
-                control={control}
-                name="parentCategoryId"
-                render={({ field, fieldState }) => (
-                  <Select
-                    isRequired
-                    placeholder={t('TransactionForm.selectCategory')}
-                    variant="secondary"
-                    isInvalid={fieldState.invalid}
-                    selectedKey={field.value ? field.value.toString() : undefined}
-                    onSelectionChange={(key) => field.onChange(key ? Number(key) : undefined)}
-                    onBlur={field.onBlur}
-                  >
-                    <Label>{t('SubcategoryForm.belongsTo')}</Label>
-                    <Select.Trigger>
-                      <Select.Value />
-                      <Select.Indicator />
-                    </Select.Trigger>
-                    <Select.Popover>
-                      <ListBox>
-                        {categories.map((category) => (
-                          <ListBox.Item
-                            key={category.id}
-                            id={category.id.toString()}
-                            textValue={category.name}
-                            hidden={category.readOnly}
-                          >
-                            {category.name}
-                          </ListBox.Item>
-                        ))}
-                      </ListBox>
-                    </Select.Popover>
-                    {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
-                  </Select>
+                {isSubmitting && (
+                  <Button type="button" isDisabled fullWidth>
+                    {isEditMode ? t('Generics.editing') : t('Generics.saving')}...
+                  </Button>
                 )}
-              />
-            </Modal.Body>
-            <Modal.Footer>
-              {!isSubmitting && (
-                <Button type="submit" variant="primary" fullWidth>
-                  {isEditMode ? t('Generics.edit') : t('Generics.save')}
-                </Button>
-              )}
-              {isSubmitting && (
-                <Button type="button" isDisabled fullWidth>
-                  {isEditMode ? t('Generics.editing') : t('Generics.saving')}...
-                </Button>
-              )}
-            </Modal.Footer>
-          </form>
-        </Modal.Dialog>
-      </Modal.Container>
-    </Modal.Backdrop>
+              </Modal.Footer>
+            </form>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
+    </Modal>
   );
 };

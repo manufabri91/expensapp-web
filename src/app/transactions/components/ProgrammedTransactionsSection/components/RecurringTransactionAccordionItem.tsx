@@ -45,7 +45,7 @@ export const RecurringTransactionAccordionItem = ({
     <Accordion.Item id={`RECURRING-${recurrence.id}`}>
       <Accordion.Heading>
         <Accordion.Trigger aria-label={recurrence.description}>
-          <div className="flex w-full items-center justify-between gap-3 px-2">
+          <div className="flex w-full items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <Icon
                 iconName={recurrence.category.iconName}

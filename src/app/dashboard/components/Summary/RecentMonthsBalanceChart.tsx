@@ -115,6 +115,7 @@ export default function RecentMonthsBalanceChart({ data, currency, locale }: Pro
               })}
             </Card.Title>
             <TagGroup
+              aria-label="range"
               selectionMode="single"
               disallowEmptySelection
               selectedKeys={new Set([String(months)])}

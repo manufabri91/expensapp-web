@@ -3,7 +3,8 @@
 import { Accordion, Card, EmptyState, Spinner } from '@heroui/react';
 import { compareAsc, parseISO } from 'date-fns';
 import { useTranslations } from 'next-intl';
-import { ReactNode, useMemo } from 'react';
+import { ReactNode, useMemo, useState } from 'react';
+import { HiChevronRight } from 'react-icons/hi2';
 import { AccountResponse, RecurringTransactionResponse, UpcomingTransactionItem } from '@/types/dto';
 import { ConfirmPendingTransactionButton } from './ConfirmPendingTransactionButton';
 import { EditPendingTransactionButton } from './EditPendingTransactionButton';
@@ -40,6 +41,8 @@ interface ProgrammedTransactionsCardProps {
   onChanged: () => void;
 }
 
+const MAX_VISIBLE_ITEMS = 3;
+
 export const ProgrammedTransactionsCard = ({
   title,
   anchorId,
@@ -49,7 +52,11 @@ export const ProgrammedTransactionsCard = ({
   onChanged,
 }: ProgrammedTransactionsCardProps) => {
   const t = useTranslations('ProgrammedTransactions');
-  const sortedItems = useMemo(() => [...items].sort(compareByDateNullsLast), [items]);
+  const [isExtended, setIsExtended] = useState(false);
+  const sortedItems = useMemo(
+    () => [...items].sort(compareByDateNullsLast).slice(0, isExtended ? undefined : MAX_VISIBLE_ITEMS),
+    [items, isExtended]
+  );
 
   const renderItem = (item: UpcomingTransactionItem): ReactNode => {
     const currency = lookups.accountsById.get(item.accountId)?.currency;
@@ -105,6 +112,15 @@ export const ProgrammedTransactionsCard = ({
           <Accordion variant="surface">{sortedItems.map(renderItem)}</Accordion>
         )}
       </Card.Content>
+      {items.length > MAX_VISIBLE_ITEMS && (
+        <Card.Footer
+          className="text-accent flex w-full items-center justify-between gap-1 text-sm font-medium hover:underline"
+          onClick={() => setIsExtended((prev) => !prev)}
+        >
+          <span>{isExtended ? t('viewLess') : t('viewMore')}</span>
+          <HiChevronRight className="size-4" />
+        </Card.Footer>
+      )}
     </Card>
   );
 };

@@ -392,7 +392,9 @@
       "title": "Remove this transaction?",
       "body": "This cannot be undone."
     },
-    "unexpectedError": "Something went wrong! Couldn't update the programmed transaction"
+    "unexpectedError": "Something went wrong! Couldn't update the programmed transaction",
+    "viewMore": "View more",
+    "viewLess": "View Less"
   },
   "CookieConsent": {
     "message": "We use essential cookies to keep you signed in and to remember your language preference. We don't use any tracking or advertising cookies.",

@@ -80,84 +80,86 @@ export const CategoryForm = () => {
   if (!overlayState.isOpen) return null;
 
   return (
-    <Modal.Backdrop variant="blur" isOpen={overlayState.isOpen} onOpenChange={overlayState.setOpen}>
-      <Modal.Container>
-        <Modal.Dialog>
-          <Modal.CloseTrigger />
-          <Modal.Header>
-            <Modal.Heading>
-              {categoryFormData ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.category')}
-            </Modal.Heading>
-          </Modal.Header>
-          <form onSubmit={handleSubmit(onValid)}>
-            <Modal.Body className="flex flex-col gap-4 py-2">
-              <Controller
-                control={control}
-                name="type"
-                render={({ field, fieldState }) => (
-                  <>
-                    <TransactionTypeSelector initialValue={field.value} onSelect={field.onChange} hideTransfers />
-                    {fieldState.error?.message && <ErrorMessage>{t(fieldState.error.message)}</ErrorMessage>}
-                  </>
-                )}
-              />
-              <div className="grid grid-cols-5 gap-4">
+    <Modal>
+      <Modal.Backdrop variant="blur" isOpen={overlayState.isOpen} onOpenChange={overlayState.setOpen}>
+        <Modal.Container>
+          <Modal.Dialog>
+            <Modal.CloseTrigger />
+            <Modal.Header>
+              <Modal.Heading>
+                {categoryFormData ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.category')}
+              </Modal.Heading>
+            </Modal.Header>
+            <form onSubmit={handleSubmit(onValid)}>
+              <Modal.Body className="flex flex-col gap-4 py-2">
                 <Controller
                   control={control}
-                  name="iconName"
-                  render={({ field }) => (
-                    <IconPickerFormField selectedKey={field.value} onSelectionChange={field.onChange} />
+                  name="type"
+                  render={({ field, fieldState }) => (
+                    <>
+                      <TransactionTypeSelector initialValue={field.value} onSelect={field.onChange} hideTransfers />
+                      {fieldState.error?.message && <ErrorMessage>{t(fieldState.error.message)}</ErrorMessage>}
+                    </>
                   )}
                 />
-                <div className="col-span-3">
+                <div className="grid grid-cols-5 gap-4">
                   <Controller
                     control={control}
-                    name="name"
+                    name="iconName"
+                    render={({ field }) => (
+                      <IconPickerFormField selectedKey={field.value} onSelectionChange={field.onChange} />
+                    )}
+                  />
+                  <div className="col-span-3">
+                    <Controller
+                      control={control}
+                      name="name"
+                      render={({ field, fieldState }) => (
+                        <TextField
+                          isRequired
+                          fullWidth
+                          isInvalid={fieldState.invalid}
+                          value={field.value}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                        >
+                          <Label>{t('CategoryForm.name')}</Label>
+                          <InputGroup variant="secondary">
+                            <InputGroup.Input type="text" />
+                          </InputGroup>
+                          {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
+                        </TextField>
+                      )}
+                    />
+                  </div>
+                  <Controller
+                    control={control}
+                    name="color"
                     render={({ field, fieldState }) => (
-                      <TextField
-                        isRequired
-                        fullWidth
-                        isInvalid={fieldState.invalid}
-                        value={field.value}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
-                      >
-                        <Label>{t('CategoryForm.name')}</Label>
-                        <InputGroup variant="secondary">
-                          <InputGroup.Input type="text" />
-                        </InputGroup>
-                        {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
-                      </TextField>
+                      <div>
+                        <ColorPicker color={field.value} onChange={field.onChange} />
+                        {fieldState.error?.message && <ErrorMessage>{t(fieldState.error.message)}</ErrorMessage>}
+                      </div>
                     )}
                   />
                 </div>
-                <Controller
-                  control={control}
-                  name="color"
-                  render={({ field, fieldState }) => (
-                    <div>
-                      <ColorPicker color={field.value} onChange={field.onChange} />
-                      {fieldState.error?.message && <ErrorMessage>{t(fieldState.error.message)}</ErrorMessage>}
-                    </div>
-                  )}
-                />
-              </div>
-            </Modal.Body>
-            <Modal.Footer>
-              {!isSubmitting && (
-                <Button type="submit" variant="primary" fullWidth>
-                  {categoryFormData ? t('Generics.edit') : t('Generics.save')}
-                </Button>
-              )}
-              {isSubmitting && (
-                <Button type="button" isDisabled fullWidth>
-                  {categoryFormData ? t('Generics.editing') : t('Generics.saving')}...
-                </Button>
-              )}
-            </Modal.Footer>
-          </form>
-        </Modal.Dialog>
-      </Modal.Container>
-    </Modal.Backdrop>
+              </Modal.Body>
+              <Modal.Footer>
+                {!isSubmitting && (
+                  <Button type="submit" variant="primary" fullWidth>
+                    {categoryFormData ? t('Generics.edit') : t('Generics.save')}
+                  </Button>
+                )}
+                {isSubmitting && (
+                  <Button type="button" isDisabled fullWidth>
+                    {categoryFormData ? t('Generics.editing') : t('Generics.saving')}...
+                  </Button>
+                )}
+              </Modal.Footer>
+            </form>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
+    </Modal>
   );
 };

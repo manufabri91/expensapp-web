@@ -40,7 +40,12 @@ import { useAccounts } from '@/lib/providers/AccountsProvider';
 import { useCategories } from '@/lib/providers/CategoriesProvider';
 import { useTransactionsFilters } from '@/lib/providers/TransactionFiltersProvider';
 import { oneTimeTransactionSchema, recurringTransactionSchema } from '@/schemas/transaction';
-import { RecurringTransactionRequest, RecurringTransactionResponse, TransactionRequest, TransactionResponse } from '@/types/dto';
+import {
+  RecurringTransactionRequest,
+  RecurringTransactionResponse,
+  TransactionRequest,
+  TransactionResponse,
+} from '@/types/dto';
 import { PagedResponse } from '@/types/dto/pageable';
 import { RecurrenceFrequency } from '@/types/enums/recurrenceFrequency';
 import { TransactionType } from '@/types/enums/transactionType';
@@ -380,445 +385,449 @@ export const TransactionForm = () => {
   if (!overlayState.isOpen) return null;
 
   return (
-    <Modal.Backdrop variant="blur" isOpen={overlayState.isOpen} onOpenChange={overlayState.setOpen}>
-      <Modal.Container scroll="outside">
-        <Modal.Dialog>
-          <Modal.CloseTrigger />
-          <Modal.Header>
-            <Modal.Heading>
-              {isEditingExisting ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.transaction.singular')}
-            </Modal.Heading>
-          </Modal.Header>
-          <form onSubmit={handleSubmit(onValid)}>
-            <Modal.Body className="flex flex-col gap-4">
-              {!isEditingExisting && (
-                <div>
-                  <TransactionModeSelector initialValue={mode} onSelect={handleModeChange} />
-                </div>
-              )}
-              <Controller
-                control={control}
-                name="type"
-                render={({ field, fieldState }) => (
+    <Modal>
+      <Modal.Backdrop variant="blur" isOpen={overlayState.isOpen} onOpenChange={overlayState.setOpen}>
+        <Modal.Container scroll="outside">
+          <Modal.Dialog>
+            <Modal.CloseTrigger />
+            <Modal.Header>
+              <Modal.Heading>
+                {isEditingExisting ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.transaction.singular')}
+              </Modal.Heading>
+            </Modal.Header>
+            <form onSubmit={handleSubmit(onValid)}>
+              <Modal.Body className="flex flex-col gap-4">
+                {!isEditingExisting && (
                   <div>
-                    <TransactionTypeSelector
-                      initialValue={field.value}
-                      onSelect={(type) => {
-                        field.onChange(type);
-                        setValue('category', undefined, { shouldDirty: true });
-                        setValue('subcategory', undefined, { shouldDirty: true });
-                      }}
-                      hideTransfers={mode === 'recurring'}
-                    />
-                    {fieldState.error?.message && <ErrorMessage>{t(fieldState.error.message)}</ErrorMessage>}
+                    <TransactionModeSelector initialValue={mode} onSelect={handleModeChange} />
                   </div>
                 )}
-              />
-              <Controller
-                control={control}
-                name="amount"
-                render={({ field, fieldState }) => (
-                  <NumberField
-                    fullWidth
-                    isRequired
-                    variant="secondary"
-                    isInvalid={fieldState.invalid}
-                    value={field.value}
-                    onChange={field.onChange}
-                    onBlur={field.onBlur}
-                  >
-                    <Label>{t('Generics.amount')}</Label>
-                    <InputGroup variant="secondary" fullWidth>
-                      {selectedAccountObj && (
-                        <InputGroup.Prefix>{getCurrencySymbol(locale, selectedAccountObj.currency)}</InputGroup.Prefix>
-                      )}
-                      <InputGroup.Input />
-                    </InputGroup>
-                    {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
-                  </NumberField>
-                )}
-              />
-              {watchedType !== TransactionType.TRANSFER && (
                 <Controller
                   control={control}
-                  name="excludeFromTotals"
-                  render={({ field }) => (
-                    <Switch
-                      size="sm"
-                      isSelected={field.value}
-                      onChange={(selected: boolean) => {
-                        excludeFromTotalsTouchedRef.current = true;
-                        field.onChange(selected);
-                      }}
+                  name="type"
+                  render={({ field, fieldState }) => (
+                    <div>
+                      <TransactionTypeSelector
+                        initialValue={field.value}
+                        onSelect={(type) => {
+                          field.onChange(type);
+                          setValue('category', undefined, { shouldDirty: true });
+                          setValue('subcategory', undefined, { shouldDirty: true });
+                        }}
+                        hideTransfers={mode === 'recurring'}
+                      />
+                      {fieldState.error?.message && <ErrorMessage>{t(fieldState.error.message)}</ErrorMessage>}
+                    </div>
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name="amount"
+                  render={({ field, fieldState }) => (
+                    <NumberField
+                      fullWidth
+                      isRequired
+                      variant="secondary"
+                      isInvalid={fieldState.invalid}
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
                     >
-                      <Switch.Content>
-                        <Switch.Control>
-                          <Switch.Thumb />
-                        </Switch.Control>
-                        <span>{t('TransactionForm.excludeFromTotals')}</span>
-                      </Switch.Content>
-                    </Switch>
+                      <Label>{t('Generics.amount')}</Label>
+                      <InputGroup variant="secondary" fullWidth>
+                        {selectedAccountObj && (
+                          <InputGroup.Prefix>
+                            {getCurrencySymbol(locale, selectedAccountObj.currency)}
+                          </InputGroup.Prefix>
+                        )}
+                        <InputGroup.Input />
+                      </InputGroup>
+                      {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
+                    </NumberField>
                   )}
                 />
-              )}
-              {watchedType !== TransactionType.TRANSFER && (
-                <>
+                {watchedType !== TransactionType.TRANSFER && (
                   <Controller
                     control={control}
-                    name="account"
-                    render={({ field, fieldState }) => (
-                      <Select
-                        isRequired
-                        variant="secondary"
-                        isInvalid={fieldState.invalid}
-                        selectedKey={field.value?.toString()}
-                        onSelectionChange={(key) => field.onChange(key ? Number(key) : undefined)}
-                        onBlur={field.onBlur}
-                      >
-                        <Label>{t('Generics.account')}</Label>
-                        <Select.Trigger>
-                          <Select.Value />
-                          <Select.Indicator />
-                        </Select.Trigger>
-                        <Select.Popover>
-                          <ListBox>
-                            {accounts.map((account) => (
-                              <ListBox.Item key={account.id} id={account.id.toString()} textValue={account.name}>
-                                {account.name}
-                              </ListBox.Item>
-                            ))}
-                          </ListBox>
-                        </Select.Popover>
-                        {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
-                      </Select>
-                    )}
-                  />
-                  <Controller
-                    control={control}
-                    name="description"
-                    render={({ field, fieldState }) => (
-                      <TextField
-                        isRequired
-                        fullWidth
-                        isInvalid={fieldState.invalid}
-                        value={field.value}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
-                      >
-                        <Label>{t('Generics.description')}</Label>
-                        <InputGroup variant="secondary">
-                          <InputGroup.Input type="text" />
-                        </InputGroup>
-                        {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
-                      </TextField>
-                    )}
-                  />
-                </>
-              )}
-              {watchedType === TransactionType.TRANSFER && (
-                <>
-                  <Controller
-                    control={control}
-                    name="account"
-                    render={({ field, fieldState }) => (
-                      <Select
-                        isRequired
-                        variant="secondary"
-                        isInvalid={fieldState.invalid}
-                        selectedKey={field.value?.toString()}
-                        onSelectionChange={(key) => field.onChange(key ? Number(key) : undefined)}
-                        onBlur={field.onBlur}
-                        placeholder={t('TransactionForm.selectAccount')}
-                      >
-                        <Label>{t('Generics.account')}</Label>
-                        <Select.Trigger>
-                          <Select.Value />
-                          <Select.Indicator />
-                        </Select.Trigger>
-                        <Select.Popover>
-                          <ListBox>
-                            {accounts.map((account) => (
-                              <ListBox.Item key={account.id} id={account.id.toString()} textValue={account.name}>
-                                {account.name}
-                              </ListBox.Item>
-                            ))}
-                          </ListBox>
-                        </Select.Popover>
-                        {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
-                      </Select>
-                    )}
-                  />
-                  <Controller
-                    control={control}
-                    name="destinationAccount"
-                    render={({ field, fieldState }) => (
-                      <Select
-                        isRequired
-                        variant="secondary"
-                        isInvalid={fieldState.invalid}
-                        selectedKey={field.value?.toString()}
-                        onSelectionChange={(key) => field.onChange(key ? Number(key) : undefined)}
-                        onBlur={field.onBlur}
-                        placeholder={t('TransactionForm.selectAccount')}
-                      >
-                        <Label>{t('TransactionForm.destinationAccount')}</Label>
-                        <Select.Trigger>
-                          <Select.Value />
-                          <Select.Indicator />
-                        </Select.Trigger>
-                        <Select.Popover>
-                          <ListBox>
-                            {accounts.map((account) => (
-                              <ListBox.Item key={account.id} id={account.id.toString()} textValue={account.name}>
-                                {account.name}
-                              </ListBox.Item>
-                            ))}
-                          </ListBox>
-                        </Select.Popover>
-                        {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
-                      </Select>
-                    )}
-                  />
-                </>
-              )}
-
-              {mode === 'oneTime' && (
-                <Controller
-                  control={control}
-                  name="eventDate"
-                  render={({ field }) => (
-                    <TransactionDatePicker label={t('Generics.date')} value={field.value} onChange={field.onChange} />
-                  )}
-                />
-              )}
-
-              {mode === 'recurring' && (
-                <>
-                  <Controller
-                    control={control}
-                    name="frequency"
+                    name="excludeFromTotals"
                     render={({ field }) => (
-                      <ToggleButtonGroup
-                        selectionMode="single"
-                        disallowEmptySelection
-                        selectedKeys={[field.value]}
-                        onSelectionChange={(keys) => {
-                          const next = Array.from(keys)[0] as RecurrenceFrequency | undefined;
-                          if (next) field.onChange(next);
+                      <Switch
+                        size="sm"
+                        isSelected={field.value}
+                        onChange={(selected: boolean) => {
+                          excludeFromTotalsTouchedRef.current = true;
+                          field.onChange(selected);
                         }}
                       >
-                        <ToggleButton id={RecurrenceFrequency.INTERVAL_DAYS}>
-                          {t('TransactionForm.frequency.intervalDays')}
-                        </ToggleButton>
-                        <ToggleButton id={RecurrenceFrequency.MONTHLY_DAYS}>
-                          {t('TransactionForm.frequency.monthlyDays')}
-                        </ToggleButton>
-                      </ToggleButtonGroup>
+                        <Switch.Content>
+                          <Switch.Control>
+                            <Switch.Thumb />
+                          </Switch.Control>
+                          <span>{t('TransactionForm.excludeFromTotals')}</span>
+                        </Switch.Content>
+                      </Switch>
                     )}
                   />
-
-                  {watchedFrequency === RecurrenceFrequency.INTERVAL_DAYS && (
+                )}
+                {watchedType !== TransactionType.TRANSFER && (
+                  <>
                     <Controller
                       control={control}
-                      name="intervalDays"
+                      name="account"
                       render={({ field, fieldState }) => (
-                        <NumberField
-                          minValue={1}
-                          fullWidth
+                        <Select
                           isRequired
                           variant="secondary"
+                          isInvalid={fieldState.invalid}
+                          selectedKey={field.value?.toString()}
+                          onSelectionChange={(key) => field.onChange(key ? Number(key) : undefined)}
+                          onBlur={field.onBlur}
+                        >
+                          <Label>{t('Generics.account')}</Label>
+                          <Select.Trigger>
+                            <Select.Value />
+                            <Select.Indicator />
+                          </Select.Trigger>
+                          <Select.Popover>
+                            <ListBox>
+                              {accounts.map((account) => (
+                                <ListBox.Item key={account.id} id={account.id.toString()} textValue={account.name}>
+                                  {account.name}
+                                </ListBox.Item>
+                              ))}
+                            </ListBox>
+                          </Select.Popover>
+                          {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
+                        </Select>
+                      )}
+                    />
+                    <Controller
+                      control={control}
+                      name="description"
+                      render={({ field, fieldState }) => (
+                        <TextField
+                          isRequired
+                          fullWidth
                           isInvalid={fieldState.invalid}
                           value={field.value}
                           onChange={field.onChange}
                           onBlur={field.onBlur}
                         >
-                          <Label>{t('TransactionForm.intervalDaysLabel')}</Label>
-                          <InputGroup variant="secondary" fullWidth>
-                            <InputGroup.Input />
+                          <Label>{t('Generics.description')}</Label>
+                          <InputGroup variant="secondary">
+                            <InputGroup.Input type="text" />
                           </InputGroup>
                           {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
-                        </NumberField>
+                        </TextField>
                       )}
                     />
-                  )}
-
-                  {watchedFrequency === RecurrenceFrequency.MONTHLY_DAYS && (
+                  </>
+                )}
+                {watchedType === TransactionType.TRANSFER && (
+                  <>
                     <Controller
                       control={control}
-                      name="daysOfMonth"
+                      name="account"
                       render={({ field, fieldState }) => (
-                        <>
-                          <CheckboxGroup
-                            value={(watchedDaysOfMonth ?? [])
-                              .slice()
-                              .sort((a, b) => a - b)
-                              .map(String)}
-                            onChange={(keys: string[]) => field.onChange(keys.map(Number))}
-                          >
-                            <Label>{t('TransactionForm.daysOfMonthLabel')}</Label>
-                            <div className="grid grid-cols-7 gap-1">
-                              {DAYS_OF_MONTH.map((day) => (
-                                <Checkbox key={day} value={day.toString()}>
-                                  <Checkbox.Content>
-                                    <Checkbox.Control>
-                                      <Checkbox.Indicator />
-                                    </Checkbox.Control>
-                                    <span>{day}</span>
-                                  </Checkbox.Content>
-                                </Checkbox>
+                        <Select
+                          isRequired
+                          variant="secondary"
+                          isInvalid={fieldState.invalid}
+                          selectedKey={field.value?.toString()}
+                          onSelectionChange={(key) => field.onChange(key ? Number(key) : undefined)}
+                          onBlur={field.onBlur}
+                          placeholder={t('TransactionForm.selectAccount')}
+                        >
+                          <Label>{t('Generics.account')}</Label>
+                          <Select.Trigger>
+                            <Select.Value />
+                            <Select.Indicator />
+                          </Select.Trigger>
+                          <Select.Popover>
+                            <ListBox>
+                              {accounts.map((account) => (
+                                <ListBox.Item key={account.id} id={account.id.toString()} textValue={account.name}>
+                                  {account.name}
+                                </ListBox.Item>
                               ))}
-                            </div>
-                          </CheckboxGroup>
-                          {fieldState.error?.message && <ErrorMessage>{t(fieldState.error.message)}</ErrorMessage>}
-                        </>
+                            </ListBox>
+                          </Select.Popover>
+                          {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
+                        </Select>
                       )}
                     />
-                  )}
+                    <Controller
+                      control={control}
+                      name="destinationAccount"
+                      render={({ field, fieldState }) => (
+                        <Select
+                          isRequired
+                          variant="secondary"
+                          isInvalid={fieldState.invalid}
+                          selectedKey={field.value?.toString()}
+                          onSelectionChange={(key) => field.onChange(key ? Number(key) : undefined)}
+                          onBlur={field.onBlur}
+                          placeholder={t('TransactionForm.selectAccount')}
+                        >
+                          <Label>{t('TransactionForm.destinationAccount')}</Label>
+                          <Select.Trigger>
+                            <Select.Value />
+                            <Select.Indicator />
+                          </Select.Trigger>
+                          <Select.Popover>
+                            <ListBox>
+                              {accounts.map((account) => (
+                                <ListBox.Item key={account.id} id={account.id.toString()} textValue={account.name}>
+                                  {account.name}
+                                </ListBox.Item>
+                              ))}
+                            </ListBox>
+                          </Select.Popover>
+                          {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
+                        </Select>
+                      )}
+                    />
+                  </>
+                )}
 
+                {mode === 'oneTime' && (
                   <Controller
                     control={control}
-                    name="startDate"
+                    name="eventDate"
                     render={({ field }) => (
-                      <TransactionDatePicker
-                        label={t('TransactionForm.startDate')}
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
+                      <TransactionDatePicker label={t('Generics.date')} value={field.value} onChange={field.onChange} />
                     )}
                   />
+                )}
 
-                  <Switch
-                    size="sm"
-                    isSelected={!watchedHasEndDate}
-                    onChange={(selected: boolean) => setValue('hasEndDate', !selected, { shouldDirty: true })}
-                  >
-                    <Switch.Content>
-                      <Switch.Control>
-                        <Switch.Thumb />
-                      </Switch.Control>
-                      <span>{t('TransactionForm.noEndDate')}</span>
-                    </Switch.Content>
-                  </Switch>
-
-                  {watchedHasEndDate && (
+                {mode === 'recurring' && (
+                  <>
                     <Controller
                       control={control}
-                      name="endDate"
-                      render={({ field, fieldState }) => (
-                        <div className="flex flex-col gap-1">
-                          <TransactionDatePicker
-                            label={t('TransactionForm.endDate')}
+                      name="frequency"
+                      render={({ field }) => (
+                        <ToggleButtonGroup
+                          selectionMode="single"
+                          disallowEmptySelection
+                          selectedKeys={[field.value]}
+                          onSelectionChange={(keys) => {
+                            const next = Array.from(keys)[0] as RecurrenceFrequency | undefined;
+                            if (next) field.onChange(next);
+                          }}
+                        >
+                          <ToggleButton id={RecurrenceFrequency.INTERVAL_DAYS}>
+                            {t('TransactionForm.frequency.intervalDays')}
+                          </ToggleButton>
+                          <ToggleButton id={RecurrenceFrequency.MONTHLY_DAYS}>
+                            {t('TransactionForm.frequency.monthlyDays')}
+                          </ToggleButton>
+                        </ToggleButtonGroup>
+                      )}
+                    />
+
+                    {watchedFrequency === RecurrenceFrequency.INTERVAL_DAYS && (
+                      <Controller
+                        control={control}
+                        name="intervalDays"
+                        render={({ field, fieldState }) => (
+                          <NumberField
+                            minValue={1}
+                            fullWidth
+                            isRequired
+                            variant="secondary"
+                            isInvalid={fieldState.invalid}
                             value={field.value}
                             onChange={field.onChange}
-                          />
-                          {fieldState.error?.message && <ErrorMessage>{t(fieldState.error.message)}</ErrorMessage>}
-                        </div>
+                            onBlur={field.onBlur}
+                          >
+                            <Label>{t('TransactionForm.intervalDaysLabel')}</Label>
+                            <InputGroup variant="secondary" fullWidth>
+                              <InputGroup.Input />
+                            </InputGroup>
+                            {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
+                          </NumberField>
+                        )}
+                      />
+                    )}
+
+                    {watchedFrequency === RecurrenceFrequency.MONTHLY_DAYS && (
+                      <Controller
+                        control={control}
+                        name="daysOfMonth"
+                        render={({ field, fieldState }) => (
+                          <>
+                            <CheckboxGroup
+                              value={(watchedDaysOfMonth ?? [])
+                                .slice()
+                                .sort((a, b) => a - b)
+                                .map(String)}
+                              onChange={(keys: string[]) => field.onChange(keys.map(Number))}
+                            >
+                              <Label>{t('TransactionForm.daysOfMonthLabel')}</Label>
+                              <div className="grid grid-cols-7 gap-1">
+                                {DAYS_OF_MONTH.map((day) => (
+                                  <Checkbox key={day} value={day.toString()}>
+                                    <Checkbox.Content>
+                                      <Checkbox.Control>
+                                        <Checkbox.Indicator />
+                                      </Checkbox.Control>
+                                      <span>{day}</span>
+                                    </Checkbox.Content>
+                                  </Checkbox>
+                                ))}
+                              </div>
+                            </CheckboxGroup>
+                            {fieldState.error?.message && <ErrorMessage>{t(fieldState.error.message)}</ErrorMessage>}
+                          </>
+                        )}
+                      />
+                    )}
+
+                    <Controller
+                      control={control}
+                      name="startDate"
+                      render={({ field }) => (
+                        <TransactionDatePicker
+                          label={t('TransactionForm.startDate')}
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
                       )}
                     />
-                  )}
-                </>
-              )}
 
-              {watchedType !== TransactionType.TRANSFER && (
-                <>
-                  <Controller
-                    control={control}
-                    name="category"
-                    render={({ field, fieldState }) => (
-                      <Select
-                        isRequired
-                        variant="secondary"
-                        isInvalid={fieldState.invalid}
-                        selectedKey={field.value?.toString()}
-                        onSelectionChange={(key) => {
-                          const categoryId = key ? Number(key) : undefined;
-                          field.onChange(categoryId);
-                          const validSubcategories = subcategories.filter(
-                            (subcategory) => subcategory.parentCategoryId === categoryId
-                          );
-                          setValue('subcategory', validSubcategories[0]?.id, { shouldDirty: true });
-                        }}
-                        onBlur={field.onBlur}
-                        placeholder={t('TransactionForm.selectCategory')}
-                      >
-                        <Label>{t('Generics.category')}</Label>
-                        <Select.Trigger>
-                          <Select.Value />
-                          <Select.Indicator />
-                        </Select.Trigger>
-                        <Select.Popover>
-                          <ListBox>
-                            {categories.map((category) => (
-                              <ListBox.Item
-                                key={category.id}
-                                id={category.id.toString()}
-                                textValue={category.name}
-                                hidden={category.type !== watchedType}
-                              >
-                                {category.name}
-                              </ListBox.Item>
-                            ))}
-                          </ListBox>
-                        </Select.Popover>
-                        {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
-                      </Select>
-                    )}
-                  />
+                    <Switch
+                      size="sm"
+                      isSelected={!watchedHasEndDate}
+                      onChange={(selected: boolean) => setValue('hasEndDate', !selected, { shouldDirty: true })}
+                    >
+                      <Switch.Content>
+                        <Switch.Control>
+                          <Switch.Thumb />
+                        </Switch.Control>
+                        <span>{t('TransactionForm.noEndDate')}</span>
+                      </Switch.Content>
+                    </Switch>
 
-                  <Controller
-                    control={control}
-                    name="subcategory"
-                    render={({ field, fieldState }) => (
-                      <Select
-                        isRequired
-                        isDisabled={!watchedCategory}
-                        variant="secondary"
-                        isInvalid={fieldState.invalid}
-                        selectedKey={field.value?.toString()}
-                        onSelectionChange={(key) => field.onChange(key ? Number(key) : undefined)}
-                        onBlur={field.onBlur}
-                        placeholder={t('TransactionForm.selectSubcategory')}
-                      >
-                        <Label>{t('Generics.subcategory')}</Label>
-                        <Select.Trigger>
-                          <Select.Value />
-                          <Select.Indicator />
-                        </Select.Trigger>
-                        <Select.Popover>
-                          <ListBox>
-                            {filteredSubcategories.map((subcategory) => (
-                              <ListBox.Item
-                                key={subcategory.id}
-                                id={subcategory.id.toString()}
-                                textValue={trySystemTranslations(subcategory.name)}
-                              >
-                                {trySystemTranslations(subcategory.name)}
-                              </ListBox.Item>
-                            ))}
-                          </ListBox>
-                        </Select.Popover>
-                        {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
-                      </Select>
+                    {watchedHasEndDate && (
+                      <Controller
+                        control={control}
+                        name="endDate"
+                        render={({ field, fieldState }) => (
+                          <div className="flex flex-col gap-1">
+                            <TransactionDatePicker
+                              label={t('TransactionForm.endDate')}
+                              value={field.value}
+                              onChange={field.onChange}
+                            />
+                            {fieldState.error?.message && <ErrorMessage>{t(fieldState.error.message)}</ErrorMessage>}
+                          </div>
+                        )}
+                      />
                     )}
-                  />
-                </>
-              )}
-            </Modal.Body>
-            <Modal.Footer>
-              {!isSubmitting && (
-                <Button type="submit" variant="primary" fullWidth>
-                  {isEditingExisting ? t('Generics.edit') : t('Generics.save')}
-                </Button>
-              )}
-              {isSubmitting && (
-                <Button type="button" isDisabled fullWidth>
-                  {isEditingExisting ? t('Generics.editing') : t('Generics.saving')}...
-                </Button>
-              )}
-            </Modal.Footer>
-          </form>
-        </Modal.Dialog>
-      </Modal.Container>
-    </Modal.Backdrop>
+                  </>
+                )}
+
+                {watchedType !== TransactionType.TRANSFER && (
+                  <>
+                    <Controller
+                      control={control}
+                      name="category"
+                      render={({ field, fieldState }) => (
+                        <Select
+                          isRequired
+                          variant="secondary"
+                          isInvalid={fieldState.invalid}
+                          selectedKey={field.value?.toString()}
+                          onSelectionChange={(key) => {
+                            const categoryId = key ? Number(key) : undefined;
+                            field.onChange(categoryId);
+                            const validSubcategories = subcategories.filter(
+                              (subcategory) => subcategory.parentCategoryId === categoryId
+                            );
+                            setValue('subcategory', validSubcategories[0]?.id, { shouldDirty: true });
+                          }}
+                          onBlur={field.onBlur}
+                          placeholder={t('TransactionForm.selectCategory')}
+                        >
+                          <Label>{t('Generics.category')}</Label>
+                          <Select.Trigger>
+                            <Select.Value />
+                            <Select.Indicator />
+                          </Select.Trigger>
+                          <Select.Popover>
+                            <ListBox>
+                              {categories.map((category) => (
+                                <ListBox.Item
+                                  key={category.id}
+                                  id={category.id.toString()}
+                                  textValue={category.name}
+                                  hidden={category.type !== watchedType}
+                                >
+                                  {category.name}
+                                </ListBox.Item>
+                              ))}
+                            </ListBox>
+                          </Select.Popover>
+                          {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
+                        </Select>
+                      )}
+                    />
+
+                    <Controller
+                      control={control}
+                      name="subcategory"
+                      render={({ field, fieldState }) => (
+                        <Select
+                          isRequired
+                          isDisabled={!watchedCategory}
+                          variant="secondary"
+                          isInvalid={fieldState.invalid}
+                          selectedKey={field.value?.toString()}
+                          onSelectionChange={(key) => field.onChange(key ? Number(key) : undefined)}
+                          onBlur={field.onBlur}
+                          placeholder={t('TransactionForm.selectSubcategory')}
+                        >
+                          <Label>{t('Generics.subcategory')}</Label>
+                          <Select.Trigger>
+                            <Select.Value />
+                            <Select.Indicator />
+                          </Select.Trigger>
+                          <Select.Popover>
+                            <ListBox>
+                              {filteredSubcategories.map((subcategory) => (
+                                <ListBox.Item
+                                  key={subcategory.id}
+                                  id={subcategory.id.toString()}
+                                  textValue={trySystemTranslations(subcategory.name)}
+                                >
+                                  {trySystemTranslations(subcategory.name)}
+                                </ListBox.Item>
+                              ))}
+                            </ListBox>
+                          </Select.Popover>
+                          {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
+                        </Select>
+                      )}
+                    />
+                  </>
+                )}
+              </Modal.Body>
+              <Modal.Footer>
+                {!isSubmitting && (
+                  <Button type="submit" variant="primary" fullWidth>
+                    {isEditingExisting ? t('Generics.edit') : t('Generics.save')}
+                  </Button>
+                )}
+                {isSubmitting && (
+                  <Button type="button" isDisabled fullWidth>
+                    {isEditingExisting ? t('Generics.editing') : t('Generics.saving')}...
+                  </Button>
+                )}
+              </Modal.Footer>
+            </form>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
+    </Modal>
   );
 };

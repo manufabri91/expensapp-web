@@ -21,7 +21,7 @@ export const Summary = async () => {
   return (
     <>
       <div className="mb-4 flex flex-col items-center justify-center gap-4 md:flex-row">
-        <div className="flex h-min flex-col justify-center gap-4">
+        <div className="flex h-min w-full flex-col justify-center gap-4">
           {summaries.map((currencySummary) => (
             <CurrencySummaryCard key={currencySummary.currency} currencySummary={currencySummary} locale={locale} />
           ))}
