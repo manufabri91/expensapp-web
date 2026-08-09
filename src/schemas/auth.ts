@@ -12,10 +12,15 @@ export const registerSchema = loginSchema
     lastName: z.string().min(1, 'Validation.required'),
     userName: z.string().min(1, 'Validation.required'),
     passwordRepeat: z.string().min(1, 'Validation.required'),
+    acceptedTerms: z.boolean(),
   })
   .refine((data) => data.password === data.passwordRepeat, {
     error: 'Validation.passwordsDontMatch',
     path: ['passwordRepeat'],
+  })
+  .refine((data) => data.acceptedTerms, {
+    error: 'System.ERRORS.TERMS_NOT_ACCEPTED',
+    path: ['acceptedTerms'],
   });
 
 export type LoginFormValues = z.infer<typeof loginSchema>;

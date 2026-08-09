@@ -25,6 +25,7 @@ describe('registerSchema', () => {
     firstName: 'Jane',
     lastName: 'Doe',
     userName: 'janedoe',
+    acceptedTerms: true,
   };
 
   it('accepts a valid registration', () => {
@@ -43,5 +44,13 @@ describe('registerSchema', () => {
     const { firstName, ...withoutFirstName } = valid;
     void firstName;
     expect(registerSchema.safeParse(withoutFirstName).success).toBe(false);
+  });
+
+  it('rejects when the terms checkbox is not accepted', () => {
+    const result = registerSchema.safeParse({ ...valid, acceptedTerms: false });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].path).toEqual(['acceptedTerms']);
+    }
   });
 });

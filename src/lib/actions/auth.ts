@@ -19,9 +19,9 @@ export const handleRegisterAction = async (data: RegisterFormValues): Promise<Ac
   if (!parsed.success) {
     return { error: t('System.ERRORS.INVALID_DATA_PROVIDED'), succeded: false };
   }
-  const { email, password, userName, firstName, lastName } = parsed.data;
+  const { email, password, userName, firstName, lastName, acceptedTerms } = parsed.data;
   try {
-    await register(userName, email, password, firstName, lastName);
+    await register(userName, email, password, firstName, lastName, acceptedTerms);
     await signIn('credentials', { email, password, redirectTo: '/dashboard' });
     return { succeded: true, error: null };
   } catch (err: unknown) {

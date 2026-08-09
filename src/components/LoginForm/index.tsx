@@ -25,6 +25,7 @@ const registerDefaultValues: RegisterFormValues = {
   lastName: '',
   userName: '',
   passwordRepeat: '',
+  acceptedTerms: false,
 };
 
 export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
@@ -178,19 +179,57 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
             )}
           />
           {!isLoginMode && (
-            <Controller
-              control={control}
-              name="passwordRepeat"
-              render={({ field, fieldState }) => (
-                <TextField isRequired fullWidth isInvalid={fieldState.invalid} value={field.value} onChange={field.onChange} onBlur={field.onBlur}>
-                  <Label>{t('form.confirmPassword')}</Label>
-                  <InputGroup variant="secondary">
-                    <InputGroup.Input type="password" />
-                  </InputGroup>
-                  {fieldState.error?.message && <FieldError>{tValidation(fieldState.error.message)}</FieldError>}
-                </TextField>
-              )}
-            />
+            <>
+              <Controller
+                control={control}
+                name="passwordRepeat"
+                render={({ field, fieldState }) => (
+                  <TextField isRequired fullWidth isInvalid={fieldState.invalid} value={field.value} onChange={field.onChange} onBlur={field.onBlur}>
+                    <Label>{t('form.confirmPassword')}</Label>
+                    <InputGroup variant="secondary">
+                      <InputGroup.Input type="password" />
+                    </InputGroup>
+                    {fieldState.error?.message && <FieldError>{tValidation(fieldState.error.message)}</FieldError>}
+                  </TextField>
+                )}
+              />
+              <Controller
+                control={control}
+                name="acceptedTerms"
+                render={({ field, fieldState }) => (
+                  <div>
+                    <Checkbox
+                      isRequired
+                      variant="secondary"
+                      isSelected={field.value}
+                      onChange={field.onChange}
+                      isInvalid={fieldState.invalid}
+                    >
+                      <Checkbox.Content>
+                        <Checkbox.Control>
+                          <Checkbox.Indicator />
+                        </Checkbox.Control>
+                        <span>
+                          {t.rich('form.acceptTerms', {
+                            terms: (chunks) => (
+                              <Link href="/legal/terms-of-use" target="_blank" className="underline">
+                                {chunks}
+                              </Link>
+                            ),
+                            privacy: (chunks) => (
+                              <Link href="/legal/privacy-policy" target="_blank" className="underline">
+                                {chunks}
+                              </Link>
+                            ),
+                          })}
+                        </span>
+                      </Checkbox.Content>
+                    </Checkbox>
+                    {fieldState.error?.message && <FieldError>{tValidation(fieldState.error.message)}</FieldError>}
+                  </div>
+                )}
+              />
+            </>
           )}
           {isLoginMode && (
             <div className="flex justify-between">
