@@ -392,7 +392,9 @@
       "title": "¿Borrar esta transacción?",
       "body": "Esta acción no se puede deshacer."
     },
-    "unexpectedError": "Algo salió mal! No se pudo actualizar la transacción programada"
+    "unexpectedError": "Algo salió mal! No se pudo actualizar la transacción programada",
+    "viewMore": "Ver mas",
+    "viewLess": "Ver Menos"
   },
   "CookieConsent": {
     "message": "Usamos cookies esenciales para mantener tu sesión iniciada y recordar tu idioma preferido. No usamos cookies de seguimiento ni de publicidad.",

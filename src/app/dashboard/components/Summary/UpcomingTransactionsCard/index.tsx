@@ -27,7 +27,7 @@ export const UpcomingTransactionsCard = ({ title, currency, total, items, footer
   const locale = useLocale();
 
   return (
-    <Card className="h-min w-full min-w-100 md:max-w-md">
+    <Card className="h-min w-full md:max-w-md md:min-w-100">
       <Card.Header>
         <div className="flex w-full items-center justify-between gap-4">
           <Card.Title>{title}</Card.Title>

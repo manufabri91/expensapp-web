@@ -20,7 +20,7 @@ const TITLE_KEY: Record<Variant, string> = {
 
 export const CurrencySummaryCardView = ({ currencySummary, locale, t, variant = 'accountBalance' }: Props) => {
   return (
-    <Card className="h-min w-full min-w-100 md:max-w-md">
+    <Card className="h-min w-full md:max-w-md md:min-w-100">
       <Card.Header>
         <Card.Title>
           {t(TITLE_KEY[variant], {

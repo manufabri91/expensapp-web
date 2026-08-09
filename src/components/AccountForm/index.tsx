@@ -73,105 +73,107 @@ export const AccountForm = () => {
   if (!overlayState.isOpen) return null;
 
   return (
-    <Modal.Backdrop variant="blur" isOpen={overlayState.isOpen} onOpenChange={overlayState.setOpen}>
-      <Modal.Container>
-        <Modal.Dialog>
-          <Modal.CloseTrigger />
-          <Modal.Header>
-            <Modal.Heading>
-              {accountFormData ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.account')}
-            </Modal.Heading>
-          </Modal.Header>
-          <form onSubmit={handleSubmit(onValid)}>
-            <Modal.Body className="flex flex-col gap-4">
-              <Controller
-                control={control}
-                name="name"
-                render={({ field, fieldState }) => (
-                  <TextField
-                    isRequired
-                    fullWidth
-                    isInvalid={fieldState.invalid}
-                    value={field.value}
-                    onChange={field.onChange}
-                    onBlur={field.onBlur}
-                  >
-                    <Label>{t('AccountForm.name')}</Label>
-                    <InputGroup variant="secondary">
-                      <InputGroup.Input type="text" />
-                    </InputGroup>
-                    {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
-                  </TextField>
+    <Modal>
+      <Modal.Backdrop variant="blur" isOpen={overlayState.isOpen} onOpenChange={overlayState.setOpen}>
+        <Modal.Container>
+          <Modal.Dialog>
+            <Modal.CloseTrigger />
+            <Modal.Header>
+              <Modal.Heading>
+                {accountFormData ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.account')}
+              </Modal.Heading>
+            </Modal.Header>
+            <form onSubmit={handleSubmit(onValid)}>
+              <Modal.Body className="flex flex-col gap-4">
+                <Controller
+                  control={control}
+                  name="name"
+                  render={({ field, fieldState }) => (
+                    <TextField
+                      isRequired
+                      fullWidth
+                      isInvalid={fieldState.invalid}
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                    >
+                      <Label>{t('AccountForm.name')}</Label>
+                      <InputGroup variant="secondary">
+                        <InputGroup.Input type="text" />
+                      </InputGroup>
+                      {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
+                    </TextField>
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name="currency"
+                  render={({ field, fieldState }) => (
+                    <Select
+                      isRequired
+                      fullWidth
+                      variant="secondary"
+                      isInvalid={fieldState.invalid}
+                      selectedKey={field.value}
+                      onSelectionChange={(key) => field.onChange(key ? String(key) : '')}
+                      onBlur={field.onBlur}
+                    >
+                      <Label>{t('AccountForm.currency')}</Label>
+                      <Select.Trigger>
+                        <Select.Value />
+                        <Select.Indicator />
+                      </Select.Trigger>
+                      <Select.Popover>
+                        <ListBox>
+                          {currencyItems.map(({ key, label }) => (
+                            <ListBox.Item key={key} id={key} textValue={label}>
+                              {label}
+                            </ListBox.Item>
+                          ))}
+                        </ListBox>
+                      </Select.Popover>
+                      {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
+                    </Select>
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name="initialBalance"
+                  render={({ field, fieldState }) => (
+                    <NumberField
+                      fullWidth
+                      isRequired
+                      variant="secondary"
+                      isInvalid={fieldState.invalid}
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                    >
+                      <Label>{t('AccountForm.initialBalance')}</Label>
+                      <InputGroup variant="secondary" fullWidth>
+                        <InputGroup.Input />
+                      </InputGroup>
+                      {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
+                    </NumberField>
+                  )}
+                />
+              </Modal.Body>
+              <Modal.Footer>
+                {!isSubmitting && (
+                  <Button type="submit" variant="primary" fullWidth>
+                    {accountFormData ? t('Generics.edit') : t('Generics.save')}
+                  </Button>
                 )}
-              />
-              <Controller
-                control={control}
-                name="currency"
-                render={({ field, fieldState }) => (
-                  <Select
-                    isRequired
-                    fullWidth
-                    variant="secondary"
-                    isInvalid={fieldState.invalid}
-                    selectedKey={field.value}
-                    onSelectionChange={(key) => field.onChange(key ? String(key) : '')}
-                    onBlur={field.onBlur}
-                  >
-                    <Label>{t('AccountForm.currency')}</Label>
-                    <Select.Trigger>
-                      <Select.Value />
-                      <Select.Indicator />
-                    </Select.Trigger>
-                    <Select.Popover>
-                      <ListBox>
-                        {currencyItems.map(({ key, label }) => (
-                          <ListBox.Item key={key} id={key} textValue={label}>
-                            {label}
-                          </ListBox.Item>
-                        ))}
-                      </ListBox>
-                    </Select.Popover>
-                    {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
-                  </Select>
+                {isSubmitting && (
+                  <Button type="button" isDisabled fullWidth>
+                    {accountFormData ? t('Generics.editing') : t('Generics.saving')}...
+                  </Button>
                 )}
-              />
-              <Controller
-                control={control}
-                name="initialBalance"
-                render={({ field, fieldState }) => (
-                  <NumberField
-                    fullWidth
-                    isRequired
-                    variant="secondary"
-                    isInvalid={fieldState.invalid}
-                    value={field.value}
-                    onChange={field.onChange}
-                    onBlur={field.onBlur}
-                  >
-                    <Label>{t('AccountForm.initialBalance')}</Label>
-                    <InputGroup variant="secondary" fullWidth>
-                      <InputGroup.Input />
-                    </InputGroup>
-                    {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
-                  </NumberField>
-                )}
-              />
-            </Modal.Body>
-            <Modal.Footer>
-              {!isSubmitting && (
-                <Button type="submit" variant="primary" fullWidth>
-                  {accountFormData ? t('Generics.edit') : t('Generics.save')}
-                </Button>
-              )}
-              {isSubmitting && (
-                <Button type="button" isDisabled fullWidth>
-                  {accountFormData ? t('Generics.editing') : t('Generics.saving')}...
-                </Button>
-              )}
-            </Modal.Footer>
-          </form>
-        </Modal.Dialog>
-      </Modal.Container>
-    </Modal.Backdrop>
+              </Modal.Footer>
+            </form>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
+    </Modal>
   );
 };

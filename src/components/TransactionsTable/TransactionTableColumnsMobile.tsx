@@ -5,12 +5,20 @@ export const TransactionTableColumnsMobile = () => {
   const t = useTranslations();
 
   return (
-    <Table.Header className="sr-only">
+    <Table.Header>
       <Table.Column id="description" isRowHeader>
-        {t('Generics.description')}
+        <div className="sr-only">
+          <span>{t('Generics.description')}</span>
+          <span>{t('Generics.date')}</span>
+          <span>{t('Generics.category')}</span>
+        </div>
       </Table.Column>
-      <Table.Column id="amount">{t('Generics.amount')}</Table.Column>
-      <Table.Column id="actions">{t('Generics.actions')}</Table.Column>
+      <Table.Column id="amount">
+        <div className="sr-only">
+          <span>{t('Generics.amount')}</span>
+          <span>{t('Generics.account')}</span>
+        </div>
+      </Table.Column>
     </Table.Header>
   );
 };
