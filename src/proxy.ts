@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import NextAuth, { type NextAuthRequest } from 'next-auth';
 import { authConfig } from '@/lib/auth/config';
 import { hasValidSession } from '@/lib/auth/session';
-import { DEFAULT_REDIRECT, HOME, PUBLIC_ROUTES } from '@/lib/routes';
+import { DEFAULT_REDIRECT, HOME, PUBLIC_ROUTES, UNRESTRICTED_ROUTES } from '@/lib/routes';
 
 const { auth } = NextAuth(authConfig);
 
@@ -13,15 +13,16 @@ const { auth } = NextAuth(authConfig);
 // stays correct if the cookie name is ever customized there.
 const SESSION_COOKIE_MARKER = authConfig.cookies?.sessionToken?.name ?? 'authjs.session-token';
 
-function redirectForRoute(req: NextAuthRequest): NextResponse {
+export function redirectForRoute(req: NextAuthRequest): NextResponse {
   const { nextUrl } = req;
   const isPublicRoute = PUBLIC_ROUTES.includes(nextUrl.pathname);
+  const isUnrestrictedRoute = UNRESTRICTED_ROUTES.includes(nextUrl.pathname);
   const isAuthenticated = hasValidSession(req.auth);
 
   if (isPublicRoute && isAuthenticated) {
     return NextResponse.redirect(new URL(DEFAULT_REDIRECT, nextUrl));
   }
-  if (!isPublicRoute && !isAuthenticated) {
+  if (!isPublicRoute && !isUnrestrictedRoute && !isAuthenticated) {
     return NextResponse.redirect(new URL(HOME, nextUrl));
   }
   return NextResponse.next();

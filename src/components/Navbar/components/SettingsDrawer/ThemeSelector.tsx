@@ -61,7 +61,9 @@ export const ThemeSelector = () => {
         <ListBox>
           {themeItems.map(({ key, label, Icon }) => (
             <ListBox.Item id={key} key={key} textValue={label}>
-              <Icon /> {label}
+              <span className="flex items-center gap-2">
+                <Icon className="size-5" /> {label}
+              </span>
             </ListBox.Item>
           ))}
         </ListBox>

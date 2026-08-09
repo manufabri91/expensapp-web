@@ -10,12 +10,6 @@ jest.mock('next/cache', () => ({ revalidatePath: jest.fn(), unstable_noStore: je
 
 const mockedAuth = auth as unknown as jest.Mock;
 
-const buildFormData = (fields: Record<string, string>): FormData => {
-  const formData = new FormData();
-  Object.entries(fields).forEach(([key, value]) => formData.set(key, value));
-  return formData;
-};
-
 const lastFetchRequest = () => {
   const [url, init] = (global.fetch as jest.Mock).mock.calls[0];
   return { url, init, body: init.body ? JSON.parse(init.body) : undefined };
@@ -55,9 +49,8 @@ describe('subcategories actions', () => {
   describe('createSubcategory', () => {
     it('posts the payload and revalidates dashboard, transactions, and manage', async () => {
       (global.fetch as jest.Mock).mockResolvedValue(new Response('{"id":1}', { status: 201 }));
-      const formData = buildFormData({ name: 'Streaming', parentCategoryId: '2' });
 
-      const result = await createSubcategory(formData);
+      const result = await createSubcategory({ name: 'Streaming', parentCategoryId: 2 });
 
       expect(result).toEqual({ id: 1 });
       const { url, init } = lastFetchRequest();
@@ -70,18 +63,23 @@ describe('subcategories actions', () => {
 
     it('throws when the backend rejects the request', async () => {
       (global.fetch as jest.Mock).mockResolvedValue(new Response('', { status: 400 }));
-      const formData = buildFormData({ name: 'Streaming', parentCategoryId: '2' });
 
-      await expect(createSubcategory(formData)).rejects.toThrow('Failed to create Subcategory');
+      await expect(createSubcategory({ name: 'Streaming', parentCategoryId: 2 })).rejects.toThrow(
+        'Failed to create Subcategory'
+      );
+    });
+
+    it('throws when the data fails server-side validation', async () => {
+      await expect(createSubcategory({ name: '', parentCategoryId: 2 })).rejects.toThrow('Invalid subcategory data');
+      expect(global.fetch).not.toHaveBeenCalled();
     });
   });
 
   describe('editSubcategory', () => {
     it('puts the payload and revalidates dashboard, transactions, and manage', async () => {
       (global.fetch as jest.Mock).mockResolvedValue(new Response('{"id":1}', { status: 200 }));
-      const formData = buildFormData({ id: '1', name: 'Streaming', parentCategoryId: '2' });
 
-      await editSubcategory(formData);
+      await editSubcategory({ id: 1, name: 'Streaming', parentCategoryId: 2 });
 
       const { url, init } = lastFetchRequest();
       expect(url).toBe('https://backend.test/subcategory/1');

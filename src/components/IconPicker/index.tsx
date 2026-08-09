@@ -11,9 +11,20 @@ interface Props {
   name?: string;
   label?: string;
   initialValue?: Icon;
+  selectedKey?: Icon;
+  onSelectionChange?: (icon: Icon) => void;
+  isInvalid?: boolean;
 }
 
-export const IconPickerFormField: FC<Props> = ({ id, name = 'iconName', initialValue = Icon.NONE, label }) => {
+export const IconPickerFormField: FC<Props> = ({
+  id,
+  name = 'iconName',
+  initialValue = Icon.NONE,
+  label,
+  selectedKey,
+  onSelectionChange,
+  isInvalid,
+}) => {
   const t = useTranslations('IconPicker');
   const iconItems = AVAILABLE_ICONS.entries()
     .toArray()
@@ -23,16 +34,21 @@ export const IconPickerFormField: FC<Props> = ({ id, name = 'iconName', initialV
       label: iconName,
     }));
 
+  const isControlled = selectedKey !== undefined;
+
   return (
     <Select
-      placeholder={t('noIcon')}
+      placeholder=""
       fullWidth
       id={id ?? name}
       name={name}
-      defaultSelectedKey={initialValue}
+      isInvalid={isInvalid}
+      {...(isControlled
+        ? { selectedKey, onSelectionChange: (key: React.Key | null) => onSelectionChange?.((key ?? Icon.NONE) as Icon) }
+        : { defaultSelectedKey: initialValue })}
       variant="secondary"
     >
-      <Label>{label ?? 'Icon'}</Label>
+      <Label>{label ?? t('icon')}</Label>
       <Select.Trigger>
         <Select.Value>
           {({ selectedItem }) => {
@@ -42,7 +58,6 @@ export const IconPickerFormField: FC<Props> = ({ id, name = 'iconName', initialV
             return (
               <div className="flex items-center gap-2">
                 <iconEntry.IconComponent className="size-5" />
-                <span>{iconEntry.label}</span>
               </div>
             );
           }}
@@ -53,10 +68,7 @@ export const IconPickerFormField: FC<Props> = ({ id, name = 'iconName', initialV
         <ListBox>
           {iconItems.map(({ key, IconComponent, label: iconLabel }) => (
             <ListBox.Item key={key} id={key} textValue={iconLabel}>
-              <div className="flex items-center gap-2">
-                <IconComponent className="size-5" />
-                <span>{iconLabel}</span>
-              </div>
+              <IconComponent className="size-5 self-center" />
             </ListBox.Item>
           ))}
         </ListBox>

@@ -1,25 +1,38 @@
 'use client';
 
-import { InputGroup, Label, ListBox, Modal, NumberField, Select, TextField, toast } from '@heroui/react';
+import { FieldError, InputGroup, Label, ListBox, Modal, NumberField, Select, TextField, toast } from '@heroui/react';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocale, useTranslations } from 'next-intl';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { useAccountForm } from '@/components/AccountForm/AccountFormProvider';
 import { Button } from '@/components/Button';
 import { ALLOWED_CURRENCIES } from '@/constants';
 import { createAccount, editAccount } from '@/lib/actions/accounts';
 import { useAccounts } from '@/lib/providers/AccountsProvider';
-import { AccountResponse } from '@/types/dto';
+import { accountFormSchema, AccountFormValues } from '@/schemas/account';
 
 import { getCurrencySymbol } from '@/utils/currency';
+
+const defaultValues: AccountFormValues = { name: '', currency: 'EUR', initialBalance: 0 };
 
 export const AccountForm = () => {
   const t = useTranslations();
   const locale = useLocale();
   const { accountFormData, clearForm, overlayState } = useAccountForm();
   const { addAccount } = useAccounts();
-  const [createdAccount, setCreatedAccount] = useState<AccountResponse | null>(null);
-  const [editedAccount, setEditedAccount] = useState<AccountResponse | null>(null);
-  const [processing, setProcessing] = useState<boolean>(false);
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = useForm<AccountFormValues>({
+    resolver: zodResolver(accountFormSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
+    defaultValues,
+  });
 
   const currencyItems = ALLOWED_CURRENCIES.map((currency) => ({
     key: currency,
@@ -27,42 +40,33 @@ export const AccountForm = () => {
   }));
 
   useEffect(() => {
-    if (createdAccount) {
-      toast.success(t('AccountForm.createdSuccess', { id: createdAccount.id }));
-      setCreatedAccount(null);
-      setProcessing(false);
-      clearForm();
-    } else if (editedAccount) {
-      toast.success(t('AccountForm.editedSuccess', { id: editedAccount.id }));
-      setEditedAccount(null);
-      setProcessing(false);
-      clearForm();
-    }
-  }, [clearForm, createdAccount, editedAccount, t]);
+    if (!overlayState.isOpen) return;
+    reset(
+      accountFormData
+        ? {
+            id: accountFormData.id,
+            name: accountFormData.name,
+            currency: accountFormData.currency,
+            initialBalance: accountFormData.initialBalance,
+          }
+        : defaultValues
+    );
+  }, [overlayState.isOpen, accountFormData, reset]);
 
-  const submitHandler = async (formData: FormData, onSuccessSubmit?: () => void) => {
-    setProcessing(true);
+  const onValid = async (data: AccountFormValues) => {
     try {
       if (!accountFormData) {
-        const createdAccount = await createAccount(formData);
-        setCreatedAccount(createdAccount);
-        addAccount(createdAccount);
-        if (onSuccessSubmit) onSuccessSubmit();
+        const created = await createAccount(data);
+        addAccount(created);
+        toast.success(t('AccountForm.createdSuccess', { id: created.id }));
       } else {
-        const updatedAccount = await editAccount(formData);
-        setEditedAccount(updatedAccount);
-        if (onSuccessSubmit) onSuccessSubmit();
+        const edited = await editAccount(data);
+        toast.success(t('AccountForm.editedSuccess', { id: edited.id }));
       }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast.danger(error.message);
-      } else {
-        toast.danger(t('AccountForm.unexpectedError'));
-      }
-      setCreatedAccount(null);
-      setEditedAccount(null);
-      setProcessing(false);
       clearForm();
+      overlayState.close();
+    } catch (error) {
+      toast.danger(error instanceof Error ? error.message : t('AccountForm.unexpectedError'));
     }
   };
 
@@ -78,63 +82,88 @@ export const AccountForm = () => {
               {accountFormData ? t('Generics.edit') : t('Generics.new.female')} {t('Generics.account')}
             </Modal.Heading>
           </Modal.Header>
-          <form action={(data) => submitHandler(data, () => overlayState.close())}>
+          <form onSubmit={handleSubmit(onValid)}>
             <Modal.Body className="flex flex-col gap-4">
-              {!!accountFormData && (
-                <div className="hidden">
-                  <input id="id" name="id" type="hidden" value={`${accountFormData?.id}`} readOnly />
-                </div>
-              )}
-              <TextField name="name" isRequired defaultValue={accountFormData?.name} fullWidth>
-                <Label>{t('AccountForm.name')}</Label>
-                <InputGroup variant="secondary">
-                  <InputGroup.Input id="name" type="text" />
-                </InputGroup>
-              </TextField>
-              <Select
-                id="currency"
+              <Controller
+                control={control}
+                name="name"
+                render={({ field, fieldState }) => (
+                  <TextField
+                    isRequired
+                    fullWidth
+                    isInvalid={fieldState.invalid}
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                  >
+                    <Label>{t('AccountForm.name')}</Label>
+                    <InputGroup variant="secondary">
+                      <InputGroup.Input type="text" />
+                    </InputGroup>
+                    {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
+                  </TextField>
+                )}
+              />
+              <Controller
+                control={control}
                 name="currency"
-                defaultSelectedKey={accountFormData?.currency || 'EUR'}
-                isRequired
-                fullWidth
-                variant="secondary"
-              >
-                <Label>{t('AccountForm.currency')}</Label>
-                <Select.Trigger>
-                  <Select.Value />
-                  <Select.Indicator />
-                </Select.Trigger>
-                <Select.Popover>
-                  <ListBox>
-                    {currencyItems.map(({ key, label }) => (
-                      <ListBox.Item key={key} id={key} textValue={label}>
-                        {label}
-                      </ListBox.Item>
-                    ))}
-                  </ListBox>
-                </Select.Popover>
-              </Select>
-              <NumberField
-                id="initialBalance"
+                render={({ field, fieldState }) => (
+                  <Select
+                    isRequired
+                    fullWidth
+                    variant="secondary"
+                    isInvalid={fieldState.invalid}
+                    selectedKey={field.value}
+                    onSelectionChange={(key) => field.onChange(key ? String(key) : '')}
+                    onBlur={field.onBlur}
+                  >
+                    <Label>{t('AccountForm.currency')}</Label>
+                    <Select.Trigger>
+                      <Select.Value />
+                      <Select.Indicator />
+                    </Select.Trigger>
+                    <Select.Popover>
+                      <ListBox>
+                        {currencyItems.map(({ key, label }) => (
+                          <ListBox.Item key={key} id={key} textValue={label}>
+                            {label}
+                          </ListBox.Item>
+                        ))}
+                      </ListBox>
+                    </Select.Popover>
+                    {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
+                  </Select>
+                )}
+              />
+              <Controller
+                control={control}
                 name="initialBalance"
-                defaultValue={accountFormData?.initialBalance ?? 0}
-                fullWidth
-                isRequired
-                variant="secondary"
-              >
-                <Label>{t('AccountForm.initialBalance')}</Label>
-                <InputGroup variant="secondary" fullWidth>
-                  <InputGroup.Input />
-                </InputGroup>
-              </NumberField>
+                render={({ field, fieldState }) => (
+                  <NumberField
+                    fullWidth
+                    isRequired
+                    variant="secondary"
+                    isInvalid={fieldState.invalid}
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                  >
+                    <Label>{t('AccountForm.initialBalance')}</Label>
+                    <InputGroup variant="secondary" fullWidth>
+                      <InputGroup.Input />
+                    </InputGroup>
+                    {fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
+                  </NumberField>
+                )}
+              />
             </Modal.Body>
             <Modal.Footer>
-              {!processing && (
+              {!isSubmitting && (
                 <Button type="submit" variant="primary" fullWidth>
                   {accountFormData ? t('Generics.edit') : t('Generics.save')}
                 </Button>
               )}
-              {processing && (
+              {isSubmitting && (
                 <Button type="button" isDisabled fullWidth>
                   {accountFormData ? t('Generics.editing') : t('Generics.saving')}...
                 </Button>

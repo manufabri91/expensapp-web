@@ -6,7 +6,15 @@ import { Footer } from '@/components/Footer';
 // await it like a plain async function first, then render the resolved element (same pattern as
 // `src/lib/providers/__tests__/index.test.tsx` uses for AppProviders).
 jest.mock('next-intl/server', () => ({
-  getTranslations: async () => (key: string) => (key === 'rights' ? 'All rights reserved' : key),
+  getTranslations: async () => (key: string) => {
+    const translations: Record<string, string> = {
+      rights: 'All rights reserved',
+      'links.privacyPolicy': 'Privacy Policy',
+      'links.termsOfUse': 'Terms of Use',
+      'links.cookiePolicy': 'Cookie Policy',
+    };
+    return translations[key] ?? key;
+  },
 }));
 
 describe('Footer component', () => {
@@ -27,5 +35,13 @@ describe('Footer component', () => {
     render(await Footer());
 
     expect(screen.getByText(`${new Date().getFullYear()} - All rights reserved`)).toBeInTheDocument();
+  });
+
+  it('should link to the privacy policy, terms of use and cookie policy pages', async () => {
+    render(await Footer());
+
+    expect(screen.getByRole('link', { name: 'Privacy Policy' })).toHaveAttribute('href', '/legal/privacy-policy');
+    expect(screen.getByRole('link', { name: 'Terms of Use' })).toHaveAttribute('href', '/legal/terms-of-use');
+    expect(screen.getByRole('link', { name: 'Cookie Policy' })).toHaveAttribute('href', '/legal/cookie-policy');
   });
 });

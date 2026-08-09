@@ -20,11 +20,14 @@ jest.mock('next/cache', () => ({ revalidatePath: jest.fn(), unstable_noStore: je
 
 const mockedAuth = auth as unknown as jest.Mock;
 
-const buildFormData = (fields: Record<string, string>, daysOfMonth: number[] = []): FormData => {
-  const formData = new FormData();
-  Object.entries(fields).forEach(([key, value]) => formData.set(key, value));
-  daysOfMonth.forEach((day) => formData.append('daysOfMonth', day.toString()));
-  return formData;
+const baseRecurringPayload = {
+  type: TransactionType.EXPENSE,
+  amount: 9.99,
+  description: 'Streaming subscription',
+  accountId: 1,
+  categoryId: 2,
+  subcategoryId: 3,
+  startDate: '2024-01-01',
 };
 
 const lastFetchRequest = () => {
@@ -66,19 +69,12 @@ describe('recurringTransactions actions', () => {
   describe('createRecurringTransaction', () => {
     it('builds an interval-frequency payload and posts it to /recurrent-transaction', async () => {
       (global.fetch as jest.Mock).mockResolvedValue(new Response('{"id":1}', { status: 201 }));
-      const formData = buildFormData({
-        type: TransactionType.EXPENSE,
-        amount: '9.99',
-        description: 'Streaming subscription',
-        account: '1',
-        category: '2',
-        subcategory: '3',
-        frequency: RecurrenceFrequency.INTERVAL_DAYS,
-        intervalDays: '30',
-        startDate: '2024-01-01',
-      });
 
-      const result = await createRecurringTransaction(formData);
+      const result = await createRecurringTransaction({
+        ...baseRecurringPayload,
+        frequency: RecurrenceFrequency.INTERVAL_DAYS,
+        intervalDays: 30,
+      });
 
       expect(result).toEqual({ id: 1 });
       const { url, init, body } = lastFetchRequest();
@@ -101,21 +97,12 @@ describe('recurringTransactions actions', () => {
 
     it('builds a monthly-frequency payload with daysOfMonth and no intervalDays', async () => {
       (global.fetch as jest.Mock).mockResolvedValue(new Response('{"id":2}', { status: 201 }));
-      const formData = buildFormData(
-        {
-          type: TransactionType.EXPENSE,
-          amount: '9.99',
-          description: 'Streaming subscription',
-          account: '1',
-          category: '2',
-          subcategory: '3',
-          frequency: RecurrenceFrequency.MONTHLY_DAYS,
-          startDate: '2024-01-01',
-        },
-        [1, 15]
-      );
 
-      await createRecurringTransaction(formData);
+      await createRecurringTransaction({
+        ...baseRecurringPayload,
+        frequency: RecurrenceFrequency.MONTHLY_DAYS,
+        daysOfMonth: [1, 15],
+      });
 
       const { body } = lastFetchRequest();
       expect(body.daysOfMonth).toEqual([1, 15]);
@@ -124,37 +111,34 @@ describe('recurringTransactions actions', () => {
 
     it('throws a descriptive error when the backend rejects the request', async () => {
       (global.fetch as jest.Mock).mockResolvedValue(new Response('', { status: 400 }));
-      const formData = buildFormData({
-        type: TransactionType.EXPENSE,
-        amount: '9.99',
-        description: 'Streaming subscription',
-        account: '1',
-        category: '2',
-        subcategory: '3',
-        frequency: RecurrenceFrequency.INTERVAL_DAYS,
-        intervalDays: '30',
-      });
 
-      await expect(createRecurringTransaction(formData)).rejects.toThrow('Failed to create recurring transaction');
+      await expect(
+        createRecurringTransaction({
+          ...baseRecurringPayload,
+          frequency: RecurrenceFrequency.INTERVAL_DAYS,
+          intervalDays: 30,
+        })
+      ).rejects.toThrow('Failed to create recurring transaction');
+    });
+
+    it('throws when the data fails server-side validation', async () => {
+      await expect(
+        createRecurringTransaction({ ...baseRecurringPayload, frequency: RecurrenceFrequency.INTERVAL_DAYS, amount: -5 })
+      ).rejects.toThrow('Invalid recurring transaction data');
+      expect(global.fetch).not.toHaveBeenCalled();
     });
   });
 
   describe('editRecurringTransaction', () => {
     it('puts the payload to /recurrent-transaction/{id}', async () => {
       (global.fetch as jest.Mock).mockResolvedValue(new Response('{"id":1}', { status: 200 }));
-      const formData = buildFormData({
-        id: '1',
-        type: TransactionType.EXPENSE,
-        amount: '9.99',
-        description: 'Streaming subscription',
-        account: '1',
-        category: '2',
-        subcategory: '3',
-        frequency: RecurrenceFrequency.INTERVAL_DAYS,
-        intervalDays: '30',
-      });
 
-      await editRecurringTransaction(formData);
+      await editRecurringTransaction({
+        ...baseRecurringPayload,
+        id: 1,
+        frequency: RecurrenceFrequency.INTERVAL_DAYS,
+        intervalDays: 30,
+      });
 
       const { url, init } = lastFetchRequest();
       expect(url).toBe('https://backend.test/recurrent-transaction/1');
@@ -163,21 +147,22 @@ describe('recurringTransactions actions', () => {
 
     it('throws a descriptive error naming the id when the backend rejects the edit', async () => {
       (global.fetch as jest.Mock).mockResolvedValue(new Response('', { status: 400 }));
-      const formData = buildFormData({
-        id: '1',
-        type: TransactionType.EXPENSE,
-        amount: '9.99',
-        description: 'Streaming subscription',
-        account: '1',
-        category: '2',
-        subcategory: '3',
-        frequency: RecurrenceFrequency.INTERVAL_DAYS,
-        intervalDays: '30',
-      });
 
-      await expect(editRecurringTransaction(formData)).rejects.toThrow(
-        'Failed to edit recurring transaction 1. Please try again later.'
-      );
+      await expect(
+        editRecurringTransaction({
+          ...baseRecurringPayload,
+          id: 1,
+          frequency: RecurrenceFrequency.INTERVAL_DAYS,
+          intervalDays: 30,
+        })
+      ).rejects.toThrow('Failed to edit recurring transaction 1. Please try again later.');
+    });
+
+    it('throws when no id is present', async () => {
+      await expect(
+        editRecurringTransaction({ ...baseRecurringPayload, frequency: RecurrenceFrequency.INTERVAL_DAYS, intervalDays: 30 })
+      ).rejects.toThrow('Invalid recurring transaction data');
+      expect(global.fetch).not.toHaveBeenCalled();
     });
   });
 

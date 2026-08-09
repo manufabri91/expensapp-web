@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, Dropdown, useOverlayState } from '@heroui/react';
+import { Avatar, Dropdown, Header, useOverlayState } from '@heroui/react';
 import clsx from 'clsx';
 
 import Image from 'next/image';
@@ -9,7 +9,13 @@ import { usePathname } from 'next/navigation';
 import { Session } from 'next-auth';
 import { useTranslations } from 'next-intl';
 import { Key, useEffect, useState } from 'react';
-import { HiCog, HiHome, HiOutlineArrowRightStartOnRectangle, HiOutlineDocumentCurrencyDollar, HiOutlineUser, HiWallet } from 'react-icons/hi2';
+import {
+  HiCog,
+  HiHome,
+  HiOutlineArrowRightStartOnRectangle,
+  HiOutlineDocumentCurrencyDollar,
+  HiWallet,
+} from 'react-icons/hi2';
 import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 import { LoginButtons } from '@/components/Navbar/components/LoginButtons';
 import { MobileNavbar } from '@/components/Navbar/components/MobileNavbar/MobileNavbar';
@@ -55,10 +61,7 @@ function ProfileDropdown({
   return (
     <Dropdown>
       <Dropdown.Trigger>
-        <Avatar
-          className="cursor-pointer transition-transform ring-2 ring-accent"
-          size="sm"
-        >
+        <Avatar className="ring-accent cursor-pointer ring-2 transition-transform" size="sm">
           <Avatar.Image src={session.user.imageUrl ?? undefined} />
           <Avatar.Fallback>{`${session.user.firstName.charAt(0)}${session.user.lastName.charAt(0)}`}</Avatar.Fallback>
         </Avatar>
@@ -66,22 +69,19 @@ function ProfileDropdown({
       <Dropdown.Popover placement="bottom end">
         <Dropdown.Menu aria-label="Profile Actions" onAction={menuActionHandler}>
           <Dropdown.Section>
-            <Dropdown.Item id="profile" textValue="Profile">
-              <p className="font-semibold">Signed in as</p>
-              <p className="font-semibold">{session.user.email}</p>
-            </Dropdown.Item>
-          </Dropdown.Section>
-          <Dropdown.Section>
+            <Header>
+              <p>{session.user.email}</p>
+            </Header>
             <Dropdown.Item id="settings" textValue={t('settings')} onPress={onSettingsOpen}>
-              <HiCog size={24} className="inline mr-2" />
+              <HiCog size={24} className="mr-2 inline" />
               {t('settings')}
             </Dropdown.Item>
-            <Dropdown.Item id="configurations" textValue={t('userAccountSettings')}>
+            {/* <Dropdown.Item id="configurations" textValue={t('userAccountSettings')}>
               <HiOutlineUser size={24} className="inline mr-2" />
               {t('userAccountSettings')}
-            </Dropdown.Item>
+            </Dropdown.Item> */}
             <Dropdown.Item id="logout" textValue={t('signOut')} className="text-danger">
-              <HiOutlineArrowRightStartOnRectangle size={24} className="inline mr-2" />
+              <HiOutlineArrowRightStartOnRectangle size={24} className="mr-2 inline" />
               {t('signOut')}
             </Dropdown.Item>
           </Dropdown.Section>
@@ -111,7 +111,7 @@ export const NavbarContent = ({ session }: Props) => {
     <>
       <nav
         className={clsx(
-          'sticky top-0 z-40 w-full border-b border-separator bg-background/70 backdrop-blur-lg transition-transform duration-300',
+          'border-separator bg-background/70 sticky top-0 z-40 w-full border-b backdrop-blur-lg transition-transform duration-300',
           hidden && '-translate-y-full'
         )}
       >
@@ -141,10 +141,7 @@ export const NavbarContent = ({ session }: Props) => {
                 <li key={link.id}>
                   <NextLink
                     href={link.href}
-                    className={clsx(
-                      'text-accent hover:underline',
-                      link.href === pathname && 'font-semibold'
-                    )}
+                    className={clsx('text-accent hover:underline', link.href === pathname && 'font-semibold')}
                   >
                     {t(`links.${link.id}`)}
                   </NextLink>
@@ -154,7 +151,7 @@ export const NavbarContent = ({ session }: Props) => {
           )}
 
           {/* Right side (desktop) */}
-          <div className="hidden sm:flex items-center gap-2">
+          <div className="hidden items-center gap-2 sm:flex">
             {!session && (
               <div className="hidden gap-2 sm:flex">
                 <LocaleSwitcher />
