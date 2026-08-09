@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, ReactNode, useContext, useState } from 'react';
+import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { AccountResponse } from '@/types/dto';
 
 interface AccountsContextProps {
@@ -28,6 +28,12 @@ const AccountsProvider: React.FC<{
   initialAccounts: AccountResponse[];
 }> = ({ children, initialAccounts }) => {
   const [accounts, setAccounts] = useState<AccountResponse[]>(initialAccounts);
+
+  useEffect(() => {
+    setAccounts(initialAccounts);
+    // initialAccounts is re-fetched per request in AppProviders (e.g. on login/logout) - resync
+    // whenever it changes instead of only using it on first mount.
+  }, [initialAccounts]);
 
   const addAccount = (account: AccountResponse) => {
     setAccounts((prev) => [...prev, account]);
