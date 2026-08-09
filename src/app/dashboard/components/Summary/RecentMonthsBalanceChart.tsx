@@ -3,9 +3,10 @@
 import { Card, Switch, Tag, TagGroup } from '@heroui/react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { HiCheck, HiXMark } from 'react-icons/hi2';
 import useSWR from 'swr';
-import { Money } from '@/components/Money';
 import { BalanceAreaChart, EXPENSE_COLOR, INCOME_COLOR, MonthPoint } from '@/components/BalanceAreaChart';
+import { Money } from '@/components/Money';
 import { getMonthlyHistory } from '@/lib/actions/summaries';
 import { MonthlyBalanceSummaryResponse } from '@/types/dto';
 
@@ -136,10 +137,12 @@ export default function RecentMonthsBalanceChart({ data, currency, locale }: Pro
           <div className="flex justify-end">
             <Switch size="sm" isSelected={includePending} onChange={(selected: boolean) => setIncludePending(selected)}>
               <Switch.Content>
+                <span className="text-xs">{t('Dashboard.summary.balance.lastMonths.includePending')}</span>
                 <Switch.Control>
-                  <Switch.Thumb />
+                  <Switch.Thumb>
+                    <Switch.Icon>{includePending ? <HiCheck /> : <HiXMark />}</Switch.Icon>
+                  </Switch.Thumb>
                 </Switch.Control>
-                <span>{t('Dashboard.summary.balance.lastMonths.includePending')}</span>
               </Switch.Content>
             </Switch>
           </div>
@@ -155,7 +158,7 @@ export default function RecentMonthsBalanceChart({ data, currency, locale }: Pro
         </div>
       </Card.Content>
       <Card.Footer>
-        <div className="flex w-full items-center justify-center gap-4">
+        <div className="text-muted flex w-full items-center justify-end gap-4 pr-6 text-xs">
           <div className="flex items-center gap-1.5">
             <span className="size-2 rounded-full" style={{ backgroundColor: INCOME_COLOR }} />
             <span>{t('Generics.income.plural')}</span>

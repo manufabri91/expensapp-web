@@ -44,9 +44,9 @@ export const ColorPicker = ({ color, onChange, label = 'Color' }: ColorPickerPro
 
   return (
     <HeroUIColorPicker value={value} onChange={handleChange}>
-      <HeroUIColorPicker.Trigger>
-        <ColorSwatch size="lg" />
+      <HeroUIColorPicker.Trigger className="flex-col">
         <Label>{label}</Label>
+        <ColorSwatch size="sm" />
       </HeroUIColorPicker.Trigger>
       <HeroUIColorPicker.Popover className="gap-2">
         <ColorSwatchPicker className="justify-center pt-2" size="xs">

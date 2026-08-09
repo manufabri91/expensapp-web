@@ -23,10 +23,13 @@ export function SettingsDrawer({ state }: Props) {
           <Drawer.Body className="flex flex-col gap-4">
             <LocaleSwitcher type="select" />
             <ThemeSelector />
-            <Separator />
-            <ExportDataLink />
-            <DeleteAccountButton />
           </Drawer.Body>
+          <Drawer.Footer>
+            <div className="flex w-full flex-col justify-center gap-4">
+              <ExportDataLink />
+              <DeleteAccountButton />
+            </div>
+          </Drawer.Footer>
         </Drawer.Dialog>
       </Drawer.Content>
     </Drawer.Backdrop>

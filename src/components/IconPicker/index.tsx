@@ -38,7 +38,7 @@ export const IconPickerFormField: FC<Props> = ({
 
   return (
     <Select
-      placeholder={t('noIcon')}
+      placeholder=""
       fullWidth
       id={id ?? name}
       name={name}
@@ -48,7 +48,7 @@ export const IconPickerFormField: FC<Props> = ({
         : { defaultSelectedKey: initialValue })}
       variant="secondary"
     >
-      <Label>{label ?? 'Icon'}</Label>
+      <Label>{label ?? t('icon')}</Label>
       <Select.Trigger>
         <Select.Value>
           {({ selectedItem }) => {
@@ -58,7 +58,6 @@ export const IconPickerFormField: FC<Props> = ({
             return (
               <div className="flex items-center gap-2">
                 <iconEntry.IconComponent className="size-5" />
-                <span>{iconEntry.label}</span>
               </div>
             );
           }}
@@ -69,10 +68,7 @@ export const IconPickerFormField: FC<Props> = ({
         <ListBox>
           {iconItems.map(({ key, IconComponent, label: iconLabel }) => (
             <ListBox.Item key={key} id={key} textValue={iconLabel}>
-              <div className="flex items-center gap-2">
-                <IconComponent className="size-5" />
-                <span>{iconLabel}</span>
-              </div>
+              <IconComponent className="size-5 self-center" />
             </ListBox.Item>
           ))}
         </ListBox>

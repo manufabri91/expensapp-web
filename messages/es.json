@@ -84,11 +84,13 @@
         },
         "lastMonths": {
           "title": "Rendimiento ({currencyCode})",
-          "includePending": "Incluir programados"
+          "includePending": "Programados"
         }
       },
       "totalsPerCategory": {
-        "title": "Gastos por categoría"
+        "title": "Gastos por categoría",
+        "showMore": "Ver desglose",
+        "showLess": "Ocultar desglose"
       },
       "history": {
         "title": "Ingresos vs Gastos (Últimos 6 meses)"
@@ -231,7 +233,8 @@
     "label": "Idioma"
   },
   "IconPicker": {
-    "noIcon": "Sin icono"
+    "noIcon": "Sin icono",
+    "icon": "Icono"
   },
   "Metadata": {
     "title": {

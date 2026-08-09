@@ -2,7 +2,8 @@
 
 import { Card } from '@heroui/react';
 import { useTranslations } from 'next-intl';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { HiChevronRight } from 'react-icons/hi2';
 import { Money, PRESET_COLORS } from '@/components';
 import { CategoryPieChart, CategorySlice } from '@/components/CategoryPieChart';
 import { useTrySystemTranslations } from '@/hooks/useTrySystemTranslations';
@@ -17,6 +18,7 @@ interface Props {
 export default function CategoriesSummaryPie({ categorySummaries, currency, locale }: Props) {
   const t = useTranslations();
   const translateSystemName = useTrySystemTranslations();
+  const [breakdownExpanded, setBreakdownExpanded] = useState(false);
 
   const data: CategorySlice[] = useMemo(() => {
     return categorySummaries
@@ -76,26 +78,43 @@ export default function CategoriesSummaryPie({ categorySummaries, currency, loca
       </Card.Header>
       <Card.Content>
         <CategoryPieChart data={data} renderTooltip={renderTooltip} />
-
-        <div className="border-divider mt-4 grid w-full gap-x-4 gap-y-2 border-t pt-4">
-          {data.map((entry) => (
-            <div key={entry.id} className="flex items-center gap-2 text-sm">
-              <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: entry.color }} />
-              <span className="truncate">{entry.name}</span>
-              <span className="ml-auto flex items-baseline gap-1 text-sm">
-                <Money
-                  amount={entry.rawAmount}
-                  currency={currency}
-                  locale={locale}
-                  hideNegativeSign
-                  className="font-semibold"
-                />
-                <span className="text-[0.85em]">({Math.round((entry.value / totalValue) * 100)}%)</span>
-              </span>
-            </div>
-          ))}
-        </div>
       </Card.Content>
+      <Card.Footer>
+        <div className="flex w-full flex-col">
+          <span
+            className="text-accent flex w-full cursor-pointer items-center justify-between gap-1 text-sm font-medium hover:underline"
+            onClick={() => setBreakdownExpanded(!breakdownExpanded)}
+          >
+            {t(
+              breakdownExpanded
+                ? 'Dashboard.summary.totalsPerCategory.showLess'
+                : 'Dashboard.summary.totalsPerCategory.showMore'
+            )}
+            <HiChevronRight className="size-4" />
+          </span>
+
+          {breakdownExpanded && (
+            <div className="border-divider mt-4 grid w-full gap-x-4 gap-y-2 border-t pt-4">
+              {data.map((entry) => (
+                <div key={entry.id} className="flex items-center gap-2 text-sm">
+                  <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: entry.color }} />
+                  <span className="truncate">{entry.name}</span>
+                  <span className="ml-auto flex items-baseline gap-1 text-sm">
+                    <Money
+                      amount={entry.rawAmount}
+                      currency={currency}
+                      locale={locale}
+                      hideNegativeSign
+                      className="font-semibold"
+                    />
+                    <span className="text-[0.85em]">({Math.round((entry.value / totalValue) * 100)}%)</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </Card.Footer>
     </Card>
   );
 }

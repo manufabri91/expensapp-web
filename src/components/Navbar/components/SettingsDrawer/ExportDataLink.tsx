@@ -7,7 +7,7 @@ export const ExportDataLink = () => {
   const t = useTranslations('Settings');
 
   return (
-    <Link href="/api/privacy/export" className="flex items-center gap-2">
+    <Link href="/api/privacy/export" className="flex w-full justify-center gap-2">
       <HiArrowDownTray className="size-5" />
       {t('downloadMyData')}
     </Link>

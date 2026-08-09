@@ -90,30 +90,26 @@ export const CategoryForm = () => {
             </Modal.Heading>
           </Modal.Header>
           <form onSubmit={handleSubmit(onValid)}>
-            <Modal.Body className="flex flex-col gap-4">
-              <div>
+            <Modal.Body className="flex flex-col gap-4 py-2">
+              <Controller
+                control={control}
+                name="type"
+                render={({ field, fieldState }) => (
+                  <>
+                    <TransactionTypeSelector initialValue={field.value} onSelect={field.onChange} hideTransfers />
+                    {fieldState.error?.message && <ErrorMessage>{t(fieldState.error.message)}</ErrorMessage>}
+                  </>
+                )}
+              />
+              <div className="grid grid-cols-5 gap-4">
                 <Controller
                   control={control}
-                  name="type"
-                  render={({ field, fieldState }) => (
-                    <>
-                      <TransactionTypeSelector initialValue={field.value} onSelect={field.onChange} hideTransfers />
-                      {fieldState.error?.message && <ErrorMessage>{t(fieldState.error.message)}</ErrorMessage>}
-                    </>
+                  name="iconName"
+                  render={({ field }) => (
+                    <IconPickerFormField selectedKey={field.value} onSelectionChange={field.onChange} />
                   )}
                 />
-              </div>
-              <div className="flex w-full items-center justify-center gap-3">
-                <div className="w-1/3">
-                  <Controller
-                    control={control}
-                    name="iconName"
-                    render={({ field }) => (
-                      <IconPickerFormField selectedKey={field.value} onSelectionChange={field.onChange} />
-                    )}
-                  />
-                </div>
-                <div className="w-3/6">
+                <div className="col-span-3">
                   <Controller
                     control={control}
                     name="name"
@@ -139,7 +135,7 @@ export const CategoryForm = () => {
                   control={control}
                   name="color"
                   render={({ field, fieldState }) => (
-                    <div className="flex flex-col gap-1">
+                    <div>
                       <ColorPicker color={field.value} onChange={field.onChange} />
                       {fieldState.error?.message && <ErrorMessage>{t(fieldState.error.message)}</ErrorMessage>}
                     </div>

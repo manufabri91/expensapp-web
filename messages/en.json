@@ -84,11 +84,13 @@
         },
         "lastMonths": {
           "title": "Performance ({currencyCode})",
-          "includePending": "Include scheduled"
+          "includePending": "Scheduled"
         }
       },
       "totalsPerCategory": {
-        "title": "Expenses per Category"
+        "title": "Expenses per Category",
+        "showMore": "See breakdown",
+        "showLess": "Hide breakdown"
       },
       "history": {
         "title": "Income vs Expenses (Last 6 Months)"
@@ -148,7 +150,8 @@
     "unexpectedError": "Something went wrong! Couldn't save subcategory"
   },
   "IconPicker": {
-    "noIcon": "No icon"
+    "noIcon": "No icon",
+    "icon": "Icon"
   },
   "TransactionForm": {
     "createdSuccess": "Created transaction {id}",

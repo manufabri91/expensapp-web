@@ -1,5 +1,6 @@
 'use client';
-import { Avatar, Label, ListBox, Select } from '@heroui/react';
+import { Label, ListBox, Select } from '@heroui/react';
+import Image from 'next/image';
 import { Key } from 'react';
 import { setUserLocale } from '@/services/locale';
 type Props = {
@@ -9,9 +10,7 @@ type Props = {
 };
 
 const Flag = ({ code }: { code: string }) => (
-  <Avatar size="sm">
-    <Avatar.Image src={`/images/flags/${code.toUpperCase()}.png`} />
-  </Avatar>
+  <Image src={`/images/flags/${code.toUpperCase()}.png`} width={20} height={20} alt="" />
 );
 
 export default function LocaleSwitcherSelect({ defaultValue, items, label }: Props) {
@@ -32,7 +31,9 @@ export default function LocaleSwitcherSelect({ defaultValue, items, label }: Pro
         <ListBox>
           {items.map(({ value, label, code }) => (
             <ListBox.Item id={value} key={value} textValue={label}>
-              <Flag code={code} /> {label}
+              <span className="flex items-center gap-2">
+                <Flag code={code} /> {label}
+              </span>
             </ListBox.Item>
           ))}
         </ListBox>

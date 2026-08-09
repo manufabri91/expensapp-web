@@ -28,7 +28,7 @@ export const DeleteAccountButton = () => {
 
   return (
     <>
-      <Button size="sm" variant="danger" onPress={() => setIsOpen(true)}>
+      <Button size="sm" variant="danger" onPress={() => setIsOpen(true)} fullWidth>
         <HiTrash className="size-5" />
         {t('deleteMyAccount')}
       </Button>
