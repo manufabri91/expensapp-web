@@ -391,6 +391,7 @@ describe('ProgrammedTransactionsSection', () => {
 
     render(<ProgrammedTransactionsSection />);
 
+    fireEvent.click(screen.getByText('viewMore'));
     const renderedText = textContentOf('programmed-payments');
     expect(renderedText.indexOf('Early one-time')).toBeLessThan(renderedText.indexOf('Late one-time'));
     expect(renderedText.indexOf('Late one-time')).toBeLessThan(renderedText.indexOf('Ended recurrence'));
