@@ -1,4 +1,4 @@
-import { loginSchema, registerSchema } from '@/schemas/auth';
+import { loginSchema, registerSchema, registrationRequestSchema } from '@/schemas/auth';
 
 describe('loginSchema', () => {
   it('accepts a valid login', () => {
@@ -24,13 +24,28 @@ describe('registerSchema', () => {
     remember: false,
     firstName: 'Jane',
     lastName: 'Doe',
-    userName: 'janedoe',
+    userName: 'janedoe123',
     acceptedTerms: true,
   };
 
   it('accepts a valid registration', () => {
     expect(registerSchema.safeParse(valid).success).toBe(true);
   });
+
+  it('accepts serialized true consent at the provider boundary', () => {
+    expect(registrationRequestSchema.safeParse({ ...valid, acceptedTerms: 'true' }).success).toBe(true);
+  });
+
+  it.each([false, 'false', '', 'on', undefined])('rejects unaccepted provider consent %s', (acceptedTerms) => {
+    expect(registrationRequestSchema.safeParse({ ...valid, acceptedTerms }).success).toBe(false);
+  });
+
+  it.each([{ userName: 'short' }, { password: 'short', passwordRepeat: 'short' }, { password: 'a'.repeat(33) }])(
+    'enforces the API registration lengths: %j',
+    (overrides) => {
+      expect(registrationRequestSchema.safeParse({ ...valid, ...overrides }).success).toBe(false);
+    }
+  );
 
   it('rejects mismatched passwords', () => {
     const result = registerSchema.safeParse({ ...valid, passwordRepeat: 'different' });

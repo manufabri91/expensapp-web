@@ -288,6 +288,8 @@
       "PASSWORDS_NOT_MATCH": "Las contraseñas no coinciden",
       "REGISTRATION_FAILED": "No se pudo crear el usuario. Vuelve a intentarlo",
       "USER_EXISTS": "El usuario ya existe",
+      "ACCOUNT_CREATED_SIGN_IN_REQUIRED": "Tu cuenta se ha creado. Inicia sesión.",
+      "REGISTRATION_OUTCOME_UNKNOWN": "No pudimos confirmar el registro. Tu cuenta puede haberse creado. Prueba a iniciar sesión o recuperar tu contraseña.",
       "INVALID_DATA_PROVIDED": "Datos inválidos proporcionados",
       "UNHANDLED_EXCEPTION": "Algo salió mal. Vuelve a intentarlo",
       "USER_CREATION_FAIL": "No se pudo crear el usuario. Vuelve a intentarlo",
