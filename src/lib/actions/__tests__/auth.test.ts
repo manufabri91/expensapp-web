@@ -5,6 +5,7 @@ import { handleRegisterAction } from '@/lib/actions/auth';
 import { signIn } from '@/lib/auth';
 import { register } from '@/lib/auth/handlers';
 import { RegisterFormValues } from '@/schemas/auth';
+import { RegistrationSigninError } from '@/types/exceptions/registrationSignin';
 
 jest.mock('@/lib/auth', () => ({
   signIn: jest.fn(),
@@ -26,7 +27,7 @@ const buildRegisterData = (overrides: Partial<RegisterFormValues> = {}): Registe
   email: 'john@example.com',
   password: 'password1',
   passwordRepeat: 'password1',
-  userName: 'johndoe',
+  userName: 'johndoe123',
   firstName: 'John',
   lastName: 'Doe',
   remember: false,
@@ -53,7 +54,29 @@ describe('handleRegisterAction', () => {
 
     const result = await handleRegisterAction(buildRegisterData());
 
-    expect(mockedRegister).toHaveBeenCalledWith('johndoe', 'john@example.com', 'password1', 'John', 'Doe', true);
+    expect(mockedRegister).not.toHaveBeenCalled();
+    expect(mockedSignIn).toHaveBeenCalledWith(
+      'register',
+      expect.objectContaining({
+        email: 'john@example.com',
+        acceptedTerms: true,
+        redirectTo: '/dashboard',
+      })
+    );
     expect(result?.succeded).toBe(true);
+  });
+
+  it.each(['ACCOUNT_CREATED_SIGN_IN_REQUIRED', 'REGISTRATION_OUTCOME_UNKNOWN'] as const)(
+    'offers sign-in recovery for %s',
+    async (code) => {
+      mockedSignIn.mockRejectedValue(new RegistrationSigninError(code));
+      const result = await handleRegisterAction(buildRegisterData());
+      expect(result).toEqual({ error: `System.ERRORS.${code}`, succeded: false, recovery: 'sign-in' });
+    }
+  );
+
+  it('preserves the Auth.js redirect after session creation', async () => {
+    mockedSignIn.mockRejectedValue(new Error('NEXT_REDIRECT'));
+    await expect(handleRegisterAction(buildRegisterData())).rejects.toThrow('NEXT_REDIRECT');
   });
 });

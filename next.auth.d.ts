@@ -25,7 +25,6 @@ declare module 'next-auth' {
     token: string;
     tokenExpiresIn: string;
     refreshToken: string;
-    idToken: string;
     userId: string;
   }
 

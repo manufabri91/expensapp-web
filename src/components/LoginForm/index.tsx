@@ -4,7 +4,7 @@ import { Alert, Checkbox, FieldError, InputGroup, Label, Modal, TextField } from
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { HiEnvelope, HiEye, HiEyeSlash, HiKey } from 'react-icons/hi2';
 import { CTAButton } from '@/components/LoginForm/components/CTAButton';
@@ -37,6 +37,10 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
   const toggleVisibility = () => setIsVisible(!isVisible);
   const isLoginMode = formMode === 'login';
   const [error, setError] = useState<string | null>(null);
+  const [recoveryMessage, setRecoveryMessage] = useState<string | null>(null);
+  const [requestPending, setRequestPending] = useState(false);
+  const recoveryEmail = useRef('');
+  const isSubmittingRequest = useRef(false);
 
   const {
     control,
@@ -52,24 +56,42 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
 
   useEffect(() => {
     setError(null);
-    reset(isLoginMode ? loginDefaultValues : registerDefaultValues);
+    reset(isLoginMode ? { ...loginDefaultValues, email: recoveryEmail.current } : registerDefaultValues);
   }, [formMode, isLoginMode, reset]);
 
   const onValid = async (data: LoginFormValues | RegisterFormValues) => {
-    const actionResult = isLoginMode
-      ? await handleLoginAction(data as LoginFormValues)
-      : await handleRegisterAction(data as RegisterFormValues);
+    if (isSubmittingRequest.current) {
+      return;
+    }
 
-    if (actionResult?.succeded) {
-      setError(null);
-      callback();
-    } else if (actionResult?.error) {
-      setError(actionResult.error);
+    isSubmittingRequest.current = true;
+    setRequestPending(true);
+    try {
+      const actionResult = isLoginMode
+        ? await handleLoginAction(data as LoginFormValues)
+        : await handleRegisterAction(data as RegisterFormValues);
+
+      if (actionResult?.succeded) {
+        setError(null);
+        callback();
+      } else if (actionResult?.error) {
+        if (actionResult.recovery === 'sign-in') {
+          recoveryEmail.current = data.email;
+          setRecoveryMessage(actionResult.error);
+          setFormMode('login');
+          reset({ ...loginDefaultValues, email: data.email });
+        }
+        setError(actionResult.error);
+      }
+    } finally {
+      isSubmittingRequest.current = false;
+      setRequestPending(false);
     }
   };
 
   const handleLoginClicked = () => {
     setError(null);
+    setRecoveryMessage(null);
   };
 
   return (
@@ -77,11 +99,11 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
       <Modal.Header>
         <Modal.Heading>
           <span>{isLoginMode ? t('login.title') : t('register.title')}</span>
-          {error && (
+          {(error || recoveryMessage) && (
             <Alert status="danger" className="mt-4">
               <Alert.Indicator />
               <Alert.Content>
-                <Alert.Title>{error}.</Alert.Title>
+                <Alert.Title>{error || recoveryMessage}</Alert.Title>
               </Alert.Content>
             </Alert>
           )}
@@ -258,7 +280,7 @@ export const LoginForm = ({ mode = 'login', callback = () => {} }: Props) => {
           )}
         </Modal.Body>
         <Modal.Footer className="flex w-full flex-col gap-3">
-          <CTAButton handleLoginClicked={handleLoginClicked} isLoginMode={isLoginMode} isSubmitting={isSubmitting} />
+          <CTAButton handleLoginClicked={handleLoginClicked} isLoginMode={isLoginMode} isSubmitting={isSubmitting || requestPending} />
           <div className="flex text-sm">
             {isLoginMode && (
               <>
