@@ -9,15 +9,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Node.js 20
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
         with:
-          node-version: "20"
+          node-version-file: .nvmrc
           cache: npm
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Check types
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build production application
+        env:
+          API_URL: http://127.0.0.1:8080
+          AUTH_SECRET: ci-build-only-not-a-production-secret
+          NEXT_PUBLIC_BASE_URL: http://localhost:3000
+        run: npm run build
 
       # --ci disables interactive/watch behavior and fails on new/obsolete snapshots. Coverage
       # thresholds are no longer enforced locally here - Codecov's patch/project checks (see
@@ -28,7 +41,7 @@ jobs:
 
       - name: Upload coverage report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: jest-coverage
           path: coverage/
@@ -36,7 +49,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: always()
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info

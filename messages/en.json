@@ -288,6 +288,8 @@
       "PASSWORDS_NOT_MATCH": "Passwords do not match",
       "REGISTRATION_FAILED": "Failed to create user. Please retry",
       "USER_EXISTS": "User already exists",
+      "ACCOUNT_CREATED_SIGN_IN_REQUIRED": "Your account was created. Please sign in.",
+      "REGISTRATION_OUTCOME_UNKNOWN": "We could not confirm registration. Your account may have been created. Try signing in or resetting your password.",
       "INVALID_DATA_PROVIDED": "Invalid data provided",
       "UNHANDLED_EXCEPTION": "Something went wrong. Please retry",
       "USER_CREATION_FAIL": "Failed to create user. Please retry",
