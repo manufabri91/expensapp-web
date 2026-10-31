@@ -34,7 +34,7 @@ jobs:
           exit "$failed"
       - name: Retain security reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: npm-security-reports
           path: security-reports/
