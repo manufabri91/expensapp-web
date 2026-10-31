@@ -75,7 +75,7 @@ the project running.
 
 ### Prerequisites
 
-- Node.js (Next.js 16 requires a recent LTS version) and npm.
+- Node.js 24 LTS, version 24.22.1 or newer, and npm. `.nvmrc` pins the tested security baseline for local development and CI.
 - A running instance of [expensapp-api](https://github.com/manufabri91/expensapp-api) (locally via its own Docker
   Compose setup, or pointed at a deployed environment) — this app has no database of its own, everything goes
   through the backend.
@@ -94,7 +94,7 @@ cd expensapp-web
 ### 2. Install dependencies
 
 ```bash
-npm install
+npm ci
 ```
 
 This also activates a Husky `pre-push` git hook (see [Testing & Coverage](#testing--coverage)) via the `prepare`
@@ -171,11 +171,16 @@ Powered by `next-intl`. Translation strings live in `messages/{en,es,es-AR}.json
 
 ## CI/CD
 
-A single GitHub Actions workflow, `ci-build-test.yml`, runs on every PR to `main`/`develop`: installs dependencies,
-runs `jest --ci` with coverage, and uploads the report as a build artifact and to Codecov.
+The `ci-build-test.yml` workflow runs on every PR to `main`/`develop`: installs dependencies with the pinned Node.js
+runtime, checks types and lint, builds the production application, runs `jest --ci` with coverage, and uploads the
+report as a build artifact and to Codecov.
 
 There's no custom deployment workflow — production deploys happen via **Vercel**'s own GitHub integration
 (auto-deploy on push, with preview deployments per PR).
+
+Set the Vercel project's Node.js runtime to 24.x and verify that each deployment uses Node.js 24.22.1 or newer.
+The `engines` field selects the runtime major; `.nvmrc` pins CI and local development. Hosting runtime settings
+and the deployed patch version must also be verified in Vercel before promoting a release.
 
 ## Screenshots
 

@@ -1,0 +1,41 @@
+name: Dependency security
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+  schedule:
+    - cron: '23 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Audit production and build dependencies
+        shell: bash
+        run: |
+          mkdir -p security-reports
+          failed=0
+          npm audit --json --audit-level=high > security-reports/npm-full.json || failed=1
+          npm audit --omit=dev --json --audit-level=high > security-reports/npm-production.json || failed=1
+          exit "$failed"
+      - name: Retain security reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-security-reports
+          path: security-reports/
+          retention-days: 30
