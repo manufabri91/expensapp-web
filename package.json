@@ -17,7 +17,7 @@
     "check:diff-coverage": "node scripts/check-diff-coverage.mjs"
   },
   "dependencies": {
-    "@heroui/react": "^3.2.1",
+    "@heroui/react": "^3.2.6",
     "@heroui/styles": "^3.2.6",
     "@hookform/resolvers": "^5.7.1",
     "@internationalized/date": "^3.12.2",
