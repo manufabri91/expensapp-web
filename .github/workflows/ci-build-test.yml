@@ -10,14 +10,27 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Node.js 20
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version-file: .nvmrc
           cache: npm
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Check types
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build production application
+        env:
+          API_URL: http://127.0.0.1:8080
+          AUTH_SECRET: ci-build-only-not-a-production-secret
+          NEXT_PUBLIC_BASE_URL: http://localhost:3000
+        run: npm run build
 
       # --ci disables interactive/watch behavior and fails on new/obsolete snapshots. Coverage
       # thresholds are no longer enforced locally here - Codecov's patch/project checks (see
