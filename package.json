@@ -34,7 +34,7 @@
     "next-auth": "^5.0.0-beta.31",
     "next-intl": "^4.14.9",
     "next-themes": "0.4.6",
-    "postcss": "^8.5.15",
+    "postcss": "^8.5.32",
     "react": "19.2.9",
     "react-colorful": "^5.8.1",
     "react-dom": "19.2.9",
