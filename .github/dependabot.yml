@@ -6,8 +6,15 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    # Includes TypeScript and framework/tooling majors; migrate them deliberately.
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
   - package-ecosystem: github-actions
     directory: /
     target-branch: develop
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
