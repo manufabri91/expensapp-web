@@ -19,12 +19,12 @@
   "dependencies": {
     "@heroui/react": "^3.2.1",
     "@heroui/styles": "^3.2.7",
-    "@hookform/resolvers": "^5.7.1",
+    "@hookform/resolvers": "^5.9.2",
     "@internationalized/date": "^3.12.2",
     "@number-flow/react": "^0.6.0",
     "@react-aria/ssr": "3.10.1",
     "@react-aria/visually-hidden": "3.9.1",
-    "@tailwindcss/postcss": "^4.3.1",
+    "@tailwindcss/postcss": "^4.3.4",
     "clsx": "2.1.1",
     "date-fns": "^4.4.0",
     "intl-messageformat": "12.1.4",
@@ -45,7 +45,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@next/eslint-plugin-next": "16.4.3",
+    "@next/eslint-plugin-next": "16.4.5",
     "@react-types/shared": "3.37.0",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
@@ -54,7 +54,7 @@
     "@types/node": "26.6.6",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
-    "@typescript-eslint/eslint-plugin": "8.50.0",
+    "@typescript-eslint/eslint-plugin": "8.72.1",
     "@typescript-eslint/parser": "8.72.1",
     "cssnano": "^8.0.10",
     "eslint": "9.39.2",
@@ -65,12 +65,12 @@
     "eslint-plugin-jest": "^29.15.2",
     "eslint-plugin-jsx-a11y": "6.10.2",
     "eslint-plugin-node": "11.1.0",
-    "eslint-plugin-prettier": "^5.5.6",
+    "eslint-plugin-prettier": "^5.5.7",
     "eslint-plugin-react": "7.37.5",
     "eslint-plugin-react-hooks": "7.1.1",
     "eslint-plugin-tailwindcss": "^4.4.0",
     "eslint-plugin-unused-imports": "4.4.1",
-    "globals": "17.13.0",
+    "globals": "17.14.0",
     "husky": "^9.1.7",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.5.2",
@@ -79,7 +79,7 @@
     "tailwindcss": "^4.3.1",
     "ts-node": "^10.9.2",
     "typescript": "5.9.3",
-    "typescript-eslint": "^8.50.0"
+    "typescript-eslint": "^8.72.1"
   },
   "overrides": {
     "@types/react": "19.2.17",
