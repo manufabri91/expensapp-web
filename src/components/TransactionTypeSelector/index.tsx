@@ -12,8 +12,8 @@ interface Props {
 export const TransactionTypeSelector = ({ initialValue, onSelect, hideTransfers = false }: Props) => {
   const t = useTranslations('Generics');
   const options = [
-    { id: TransactionType.INCOME, label: t('income.singular'), colorClass: 'before:bg-green-500' },
     { id: TransactionType.EXPENSE, label: t('expense.singular'), colorClass: 'before:bg-red-500' },
+    { id: TransactionType.INCOME, label: t('income.singular'), colorClass: 'before:bg-green-500' },
     { id: TransactionType.TRANSFER, label: t('transfer.singular'), colorClass: 'before:bg-blue-500' },
   ];
 

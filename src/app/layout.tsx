@@ -57,8 +57,8 @@ export default async function RootLayout({ children }: PropsWithChildren) {
         <NextIntlClientProvider>
           <Providers themeProps={{ attribute: 'class', enableSystem: true }}>
             <div className="relative flex h-screen w-screen flex-col">
-              <Navbar />
               <AppProviders>
+                <Navbar />
                 <main className="container-full grow">{children}</main>
               </AppProviders>
               <Footer />

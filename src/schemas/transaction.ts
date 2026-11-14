@@ -18,7 +18,7 @@ const baseTransactionShape = {
   destinationAccount: z.number().optional(),
   category: z.number().optional(),
   subcategory: z.number().optional(),
-  description: z.string().optional(),
+  description: z.string().trim().optional(),
   excludeFromTotals: z.boolean().default(false),
 };
 
@@ -125,7 +125,7 @@ export const transactionServerSchema = z.object({
   id: z.number().optional(),
   amount: z.number().positive(),
   eventDate: z.string().optional(),
-  description: z.string().min(1),
+  description: z.string().trim().min(1),
   accountId: z.number(),
   categoryId: z.number().optional(),
   subcategoryId: z.number().optional(),
@@ -138,7 +138,7 @@ export const recurringTransactionServerSchema = z.object({
   id: z.number().optional(),
   type: z.enum([TransactionType.INCOME, TransactionType.EXPENSE]),
   amount: z.number().positive(),
-  description: z.string(),
+  description: z.string().trim().min(1),
   accountId: z.number(),
   categoryId: z.number(),
   subcategoryId: z.number(),

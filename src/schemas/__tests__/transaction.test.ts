@@ -31,6 +31,13 @@ describe('oneTimeTransactionSchema', () => {
     }
   });
 
+  it('trims meaningful descriptions and rejects whitespace-only descriptions', () => {
+    const normalized = oneTimeTransactionSchema.parse({ ...validExpense, description: '  Groceries  ' });
+    const blank = oneTimeTransactionSchema.safeParse({ ...validExpense, description: '   ' });
+    expect(normalized.description).toBe('Groceries');
+    expect(blank.success).toBe(false);
+  });
+
   it('rejects a negative amount', () => {
     expect(oneTimeTransactionSchema.safeParse({ ...validExpense, amount: -50 }).success).toBe(false);
   });

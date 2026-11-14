@@ -8,8 +8,9 @@ import { RecurringTransactionResponse, TransactionResponse } from '@/types/dto';
 
 interface TransactionFormContextProps {
   overlayState: UseOverlayStateReturn;
-  showTransactionForm: (transaction?: TransactionResponse) => void;
-  showRecurringTransactionForm: (recurrence?: RecurringTransactionResponse) => void;
+  showTransactionForm: (transaction?: TransactionResponse, context?: { accountId?: number }) => void;
+  showRecurringTransactionForm: (recurrence?: RecurringTransactionResponse, context?: { accountId?: number }) => void;
+  openingAccountId?: number;
   clearForm: () => void;
   formMode: TransactionMode;
   transactionFormData: TransactionResponse | undefined;
@@ -21,11 +22,13 @@ const TransactionFormContext = createContext<TransactionFormContextProps | undef
 export const TransactionFormProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [transactionFormData, setTransactionFormData] = useState<TransactionResponse | undefined>();
   const [recurringFormData, setRecurringFormData] = useState<RecurringTransactionResponse | undefined>();
+  const [openingAccountId, setOpeningAccountId] = useState<number>();
   const [formMode, setFormMode] = useState<TransactionMode>('oneTime');
   const overlayState = useOverlayState();
 
   const showTransactionForm = useMemo(
-    () => (transaction?: TransactionResponse) => {
+    () => (transaction?: TransactionResponse, context?: { accountId?: number }) => {
+      setOpeningAccountId(context?.accountId);
       setFormMode('oneTime');
       setRecurringFormData(undefined);
       setTransactionFormData(transaction);
@@ -35,7 +38,8 @@ export const TransactionFormProvider: React.FC<{ children: ReactNode }> = ({ chi
   );
 
   const showRecurringTransactionForm = useMemo(
-    () => (recurrence?: RecurringTransactionResponse) => {
+    () => (recurrence?: RecurringTransactionResponse, context?: { accountId?: number }) => {
+      setOpeningAccountId(context?.accountId);
       setFormMode('recurring');
       setTransactionFormData(undefined);
       setRecurringFormData(recurrence);
@@ -46,6 +50,7 @@ export const TransactionFormProvider: React.FC<{ children: ReactNode }> = ({ chi
 
   const clearForm = useMemo(
     () => () => {
+      setOpeningAccountId(undefined);
       setTransactionFormData(undefined);
       setRecurringFormData(undefined);
       setFormMode('oneTime');
@@ -56,6 +61,7 @@ export const TransactionFormProvider: React.FC<{ children: ReactNode }> = ({ chi
   return (
     <TransactionFormContext.Provider
       value={{
+        openingAccountId,
         showTransactionForm,
         showRecurringTransactionForm,
         clearForm,
