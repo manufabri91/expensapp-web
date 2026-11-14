@@ -161,3 +161,95 @@
     --field-shadow: 0 0 0 0 transparent inset;
   }
 }
+
+/* Transaction entry uses one responsive surface; only its body scrolls. */
+.transaction-container {
+  padding: 0;
+}
+.transaction-dialog {
+  width: 100%;
+  max-width: none;
+  height: 100dvh;
+  max-height: 100dvh;
+  border-radius: 0;
+  background: var(--background);
+  padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+}
+.transaction-dialog .modal__header,
+.transaction-dialog .modal__body,
+.transaction-dialog .modal__footer {
+  padding: 8px 0;
+}
+.transaction-dialog input[type='radio'] + span {
+  min-height: 44px;
+  padding: 10px 6px;
+  border: 0;
+  background: var(--surface);
+}
+.transaction-dialog input[type='radio']:checked + span {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+.transaction-dialog input[type='radio']:focus-visible + span {
+  outline: 2px solid var(--focus);
+  outline-offset: -3px;
+}
+.transaction-dialog input[type='radio'] + span > span::before {
+  display: none;
+}
+.transaction-dialog input[type='radio'] + span > span {
+  overflow-wrap: anywhere;
+}
+.transaction-dialog label:has(input[type='radio']) {
+  min-width: 0;
+}
+.transaction-dialog div:has(> label > input[type='radio']) {
+  border: 0;
+  border-radius: 12px;
+}
+@media (min-width: 640px) {
+  .transaction-container {
+    padding: 24px;
+  }
+  .transaction-dialog {
+    max-width: 520px;
+    height: auto;
+    max-height: calc(100dvh - 48px);
+    border-radius: 16px;
+    padding: 24px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .transaction-dialog,
+  .transaction-dialog * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.transaction-dialog p {
+  margin: 0;
+}
+.transaction-dialog fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.transaction-dialog input[type='radio'] + span {
+  border-radius: 12px;
+}
+
+.transaction-dialog button {
+  min-height: 44px;
+}
+.transaction-dialog .modal__close-trigger {
+  min-width: 44px;
+  top: 4px;
+  right: 4px;
+}
+.transaction-dialog .select__trigger,
+.transaction-dialog .input-group,
+.transaction-dialog .date-field__group {
+  background: var(--field-background);
+  color: var(--field-foreground);
+}

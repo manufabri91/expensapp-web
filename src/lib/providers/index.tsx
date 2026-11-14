@@ -6,6 +6,7 @@ import { getSubcategories } from '@/lib/actions/subcategories';
 import { getUserSettings } from '@/lib/actions/userSettings';
 import { auth } from '@/lib/auth';
 import { hasValidSession } from '@/lib/auth/session';
+import { AccountPreferencesProvider } from '@/lib/providers/AccountPreferencesProvider';
 import { AccountsProvider } from '@/lib/providers/AccountsProvider';
 import { CategoriesProvider } from '@/lib/providers/CategoriesProvider';
 import { UserSettingsProvider } from '@/lib/providers/UserSettingsProvider';
@@ -31,9 +32,11 @@ export const AppProviders = async ({ children }: { children: ReactNode }) => {
     <SessionProvider session={session}>
       <UserSettingsProvider initialSettings={userSettings}>
         <AccountsProvider initialAccounts={accounts}>
-          <CategoriesProvider initialCategories={categories} initialSubcategories={subcategories}>
-            {children}
-          </CategoriesProvider>
+          <AccountPreferencesProvider userId={session.user.userId}>
+            <CategoriesProvider initialCategories={categories} initialSubcategories={subcategories}>
+              {children}
+            </CategoriesProvider>
+          </AccountPreferencesProvider>
         </AccountsProvider>
       </UserSettingsProvider>
     </SessionProvider>

@@ -1,7 +1,8 @@
 'use client';
-import { Drawer, Separator, type UseOverlayStateReturn } from '@heroui/react';
+import { Drawer, type UseOverlayStateReturn } from '@heroui/react';
 import { useTranslations } from 'next-intl';
 import { LocaleSwitcher } from '@/components/LocaleSwitcher';
+import { DefaultAccountSelector } from './DefaultAccountSelector';
 import { DeleteAccountButton } from './DeleteAccountButton';
 import { ExportDataLink } from './ExportDataLink';
 import { ThemeSelector } from './ThemeSelector';
@@ -23,6 +24,7 @@ export function SettingsDrawer({ state }: Props) {
           <Drawer.Body className="flex flex-col gap-4">
             <LocaleSwitcher type="select" />
             <ThemeSelector />
+            <DefaultAccountSelector />
           </Drawer.Body>
           <Drawer.Footer>
             <div className="flex w-full flex-col justify-center gap-4">
