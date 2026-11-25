@@ -20,7 +20,7 @@
     "@heroui/react": "^3.2.1",
     "@heroui/styles": "^3.2.7",
     "@hookform/resolvers": "^5.9.2",
-    "@internationalized/date": "^3.12.2",
+    "@internationalized/date": "^3.12.4",
     "@number-flow/react": "^0.6.0",
     "@react-aria/ssr": "3.10.1",
     "@react-aria/visually-hidden": "3.9.1",
