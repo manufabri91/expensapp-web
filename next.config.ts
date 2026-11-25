@@ -46,6 +46,7 @@ const nextConfig: NextConfig = {
   // recharts/react-icons are already in Next's own default optimizePackageImports list;
   // @heroui/react is a large component library that isn't, so it's worth opting in explicitly.
   experimental: {
+    agentUpgrade: 'security',
     optimizePackageImports: ['@heroui/react'],
   },
 };
